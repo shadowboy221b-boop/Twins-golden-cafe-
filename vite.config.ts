@@ -12,4 +12,11 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+
+  // Build the server for Node rather than Cloudflare. Hostinger Premium Web
+  // Hosting can't run it — scripts/export-static.mjs starts it once after the
+  // build, saves every page as plain HTML, and only that folder is uploaded.
+  // (TanStack's built-in prerender step returns 500 through this config's
+  // preview shim, while the standalone Node server renders every page fine.)
+  nitro: { preset: "node" },
 });
