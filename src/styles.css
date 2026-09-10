@@ -1,0 +1,452 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@theme inline {
+  /* Montserrat matches the logo wordmark; Manrope carries the running text. */
+  --font-display: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --color-gold: var(--gold);
+  --color-warmgold: var(--warmgold);
+  --color-orange: var(--orange);
+  --color-orange-bright: var(--orange-bright);
+  --color-orange-deep: var(--orange-deep);
+  --color-orange-ink: var(--orange-ink);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-paper: var(--paper);
+  --color-paper-warm: var(--paper-warm);
+  --color-cream: var(--cream);
+  --color-leaf: var(--leaf);
+  --color-chili: var(--chili);
+  --color-espresso: var(--espresso);
+  --color-cocoa: var(--cocoa);
+}
+
+:root {
+  --radius: 1.25rem;
+
+  /* brand — taken straight from the Twin's Golden Cafe logo:
+     vivid orange wordmark, near-black "CAFE", white ground. */
+  --orange: oklch(0.677 0.196 46);
+  --orange-bright: oklch(0.735 0.183 55);
+  --orange-deep: oklch(0.575 0.185 40);
+  /* the logo orange is only 3.1:1 on white — this deeper cut clears WCAG AA
+     (4.5:1) and is what small orange text on light sections uses. */
+  --orange-ink: oklch(0.56 0.19 42);
+  --ink: oklch(0.175 0.008 60);
+  --ink-soft: oklch(0.32 0.012 60);
+  --paper: oklch(1 0 0);
+  --paper-warm: oklch(0.977 0.006 75);
+  --leaf: oklch(0.6 0.12 142);
+
+  /* legacy aliases so every component keeps compiling against one palette */
+  --espresso: var(--ink);
+  --cocoa: var(--ink);
+  --cream: var(--paper);
+  --gold: var(--orange);
+  --warmgold: var(--orange-bright);
+  --brand-orange: var(--orange);
+  --chili: var(--orange-deep);
+
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--paper-warm);
+  --card-foreground: var(--ink);
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
+  --primary: var(--orange);
+  --primary-foreground: var(--paper);
+  --secondary: var(--paper-warm);
+  --secondary-foreground: var(--ink);
+  --muted: oklch(0.955 0.005 75);
+  --muted-foreground: oklch(0.47 0.012 60);
+  --accent: var(--orange);
+  --accent-foreground: var(--paper);
+  --destructive: oklch(0.52 0.2 28);
+  --destructive-foreground: var(--paper);
+  --border: oklch(0.175 0.008 60 / 12%);
+  --input: oklch(0.175 0.008 60 / 18%);
+  --ring: var(--orange);
+  --sidebar: var(--paper);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--orange);
+  --sidebar-primary-foreground: var(--paper);
+  --sidebar-accent: var(--paper-warm);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: oklch(0.175 0.008 60 / 12%);
+  --sidebar-ring: var(--orange);
+
+  --gradient-gold: linear-gradient(100deg, oklch(0.735 0.183 55), oklch(0.62 0.2 42));
+  --shadow-glow: 0 40px 110px -45px oklch(0.677 0.196 46 / 45%);
+  --shadow-food: 0 60px 80px -45px oklch(0.175 0.008 60 / 38%);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* anchor targets clear the sticky header instead of hiding under it */
+  section[id],
+  div[id] {
+    scroll-margin-top: 5.5rem;
+  }
+
+  /* respect the OS "reduce motion" setting — no parallax, no drifting */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* the logo's wordmark voice: heavy, tight, upright */
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+
+  ::selection {
+    background: var(--orange);
+    color: var(--paper);
+  }
+}
+
+@utility text-gold-gradient {
+  background: var(--gradient-gold);
+  background-clip: text;
+  color: transparent;
+}
+
+@utility text-hollow {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--orange);
+}
+
+@utility text-hollow-cream {
+  color: transparent;
+  -webkit-text-stroke: 2px oklch(1 0 0 / 55%);
+}
+
+@utility text-hollow-ink {
+  color: transparent;
+  -webkit-text-stroke: 2px oklch(0.175 0.008 60 / 30%);
+}
+
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+  color: var(--orange-ink);
+}
+
+/* the logo's rule-flanked "CAFE" treatment, reusable as a section marker */
+@utility rule-label {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  &::before,
+  &::after {
+    content: "";
+    height: 1px;
+    flex: 1 1 0;
+    background: currentColor;
+    opacity: 0.35;
+  }
+}
+
+@utility label-vert {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  font-size: 0.62rem;
+  font-weight: 700;
+}
+
+@utility food-shadow {
+  filter: drop-shadow(0 40px 45px oklch(0.175 0.008 60 / 28%));
+}
+
+/* on the dark sections the food needs a deeper, warmer bed */
+@utility food-shadow-dark {
+  filter: drop-shadow(0 50px 55px oklch(0 0 0 / 55%));
+}
+
+@utility scene {
+  perspective: 1600px;
+  transform-style: preserve-3d;
+}
+
+@utility grain {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.22;
+    mix-blend-mode: overlay;
+    background-image: radial-gradient(
+      oklch(0.5 0 0 / 14%) 0.5px,
+      transparent 0.6px
+    );
+    background-size: 3px 3px;
+  }
+}
+
+/* the running-text voice — clean, roomy, no italic serif */
+@utility serif-accent {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-style: normal;
+  text-transform: none;
+  letter-spacing: -0.005em;
+  line-height: 1.55;
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(var(--spin, 0deg));
+  }
+  50% {
+    transform: translate3d(0, -26px, 0) rotate(var(--spin, 0deg));
+  }
+}
+
+@utility floaty {
+  animation: float-y 8s ease-in-out infinite;
+}
+
+@keyframes marquee-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@utility marquee {
+  /* the strip sets its own pace with --marquee-dur; slower reads calmer */
+  animation: marquee-x var(--marquee-dur, 26s) linear infinite;
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@media (pointer: fine) {
+  .cursor-none-desktop,
+  .cursor-none-desktop * {
+    cursor: none;
+  }
+}
+
+/* Fluid display type — scales smoothly from phone to desktop without
+   arbitrary viewport classes, so headings never collapse or overflow. */
+@utility display-xl {
+  font-size: clamp(2.75rem, 8.5vw, 6.5rem);
+  line-height: 0.86;
+  letter-spacing: -0.02em;
+}
+
+@utility display-lg {
+  font-size: clamp(2.25rem, 6.5vw, 4.75rem);
+  line-height: 0.9;
+  letter-spacing: -0.015em;
+}
+
+@utility display-md {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+}
+
+/* Slow drifting colour fields — used as a live backdrop behind the menu.
+   Transform/opacity only, so it stays on the compositor; the global
+   prefers-reduced-motion rule above freezes it. */
+@keyframes drift-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(6vw, -4vh, 0) scale(1.12);
+  }
+  66% {
+    transform: translate3d(-4vw, 5vh, 0) scale(0.94);
+  }
+}
+
+@keyframes drift-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.05);
+  }
+  40% {
+    transform: translate3d(-7vw, 6vh, 0) scale(0.9);
+  }
+  70% {
+    transform: translate3d(5vw, 3vh, 0) scale(1.15);
+  }
+}
+
+@utility blob-a {
+  animation: drift-a 26s ease-in-out infinite;
+}
+
+@utility blob-b {
+  animation: drift-b 34s ease-in-out infinite;
+}
+
+/* faint moving rule grid, the paper the menu is printed on */
+@keyframes grid-slide {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 -56px;
+  }
+}
+
+@utility menu-grid {
+  background-image: linear-gradient(
+    to bottom,
+    oklch(0.175 0.008 60 / 6%) 1px,
+    transparent 1px
+  );
+  background-size: 100% 56px;
+  animation: grid-slide 12s linear infinite;
+}
+
+/* ---- floating food backdrop ---------------------------------------------
+   Each piece rises, drifts sideways and turns on its own clock, so the field
+   never visibly loops. Transform/opacity only — compositor work, no layout. */
+@keyframes float-rise {
+  0% {
+    transform: translate3d(0, 12vh, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(4vw, -6vh, 0) rotate(160deg);
+  }
+  100% {
+    transform: translate3d(0, 12vh, 0) rotate(360deg);
+  }
+}
+
+@keyframes float-sway {
+  0% {
+    transform: translate3d(0, -8vh, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(-5vw, 8vh, 0) rotate(-180deg);
+  }
+  100% {
+    transform: translate3d(0, -8vh, 0) rotate(-360deg);
+  }
+}
+
+@utility float-rise {
+  animation: float-rise 46s ease-in-out infinite;
+}
+
+@utility float-sway {
+  animation: float-sway 58s ease-in-out infinite;
+}
+
+
+
+/* A slow colour wash inside a card, so a light surface still has life in it.
+   Transform-only, and the prefers-reduced-motion rule above freezes it. */
+@keyframes card-wash {
+  0%,
+  100% {
+    transform: translate3d(-14%, -10%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(14%, 12%, 0) scale(1.25);
+  }
+}
+
+@utility card-wash {
+  animation: card-wash 19s ease-in-out infinite;
+}
+
