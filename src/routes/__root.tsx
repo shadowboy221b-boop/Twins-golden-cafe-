@@ -90,11 +90,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Twin's Golden Cafe" },
       {
         property: "og:description",
-        content:
-          "Pizza, burgers, momos, kunafa, shakes and fresh juices, cooked to order.",
+        content: "Pizza, burgers, momos, kunafa, shakes and fresh juices, cooked to order.",
       },
       { property: "og:type", content: "website" },
+      // the picture WhatsApp, Facebook and Instagram show when the link is shared
+      { property: "og:image", content: "https://twinsgoldencafe.com/og-image.jpg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://twinsgoldencafe.com/og-image.jpg" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },

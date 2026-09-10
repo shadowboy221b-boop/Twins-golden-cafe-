@@ -50,11 +50,16 @@ export function SiteHeader({ overDark = false }: { overDark?: boolean }) {
 
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-          onDark ? "" : "bg-paper/92 shadow-[0_1px_0_rgba(17,17,17,0.08)] backdrop-blur-xl"
+          onDark ? "" : "bg-paper/97 shadow-[0_1px_0_rgba(17,17,17,0.08)]"
         }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-3.5 md:px-12">
-          <Link to="/" aria-label="Twin's Golden Cafe — home" data-cursor="cta" className="shrink-0">
+          <Link
+            to="/"
+            aria-label="Twin's Golden Cafe — home"
+            data-cursor="cta"
+            className="shrink-0"
+          >
             <Logo className="text-[1.05rem] md:text-[1.15rem]" onDark={onDark} />
           </Link>
 

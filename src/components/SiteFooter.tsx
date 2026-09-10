@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { Logo } from "./Logo";
 import { MaskReveal } from "./bits";
 import { FloatingFood } from "./FloatingFood";
-import { CAFE, CONTACT_DETAILS_READY } from "@/data/site";
+import { ADDRESS_READY, CAFE, CONTACT_DETAILS_READY, SOCIAL } from "@/data/site";
 import { categories } from "@/data/menu";
 
 const NAV = [
@@ -74,7 +74,7 @@ export function SiteFooter() {
 
       <div
         aria-hidden
-        className="blob-a pointer-events-none absolute left-1/2 top-0 size-[60vw] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-30 blur-[120px]"
+        className="blob-a pointer-events-none absolute left-1/2 top-0 size-[60vw] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-30"
         style={{ background: "radial-gradient(circle, var(--orange) 0%, transparent 65%)" }}
       />
 
@@ -170,7 +170,11 @@ export function SiteFooter() {
               Visit
             </p>
             <address className="mt-5 space-y-3 not-italic">
-              {CONTACT_DETAILS_READY ? (
+              {/* Never print a placeholder phone or address as if it were real
+                  — a wrong number costs the business a customer — and never
+                  show visitors a note about it either. Until `site.ts` carries
+                  the real details, the footer just gives the hours. */}
+              {CONTACT_DETAILS_READY && (
                 <>
                   <a
                     href={`tel:${CAFE.phone.replace(/\s/g, "")}`}
@@ -184,15 +188,10 @@ export function SiteFooter() {
                   >
                     {CAFE.email}
                   </a>
-                  <p className="max-w-xs text-sm leading-relaxed text-paper/55">{CAFE.address}</p>
                 </>
-              ) : (
-                /* Never print a placeholder phone or address as if it were real
-                   — a wrong number costs the business a customer. Say plainly
-                   that it isn't set yet until `site.ts` carries the real one. */
-                <p className="max-w-xs rounded-xl border border-orange/40 bg-orange/10 px-4 py-3 text-[0.62rem] font-extrabold uppercase leading-relaxed tracking-[0.14em] text-orange">
-                  Phone, email and address to be added
-                </p>
+              )}
+              {ADDRESS_READY && (
+                <p className="max-w-xs text-sm leading-relaxed text-paper/55">{CAFE.address}</p>
               )}
               <p className="text-sm text-paper/55">{CAFE.hours}</p>
             </address>
@@ -205,8 +204,9 @@ export function SiteFooter() {
             © {new Date().getFullYear()} Twin&apos;s Golden Cafe
           </p>
 
+          {/* only profiles that actually exist — a link to "#" goes nowhere */}
           <ul className="flex flex-wrap gap-x-7 gap-y-2">
-            {CAFE.social.map((s) => (
+            {SOCIAL.map((s) => (
               <li key={s.label}>
                 <a
                   href={s.href}

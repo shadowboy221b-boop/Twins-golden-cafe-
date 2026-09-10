@@ -6,6 +6,15 @@
       "runtimeExecutable": "C:\\Program Files\\nodejs\\npm.cmd",
       "runtimeArgs": ["run", "dev", "--", "--port", "8081", "--strictPort"],
       "port": 8081
+    },
+    {
+      "name": "golden-bite-static",
+      "runtimeExecutable": "C:\\Program Files\\nodejs\\node.exe",
+      "runtimeArgs": [
+        "-e",
+        "const h=require('http'),f=require('fs'),p=require('path'),z=require('zlib');const R=p.resolve('dist-static');const T={'.html':'text/html','.js':'text/javascript','.css':'text/css','.webp':'image/webp','.png':'image/png','.jpg':'image/jpeg','.svg':'image/svg+xml','.ico':'image/x-icon','.json':'application/json','.txt':'text/plain'};h.createServer((q,s)=>{let u=decodeURIComponent(q.url.split('?')[0]);let fp=p.join(R,u);if(!fp.startsWith(R)){s.writeHead(403);return s.end();}try{if(f.statSync(fp).isDirectory())fp=p.join(fp,'index.html')}catch{if(f.existsSync(fp+'.html'))fp=fp+'.html';else if(f.existsSync(p.join(fp,'index.html')))fp=p.join(fp,'index.html');else{fp=p.join(R,'404.html');s.statusCode=404}}const e=p.extname(fp);const t=T[e]||'application/octet-stream';const gz=/html|javascript|css|json|svg/.test(t)&&/gzip/.test(q.headers['accept-encoding']||'');s.setHeader('Content-Type',t);if(/\\/assets\\//.test(u))s.setHeader('Cache-Control','public, max-age=31536000, immutable');if(gz){s.setHeader('Content-Encoding','gzip');f.createReadStream(fp).pipe(z.createGzip()).pipe(s)}else f.createReadStream(fp).pipe(s)}).listen(8090,()=>console.log('static on 8090'))"
+      ],
+      "port": 8090
     }
   ]
 }

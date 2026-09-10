@@ -16,11 +16,11 @@ export function MenuBackdrop() {
       />
 
       <div
-        className="blob-a absolute -left-[18vw] top-[-12vh] size-[60vw] rounded-full opacity-[0.13] blur-[130px]"
+        className="blob-a absolute -left-[18vw] top-[-12vh] size-[60vw] rounded-full opacity-[0.13]"
         style={{ background: "radial-gradient(circle, var(--orange) 0%, transparent 70%)" }}
       />
       <div
-        className="blob-b absolute -right-[15vw] top-[45vh] size-[55vw] rounded-full opacity-[0.10] blur-[140px]"
+        className="blob-b absolute -right-[15vw] top-[45vh] size-[55vw] rounded-full opacity-[0.10]"
         style={{ background: "radial-gradient(circle, var(--orange-bright) 0%, transparent 70%)" }}
       />
     </div>

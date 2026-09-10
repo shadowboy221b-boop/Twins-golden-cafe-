@@ -24,10 +24,10 @@ export const Route = createFileRoute("/about")({
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/about" },
+      { property: "og:url", content: "https://twinsgoldencafe.com/about" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/about" }],
+    links: [{ rel: "canonical", href: "https://twinsgoldencafe.com/about" }],
   }),
   component: AboutPage,
 });
@@ -45,34 +45,12 @@ const PHILOSOPHY = [
   { n: "04", t: "Presentation", d: "It should look like someone cared. Because they did." },
 ];
 
-const DIFFERENT = [
-  { t: "Fresh Food", d: "Fried to order, never sitting under a lamp." },
-  { t: "Variety", d: "Chicken, burgers, pizza, kunafa, shakes — one counter." },
-  { t: "Modern Cafe Experience", d: "A room built to sit in, not just collect from." },
-  { t: "Friendly Service", d: "Regulars get remembered. So do first-timers." },
-];
-
 const BELIEFS = [
   "Learn Continuously",
   "Build With Purpose",
   "Serve With Quality",
   "Market With Creativity",
   "Grow With Consistency",
-];
-
-const GOALS = [
-  {
-    t: "Strong, Scalable Food Brands",
-    d: "More counters and more concepts, held to the same standard as the first one.",
-  },
-  {
-    t: "Training & Consulting Platform",
-    d: "Café setup, menu planning, food preparation, costing, branding, social media marketing and customer growth — taught from real experience.",
-  },
-  {
-    t: "Opportunities For Others",
-    d: "Turning practical food-business knowledge into a platform that helps other founders succeed.",
-  },
 ];
 
 /** The consulting platform, broken into what it will actually cover. */
@@ -98,7 +76,7 @@ function Glow({ side = "center" }: { side?: "center" | "left" | "right" }) {
   return (
     <div
       aria-hidden
-      className={`blob-a pointer-events-none absolute ${place} size-[55vw] rounded-full opacity-25 blur-[130px]`}
+      className={`blob-a pointer-events-none absolute ${place} size-[55vw] rounded-full opacity-25`}
       style={{ background: "radial-gradient(circle, var(--orange) 0%, transparent 65%)" }}
     />
   );
@@ -210,6 +188,8 @@ function AboutPage() {
                     alt="Yuvaraj Venkatesan, founder of Twin's Golden Cafe"
                     width={1019}
                     height={1280}
+                    loading="lazy"
+                    decoding="async"
                     className="size-full object-cover transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
                   />
                   <span
@@ -268,18 +248,18 @@ function AboutPage() {
 
               <MaskReveal delay={0.22}>
                 <p className="mt-6 max-w-xl text-sm leading-relaxed text-paper/60">
-                  An entrepreneur with a passion for the food, café, branding and business
-                  industry. Through Twin&apos;s Golden Cafe he is building a modern food brand that
-                  brings together delicious food, refreshing beverages, innovative menu concepts
-                  and a welcoming café experience for students, families and food lovers.
+                  An entrepreneur with a passion for the food, café, branding and business industry.
+                  Through Twin&apos;s Golden Cafe he is building a modern food brand that brings
+                  together delicious food, refreshing beverages, innovative menu concepts and a
+                  welcoming café experience for students, families and food lovers.
                 </p>
               </MaskReveal>
 
               <MaskReveal delay={0.28}>
                 <p className="mt-4 max-w-xl text-sm leading-relaxed text-paper/60">
-                  But the vision goes beyond running a café — it runs through every side of the
-                  food business: recipe development, kitchen operations, menu pricing, branding,
-                  digital marketing, customer acquisition and growth.
+                  But the vision goes beyond running a café — it runs through every side of the food
+                  business: recipe development, kitchen operations, menu pricing, branding, digital
+                  marketing, customer acquisition and growth.
                 </p>
               </MaskReveal>
             </div>
@@ -375,39 +355,6 @@ function AboutPage() {
           </div>
         </Section>
 
-        {/* what makes us different */}
-        <Section tone="warm">
-          <FloatingFood opacity={0.07} count={4} />
-          <Glow side="right" />
-
-          <div className="relative">
-            <SectionHead
-              align="center"
-              eyebrow="What makes us different"
-              title="WHY PEOPLE"
-              accent="COME BACK"
-            />
-          </div>
-
-          <div className="relative z-10 mt-12 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-            {DIFFERENT.map((d, i) => (
-              <RevealCard key={d.t} index={i}>
-                <article className="group relative h-full overflow-hidden rounded-2xl border border-ink/10 bg-paper p-6 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:border-orange hover:shadow-[0_28px_60px_-34px_oklch(0.175_0.008_60/0.45)]">
-                  <CardWash index={i} />
-                  <span
-                    aria-hidden
-                    className="relative block h-1 w-8 rounded-full bg-orange transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-20"
-                  />
-                  <h3 className="relative mt-5 font-display text-lg font-extrabold uppercase tracking-[-0.02em] text-ink">
-                    {d.t}
-                  </h3>
-                  <p className="relative mt-2 text-sm leading-relaxed text-ink/65">{d.d}</p>
-                </article>
-              </RevealCard>
-            ))}
-          </div>
-        </Section>
-
         {/* vision + beliefs */}
         <Section tone="ink">
           <FloatingFood opacity={0.06} count={4} />
@@ -468,61 +415,24 @@ function AboutPage() {
           </div>
         </Section>
 
-        {/* future goals */}
+        {/* The founder's closing line, given the space it deserves. On a light
+            ground, so it doesn't run together with the dark vision section
+            above and the dark call to action below. */}
         <Section tone="paper">
-          <FloatingFood opacity={0.07} count={4} />
-          <Glow />
-
-          <div className="relative">
-            <SectionHead
-              align="center"
-              eyebrow="Future goals"
-              title="WHERE THIS"
-              accent="IS GOING"
-            />
-          </div>
-
-          <div className="relative z-10 mt-12 grid gap-5 md:grid-cols-3">
-            {GOALS.map((g, i) => (
-              <RevealCard key={g.t} index={i}>
-                <article className="group relative h-full overflow-hidden rounded-2xl border border-ink/10 bg-paper-warm p-7 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:border-orange hover:shadow-[0_28px_60px_-34px_oklch(0.175_0.008_60/0.45)]">
-                  <CardWash index={i} />
-                  <span
-                    aria-hidden
-                    className="relative font-display text-3xl font-extrabold text-orange/35 transition-colors duration-500 group-hover:text-orange/70"
-                  >
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <h3 className="relative mt-4 font-display text-xl font-extrabold uppercase tracking-[-0.02em] text-ink">
-                    {g.t}
-                  </h3>
-                  <p className="relative mt-3 text-sm leading-relaxed text-ink/65">{g.d}</p>
-                  <span
-                    aria-hidden
-                    className="absolute inset-x-0 bottom-0 h-[3px] w-0 bg-orange transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-full"
-                  />
-                </article>
-              </RevealCard>
-            ))}
-          </div>
-        </Section>
-
-        {/* the founder's closing line, given the space it deserves */}
-        <Section tone="ink">
           <FloatingFood opacity={0.06} count={4} />
 
           <div className="relative mx-auto max-w-3xl text-center">
             <MaskReveal>
-              <p className="eyebrow !text-orange -me-[0.36em]">In his words</p>
+              <p className="eyebrow !text-orange-ink -me-[0.36em]">In his words</p>
             </MaskReveal>
             <MaskReveal delay={0.08}>
-              <p className="serif-accent mt-7 text-2xl leading-snug text-paper md:text-3xl">
+              <p className="serif-accent mt-7 text-2xl leading-snug text-ink md:text-3xl">
                 “This is more than a business journey. It&apos;s a journey of building, learning,
                 and helping others build too.”
               </p>
             </MaskReveal>
             <MaskReveal delay={0.16}>
-              <p className="mt-7 text-[0.55rem] font-extrabold uppercase tracking-[0.3em] text-paper/55">
+              <p className="mt-7 text-[0.55rem] font-extrabold uppercase tracking-[0.3em] text-ink/55">
                 {CAFE.founder} · Founder
               </p>
             </MaskReveal>

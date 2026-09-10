@@ -15,8 +15,7 @@ export function Section({
   className?: string;
   children: ReactNode;
 }) {
-  const ground =
-    tone === "ink" ? "grain bg-ink" : tone === "warm" ? "bg-paper-warm" : "bg-paper";
+  const ground = tone === "ink" ? "grain bg-ink" : tone === "warm" ? "bg-paper-warm" : "bg-paper";
 
   return (
     <section
@@ -110,7 +109,7 @@ export function PageHero({
     <header className="grain relative overflow-hidden bg-ink px-5 pb-20 pt-32 md:px-12 md:pb-24 md:pt-40">
       <div
         aria-hidden
-        className="pointer-events-none absolute right-[-12%] top-[-25%] size-[60vw] rounded-full opacity-35 blur-[110px]"
+        className="pointer-events-none absolute right-[-12%] top-[-25%] size-[60vw] rounded-full opacity-35"
         style={{ background: "radial-gradient(circle, var(--orange) 0%, transparent 65%)" }}
       />
       <div className="relative z-10 mx-auto max-w-7xl">
@@ -155,7 +154,7 @@ export function CtaBand({
     <Section tone="ink" className="text-center">
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 size-[65vw] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-30 blur-[120px]"
+        className="pointer-events-none absolute left-1/2 top-1/2 size-[65vw] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-30"
         style={{ background: "radial-gradient(circle, var(--orange) 0%, transparent 65%)" }}
       />
       <h2 className="display-xl text-paper">

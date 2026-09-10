@@ -15,7 +15,6 @@ import kunafaImg from "@/assets/kunafa.webp";
 import milkshakeImg from "@/assets/milkshake.webp";
 import { MaskReveal } from "@/components/bits";
 
-
 const title = "The Full Menu — Twin's Golden Cafe";
 const description =
   "Every category and price at Twin's Golden Cafe: pizza, fried chicken, wings, burgers, wraps, combos, family feasts, kunafa, momos, pasta, sandwiches, shakes, lassi, mojito and falooda.";
@@ -28,10 +27,10 @@ export const Route = createFileRoute("/menu")({
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/menu" },
+      { property: "og:url", content: "https://twinsgoldencafe.com/menu" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/menu" }],
+    links: [{ rel: "canonical", href: "https://twinsgoldencafe.com/menu" }],
   }),
   component: MenuPage,
 });
@@ -93,203 +92,205 @@ function MenuPage() {
       <main className="relative">
         <MenuBackdrop />
 
-      {/* ---------- masthead ---------- */}
-      <header className="grain relative overflow-hidden bg-ink px-5 pb-16 pt-32 md:px-12 md:pb-20 md:pt-36">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute right-[-12%] top-[-20%] size-[60vw] rounded-full opacity-35 blur-[110px]"
-          style={{ background: "radial-gradient(circle, var(--orange) 0%, transparent 65%)" }}
-        />
+        {/* ---------- masthead ---------- */}
+        <header className="grain relative overflow-hidden bg-ink px-5 pb-16 pt-32 md:px-12 md:pb-20 md:pt-36">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute right-[-12%] top-[-20%] size-[60vw] rounded-full opacity-35"
+            style={{ background: "radial-gradient(circle, var(--orange) 0%, transparent 65%)" }}
+          />
 
-        <div className="relative z-10 mx-auto max-w-7xl">
-          <div>
-            <MaskReveal>
-              <p className="eyebrow !text-orange">Everything we cook</p>
-            </MaskReveal>
-            <h1 className="mt-5 display-xl text-paper">
-              <MaskReveal delay={0.06}>THE FULL</MaskReveal>
-              <MaskReveal delay={0.14}>
-                <span className="block text-orange">MENU</span>
+          <div className="relative z-10 mx-auto max-w-7xl">
+            <div>
+              <MaskReveal>
+                <p className="eyebrow !text-orange">Everything we cook</p>
               </MaskReveal>
-            </h1>
+              <h1 className="mt-5 display-xl text-paper">
+                <MaskReveal delay={0.06}>THE FULL</MaskReveal>
+                <MaskReveal delay={0.14}>
+                  <span className="block text-orange">MENU</span>
+                </MaskReveal>
+              </h1>
 
-            <motion.dl
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-10 flex flex-wrap gap-x-12 gap-y-6"
+              <motion.dl
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                className="mt-10 flex flex-wrap gap-x-12 gap-y-6"
+              >
+                {[
+                  { v: String(categories.length), l: "Categories" },
+                  { v: String(ALL_ITEMS.length), l: "Dishes" },
+                  { v: `₹${PRICE_MIN}–₹${PRICE_MAX}`, l: "Price range" },
+                ].map((s) => (
+                  <div key={s.l}>
+                    <dt className="font-display text-3xl font-extrabold tracking-[-0.03em] text-orange md:text-4xl">
+                      {s.v}
+                    </dt>
+                    <dd className="mt-1 text-[0.55rem] font-extrabold uppercase tracking-[0.26em] text-paper/50">
+                      {s.l}
+                    </dd>
+                  </div>
+                ))}
+              </motion.dl>
+            </div>
+          </div>
+        </header>
+
+        {/* ---------- sticky toolbar ---------- */}
+        <div className="sticky top-[5.1rem] z-30 border-b border-ink/10 bg-paper/95">
+          {/* on phones the field takes its own row; from sm up it shares one */}
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-3 px-5 py-3.5 md:px-12">
+            <div className="relative w-full min-w-0 sm:w-auto sm:flex-1">
+              <label htmlFor="menu-search" className="sr-only">
+                Search the menu
+              </label>
+              <input
+                id="menu-search"
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search a dish…"
+                className="w-full rounded-full border border-ink/15 bg-paper/90 px-5 py-2.5 text-sm text-ink outline-none transition-colors placeholder:text-ink/70 focus-visible:border-orange focus-visible:ring-2 focus-visible:ring-orange/30"
+              />
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setVegOnly((v) => !v)}
+              aria-pressed={vegOnly}
+              data-cursor="cta"
+              className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-5 py-2.5 text-[0.6rem] font-extrabold uppercase tracking-[0.2em] transition-colors ${
+                vegOnly
+                  ? "border-leaf bg-leaf text-paper"
+                  : "border-ink/15 text-ink/70 hover:border-ink/40 hover:text-ink"
+              }`}
             >
-              {[
-                { v: String(categories.length), l: "Categories" },
-                { v: String(ALL_ITEMS.length), l: "Dishes" },
-                { v: `₹${PRICE_MIN}–₹${PRICE_MAX}`, l: "Price range" },
-              ].map((s) => (
-                <div key={s.l}>
-                  <dt className="font-display text-3xl font-extrabold tracking-[-0.03em] text-orange md:text-4xl">
-                    {s.v}
-                  </dt>
-                  <dd className="mt-1 text-[0.55rem] font-extrabold uppercase tracking-[0.26em] text-paper/50">
-                    {s.l}
-                  </dd>
-                </div>
-              ))}
-            </motion.dl>
-          </div>
-        </div>
-      </header>
+              <span
+                className={`size-2 rounded-full ${vegOnly ? "bg-paper" : "bg-leaf"}`}
+                aria-hidden
+              />
+              Veg only
+            </button>
 
-      {/* ---------- sticky toolbar ---------- */}
-      <div className="sticky top-[5.1rem] z-30 border-b border-ink/10 bg-paper/85 backdrop-blur-xl">
-        {/* on phones the field takes its own row; from sm up it shares one */}
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-3 px-5 py-3.5 md:px-12">
-          <div className="relative w-full min-w-0 sm:w-auto sm:flex-1">
-            <label htmlFor="menu-search" className="sr-only">
-              Search the menu
-            </label>
-            <input
-              id="menu-search"
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search a dish…"
-              className="w-full rounded-full border border-ink/15 bg-paper/90 px-5 py-2.5 text-sm text-ink outline-none transition-colors placeholder:text-ink/70 focus-visible:border-orange focus-visible:ring-2 focus-visible:ring-orange/30"
-            />
+            <p
+              aria-live="polite"
+              className="shrink-0 text-[0.6rem] font-extrabold uppercase tracking-[0.22em] text-ink/65"
+            >
+              {resultCount} {resultCount === 1 ? "dish" : "dishes"}
+            </p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setVegOnly((v) => !v)}
-            aria-pressed={vegOnly}
-            data-cursor="cta"
-            className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-5 py-2.5 text-[0.6rem] font-extrabold uppercase tracking-[0.2em] transition-colors ${
-              vegOnly
-                ? "border-leaf bg-leaf text-paper"
-                : "border-ink/15 text-ink/70 hover:border-ink/40 hover:text-ink"
-            }`}
-          >
-            <span
-              className={`size-2 rounded-full ${vegOnly ? "bg-paper" : "bg-leaf"}`}
-              aria-hidden
-            />
-            Veg only
-          </button>
-
-          <p
-            aria-live="polite"
-            className="shrink-0 text-[0.6rem] font-extrabold uppercase tracking-[0.22em] text-ink/65"
-          >
-            {resultCount} {resultCount === 1 ? "dish" : "dishes"}
-          </p>
-        </div>
-
-        {/* category chips — the mobile stand-in for the sidebar */}
-        <div className="scrollbar-none overflow-x-auto lg:hidden">
-          <ul className="flex w-max gap-2 px-5 pb-3 md:px-12">
-            {shown.map((c) => (
-              <li key={c.id}>
-                <a
-                  href={`#${c.id}`}
-                  className={`inline-block whitespace-nowrap rounded-full border px-4 py-2 text-[0.58rem] font-extrabold uppercase tracking-[0.18em] transition-colors ${
-                    active === c.id && !filtering
-                      ? "border-orange bg-orange text-ink"
-                      : "border-ink/15 text-ink/70"
-                  }`}
-                >
-                  {c.title}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
-      {/* ---------- body ---------- */}
-      <div className="relative mx-auto grid max-w-7xl gap-14 px-5 pb-24 pt-12 md:px-12 lg:grid-cols-[16rem_1fr]">
-        {/* food drifting behind the board — very faint, the list has to stay
-            the loudest thing on the page */}
-        <FloatingFood opacity={0.06} />
-
-        {/* sticky category rail */}
-        <nav aria-label="Menu categories" className="sticky top-52 hidden h-max lg:block">
-          <p className="rule-label text-ink/70">Categories</p>
-          <ul className="mt-5">
-            {categories.map((c) => {
-              const count = shown.find((s) => s.id === c.id)?.items.length ?? 0;
-              const isActive = active === c.id && !filtering;
-              return (
+          {/* category chips — the mobile stand-in for the sidebar */}
+          <div className="scrollbar-none overflow-x-auto lg:hidden">
+            <ul className="flex w-max gap-2 px-5 pb-3 md:px-12">
+              {shown.map((c) => (
                 <li key={c.id}>
                   <a
                     href={`#${c.id}`}
-                    data-cursor="view"
-                    aria-current={isActive ? "true" : undefined}
-                    className={`group relative flex items-baseline justify-between gap-3 py-2 pl-4 text-[0.82rem] font-extrabold uppercase tracking-[0.06em] transition-colors duration-300 ${
-                      count === 0
-                        ? "text-ink/40"
-                        : isActive
-                          ? "text-orange-ink"
-                          : "text-ink/70 hover:text-ink"
+                    className={`inline-block whitespace-nowrap rounded-full border px-4 py-2 text-[0.58rem] font-extrabold uppercase tracking-[0.18em] transition-colors ${
+                      active === c.id && !filtering
+                        ? "border-orange bg-orange text-ink"
+                        : "border-ink/15 text-ink/70"
                     }`}
                   >
-                    {isActive && (
-                      <motion.span
-                        layoutId="menu-rail"
-                        className="absolute inset-y-1 left-0 w-[3px] rounded-full bg-orange"
-                        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                      />
-                    )}
-                    <span className="min-w-0">{c.title}</span>
-                    <span className="shrink-0 font-display text-xs text-ink/70">{count}</span>
+                    {c.title}
                   </a>
                 </li>
-              );
-            })}
-          </ul>
-        </nav>
-
-        <div className="relative">
-          {/* rendered directly, never gated behind an exit animation — a stalled
-              transition must not be able to hide the whole menu */}
-          {shown.length === 0 ? (
-            <motion.p
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              className="serif-accent py-20 text-center text-lg text-ink/70"
-            >
-              Nothing matches “{query.trim()}”
-              {vegOnly && " in the veg selection"}. Try another dish.
-            </motion.p>
-          ) : (
-            <div className="space-y-14 md:space-y-16">
-              {shown.map((c) => (
-                <Category
-                  key={c.id}
-                  id={c.id}
-                  title={c.title}
-                  tagline={c.tagline}
-                  items={c.items}
-                  priceColumns={c.priceColumns}
-                  extras={c.extras}
-                  filtering={filtering}
-                />
               ))}
-            </div>
-          )}
-
-          <p className="mt-24 rule-label text-ink/65">Extra dip ₹25 · prices in INR</p>
+            </ul>
+          </div>
         </div>
-      </div>
 
-      <SpecialsBoard />
+        {/* ---------- body ---------- */}
+        {/* grid-cols-1 on phones: an unset track sizes to the longest nowrap dish
+          name and pushed the page wider than the screen */}
+        <div className="relative mx-auto grid max-w-7xl grid-cols-1 gap-14 px-5 pb-24 pt-12 md:px-12 lg:grid-cols-[16rem_minmax(0,1fr)]">
+          {/* food drifting behind the board — very faint, the list has to stay
+            the loudest thing on the page */}
+          <FloatingFood opacity={0.06} />
 
-      <MustTry />
+          {/* sticky category rail */}
+          <nav aria-label="Menu categories" className="sticky top-52 hidden h-max lg:block">
+            <p className="rule-label text-ink/70">Categories</p>
+            <ul className="mt-5">
+              {categories.map((c) => {
+                const count = shown.find((s) => s.id === c.id)?.items.length ?? 0;
+                const isActive = active === c.id && !filtering;
+                return (
+                  <li key={c.id}>
+                    <a
+                      href={`#${c.id}`}
+                      data-cursor="view"
+                      aria-current={isActive ? "true" : undefined}
+                      className={`group relative flex items-baseline justify-between gap-3 py-2 pl-4 text-[0.82rem] font-extrabold uppercase tracking-[0.06em] transition-colors duration-300 ${
+                        count === 0
+                          ? "text-ink/40"
+                          : isActive
+                            ? "text-orange-ink"
+                            : "text-ink/70 hover:text-ink"
+                      }`}
+                    >
+                      {isActive && (
+                        <motion.span
+                          layoutId="menu-rail"
+                          className="absolute inset-y-1 left-0 w-[3px] rounded-full bg-orange"
+                          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                        />
+                      )}
+                      <span className="min-w-0">{c.title}</span>
+                      <span className="shrink-0 font-display text-xs text-ink/70">{count}</span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
 
-      <CtaBand
-        title="VISIT TWIN'S"
-        accent="GOLDEN CAFE TODAY"
-        primary={{ to: "/combos", label: "See best combos" }}
-        secondary={{ to: "/contact", label: "Contact us" }}
-      />
+          <div className="relative">
+            {/* rendered directly, never gated behind an exit animation — a stalled
+              transition must not be able to hide the whole menu */}
+            {shown.length === 0 ? (
+              <motion.p
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="serif-accent py-20 text-center text-lg text-ink/70"
+              >
+                Nothing matches “{query.trim()}”{vegOnly && " in the veg selection"}. Try another
+                dish.
+              </motion.p>
+            ) : (
+              <div className="space-y-14 md:space-y-16">
+                {shown.map((c) => (
+                  <Category
+                    key={c.id}
+                    id={c.id}
+                    title={c.title}
+                    tagline={c.tagline}
+                    items={c.items}
+                    priceColumns={c.priceColumns}
+                    extras={c.extras}
+                    filtering={filtering}
+                  />
+                ))}
+              </div>
+            )}
+
+            <p className="mt-24 rule-label text-ink/65">Extra dip ₹25 · prices in INR</p>
+          </div>
+        </div>
+
+        <SpecialsBoard />
+
+        <MustTry />
+
+        <CtaBand
+          title="VISIT TWIN'S"
+          accent="GOLDEN CAFE TODAY"
+          primary={{ to: "/combos", label: "See best combos" }}
+          secondary={{ to: "/contact", label: "Contact us" }}
+        />
       </main>
 
       <SiteFooter />
@@ -346,9 +347,7 @@ function MustTry() {
               <h3 className="mt-5 font-display text-base font-extrabold uppercase tracking-[-0.02em] text-paper md:text-lg">
                 {m.name}
               </h3>
-              <p className="mt-2 font-display text-2xl font-extrabold text-orange">
-                ₹{m.price}
-              </p>
+              <p className="mt-2 font-display text-2xl font-extrabold text-orange">₹{m.price}</p>
             </li>
           </RevealCard>
         ))}
@@ -390,7 +389,6 @@ function Category({
 }) {
   return (
     <section id={id} className="relative scroll-mt-40">
-
       <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b-2 border-ink pb-3">
         <MaskReveal>
           <h2 className="font-display text-2xl font-extrabold uppercase tracking-[-0.02em] text-ink md:text-3xl">
@@ -405,7 +403,7 @@ function Category({
       </div>
 
       {/* two tight columns, the way a printed menu sets a long list */}
-      <ul className="relative z-10 mt-5 grid gap-x-14 lg:grid-cols-2">
+      <ul className="relative z-10 mt-5 grid grid-cols-1 gap-x-14 lg:grid-cols-2">
         {items.map((it, i) => {
           // while filtering the rows are already on screen, so they fade in
           // straight away instead of waiting for a scroll that never comes
@@ -430,7 +428,9 @@ function Category({
               className="group border-b border-ink/8 py-2.5 transition-colors duration-300 hover:border-orange/50"
             >
               <span className="flex items-baseline gap-2.5">
-                <span className="truncate text-[0.95rem] font-semibold text-ink transition-colors duration-300 group-hover:text-orange-ink">
+                {/* wraps rather than truncates: on a phone a two-price row
+                    would otherwise cut the dish name off mid-word */}
+                <span className="min-w-0 text-[0.95rem] font-semibold leading-snug text-ink transition-colors duration-300 group-hover:text-orange-ink">
                   {it.name}
                 </span>
 
@@ -526,7 +526,7 @@ function SpecialsBoard() {
 
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-0 size-[55vw] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-25 blur-[130px]"
+        className="pointer-events-none absolute left-1/2 top-0 size-[55vw] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-25"
         style={{ background: "radial-gradient(circle, var(--orange) 0%, transparent 65%)" }}
       />
 

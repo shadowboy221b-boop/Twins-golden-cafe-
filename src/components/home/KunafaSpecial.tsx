@@ -48,12 +48,12 @@ export function KunafaSpecial() {
       {/* two glows on different clocks, so the room never sits still */}
       <div
         aria-hidden
-        className="blob-a pointer-events-none absolute left-1/2 top-0 size-[70vw] -translate-x-1/2 -translate-y-1/3 rounded-full opacity-40 blur-[130px]"
+        className="blob-a pointer-events-none absolute left-1/2 top-0 size-[70vw] -translate-x-1/2 -translate-y-1/3 rounded-full opacity-40"
         style={{ background: "radial-gradient(circle, var(--orange) 0%, transparent 65%)" }}
       />
       <div
         aria-hidden
-        className="blob-b pointer-events-none absolute -right-[15vw] bottom-[-10%] size-[50vw] rounded-full opacity-25 blur-[140px]"
+        className="blob-b pointer-events-none absolute -right-[15vw] bottom-[-10%] size-[50vw] rounded-full opacity-25"
         style={{ background: "radial-gradient(circle, var(--orange-bright) 0%, transparent 65%)" }}
       />
 
@@ -139,24 +139,35 @@ export function KunafaSpecial() {
             <motion.span
               aria-hidden
               animate={spin ? { rotate: 360 } : { rotate: 0 }}
-              transition={spin ? { duration: 48, repeat: Infinity, ease: "linear" } : { duration: 0 }}
+              transition={
+                spin ? { duration: 48, repeat: Infinity, ease: "linear" } : { duration: 0 }
+              }
               className="absolute left-1/2 top-1/2 aspect-square w-[86%] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-dashed border-orange/25"
             />
             <motion.span
               aria-hidden
               animate={spin ? { rotate: -360 } : { rotate: 0 }}
-              transition={spin ? { duration: 72, repeat: Infinity, ease: "linear" } : { duration: 0 }}
+              transition={
+                spin ? { duration: 72, repeat: Infinity, ease: "linear" } : { duration: 0 }
+              }
               className="absolute left-1/2 top-1/2 aspect-square w-[104%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-paper/10"
             />
 
-            <img
-              src={kunafa}
-              alt="The Golden Kunafa at Twin's Golden Cafe"
-              width={1200}
-              height={1008}
-              data-cursor="food"
-              className="floaty food-shadow-dark relative mx-auto w-[82vw] max-w-none sm:w-[62vw] lg:w-full"
-            />
+            {/* The float lives on a wrapper, not on the image: with the drop
+                shadow and the animation on one element, the browser redrew the
+                shadow's blur on every frame. */}
+            <div className="floaty relative">
+              <img
+                src={kunafa}
+                alt="The Golden Kunafa at Twin's Golden Cafe"
+                width={1200}
+                height={1008}
+                loading="lazy"
+                decoding="async"
+                data-cursor="food"
+                className="food-shadow-dark relative mx-auto w-[82vw] max-w-none sm:w-[62vw] lg:w-full"
+              />
+            </div>
           </motion.div>
 
           {/* the flavour tiles, priced straight off the board */}
@@ -191,10 +202,7 @@ export function KunafaSpecial() {
             "linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%)",
         }}
       >
-        <div
-          className="marquee flex w-max"
-          style={{ ["--marquee-dur" as string]: "64s" }}
-        >
+        <div className="marquee flex w-max" style={{ ["--marquee-dur" as string]: "64s" }}>
           {[0, 1].map((half) => (
             <div key={half} aria-hidden={half === 1} className="flex shrink-0 items-center pr-10">
               {kunafas.map((k) => (

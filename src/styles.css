@@ -258,8 +258,9 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    opacity: 0.22;
-    mix-blend-mode: overlay;
+    /* plain alpha, no blend mode: an overlay blend made the browser re-blend
+       the whole section under it on every animation frame */
+    opacity: 0.12;
     background-image: radial-gradient(
       oklch(0.5 0 0 / 14%) 0.5px,
       transparent 0.6px
@@ -448,5 +449,16 @@
 
 @utility card-wash {
   animation: card-wash 19s ease-in-out infinite;
+}
+
+/* The specials showcase's timer: the bar fills once per slide, and the slide
+   advances when the fill ends — so pausing the bar pauses the showcase too. */
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
 }
 

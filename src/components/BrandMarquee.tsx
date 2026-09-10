@@ -28,40 +28,25 @@ export function BrandMarquee({
   const pad = loud ? "py-4 md:py-5" : "py-5 md:py-6";
 
   return (
-    <div aria-hidden className={`relative ${pad} ${band}`}>
-      {/* The fade lives on this inner layer, not on the band: masking the band
-          itself would fade its background too and let the page show through
-          at both ends. Here only the words fade, over a solid band, so they are
-          never chopped off mid-letter at the edge of the screen. */}
+    // Solid edge to edge: the words run straight off the screen, with no fade
+    // at either end.
+    <div aria-hidden className={`relative overflow-hidden ${pad} ${band}`}>
+      {/* No gap between the halves: the trailing pr-14 lives inside each one, so
+          the two are exactly equal and the -50% shift lands seamlessly. */}
       <div
-        className="overflow-hidden"
-        style={{
-          maskImage:
-            "linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%)",
-          WebkitMaskImage:
-            "linear-gradient(to right, transparent 0%, #000 7%, #000 93%, transparent 100%)",
-        }}
+        className="marquee flex w-max whitespace-nowrap"
+        style={{ ["--marquee-dur" as string]: duration }}
       >
-        {/* No gap between the halves: the trailing pr-14 lives inside each one, so
-            the two are exactly equal and the -50% shift lands seamlessly. */}
-        <div
-          className="marquee flex w-max whitespace-nowrap"
-          style={{ ["--marquee-dur" as string]: duration }}
-        >
-          {Array.from({ length: 2 }).map((_, half) => (
-            <div key={half} className="flex shrink-0 gap-14 pr-14">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <span
-                  key={i}
-                  className={`font-display font-extrabold uppercase ${size} ${text}`}
-                >
-                  TWIN&apos;S GOLDEN CAFE <span className={dot}>·</span> FRESH HOT &amp; MADE TO LOVE{" "}
-                  <span className={dot}>·</span>
-                </span>
-              ))}
-            </div>
-          ))}
-        </div>
+        {Array.from({ length: 2 }).map((_, half) => (
+          <div key={half} className="flex shrink-0 gap-14 pr-14">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <span key={i} className={`font-display font-extrabold uppercase ${size} ${text}`}>
+                TWIN&apos;S GOLDEN CAFE <span className={dot}>·</span> FRESH HOT &amp; MADE TO LOVE{" "}
+                <span className={dot}>·</span>
+              </span>
+            ))}
+          </div>
+        ))}
       </div>
     </div>
   );

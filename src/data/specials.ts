@@ -118,13 +118,7 @@ export const specialGroups: SpecialGroup[] = [
       },
       {
         label: "Special Blends",
-        items: [
-          "Mango Delight",
-          "Sunrise Boost",
-          "Tropical Mix",
-          "Berry Blast",
-          "Green Power",
-        ],
+        items: ["Mango Delight", "Sunrise Boost", "Tropical Mix", "Berry Blast", "Green Power"],
       },
       {
         label: "Detox & Health",

@@ -3,13 +3,7 @@
  * and inherits the surrounding colour: orange wordmark, the "O" of GOLDEN
  * replaced by the spoon-and-fork disc, and rule-flanked CAFE beneath.
  */
-export function Logo({
-  className = "",
-  onDark = false,
-}: {
-  className?: string;
-  onDark?: boolean;
-}) {
+export function Logo({ className = "", onDark = false }: { className?: string; onDark?: boolean }) {
   const sub = onDark ? "text-paper" : "text-ink";
 
   return (
@@ -20,11 +14,17 @@ export function Logo({
       aria-label="Twin's Golden Cafe"
       className={`inline-flex flex-col items-center leading-none ${className}`}
     >
-      <span aria-hidden className="font-display text-[1.1em] font-black tracking-[-0.04em] text-orange">
+      <span
+        aria-hidden
+        className="font-display text-[1.1em] font-black tracking-[-0.04em] text-orange"
+      >
         TWIN&apos;S
       </span>
 
-      <span aria-hidden className="mt-[0.08em] inline-flex items-center font-display text-[1.1em] font-black tracking-[-0.04em] text-orange">
+      <span
+        aria-hidden
+        className="mt-[0.08em] inline-flex items-center font-display text-[1.1em] font-black tracking-[-0.04em] text-orange"
+      >
         G
         <CutleryDisc onDark={onDark} />
         LDEN
@@ -54,14 +54,7 @@ function CutleryDisc({ onDark }: { onDark: boolean }) {
       <circle cx="50" cy="50" r="50" fill={onDark ? "#ffffff" : "#111111"} />
       {/* spoon */}
       <ellipse cx="38" cy="36" rx="11" ry="15" fill={onDark ? "#111111" : "#ffffff"} />
-      <rect
-        x="34.5"
-        y="48"
-        width="7"
-        height="34"
-        rx="3.5"
-        fill={onDark ? "#111111" : "#ffffff"}
-      />
+      <rect x="34.5" y="48" width="7" height="34" rx="3.5" fill={onDark ? "#111111" : "#ffffff"} />
       {/* fork */}
       <rect x="57" y="20" width="4.5" height="26" rx="2.2" fill={onDark ? "#111111" : "#ffffff"} />
       <rect x="65" y="20" width="4.5" height="26" rx="2.2" fill={onDark ? "#111111" : "#ffffff"} />

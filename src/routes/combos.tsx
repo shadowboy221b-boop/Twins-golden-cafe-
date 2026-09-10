@@ -1,11 +1,20 @@
+import { Fragment } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { combos, happyTreats } from "@/data/menu";
+import { combos, happyTreats, wraps } from "@/data/menu";
 import { Cursor } from "@/components/Cursor";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { CtaBand, PageHero, RevealCard, Section, SectionHead } from "@/components/page";
-import { MaskReveal } from "@/components/bits";
+import { FeatureBanner } from "@/components/FeatureBanner";
+import { SoloCombo } from "@/components/SoloCombo";
+import { PhotoTile } from "@/components/PhotoTile";
+import { ComboTicket } from "@/components/ComboTicket";
+import { SidesBuilder } from "@/components/SidesBuilder";
+import wrapPhoto from "@/assets/wrap.webp";
+import friedChickenPhoto from "@/assets/fried-chicken.webp";
+import loadedFriesPhoto from "@/assets/loaded-fries.webp";
+import { PageHero, Section, SectionHead } from "@/components/page";
+import burgerSplash from "@/assets/burger-splash.webp";
 import chicken from "@/assets/chicken.webp";
 import chickenBurger from "@/assets/chicken-burger.webp";
 import fries from "@/assets/fries.webp";
@@ -22,10 +31,10 @@ export const Route = createFileRoute("/combos")({
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/combos" },
+      { property: "og:url", content: "https://twinsgoldencafe.com/combos" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/combos" }],
+    links: [{ rel: "canonical", href: "https://twinsgoldencafe.com/combos" }],
   }),
   component: CombosPage,
 });
@@ -39,6 +48,7 @@ const CURATED = [
     tagline: "The three people come back for",
     items: by("Snack Combo", "Burger Combo", "Premium Burger Combo"),
     art: { src: chickenBurger, w: 1000, h: 1000 },
+    photo: null,
   },
   {
     id: "chicken",
@@ -46,6 +56,15 @@ const CURATED = [
     tagline: "Crispy, popcorn, wings — pick your cut",
     items: by("Chicken Lover Combo", "Wings Combo"),
     art: { src: chicken, w: 1104, h: 1104 },
+    // Groups short of a full row get a photograph: beside a single combo, or
+    // in the empty third column next to two.
+    photo: {
+      src: friedChickenPhoto,
+      w: 1119,
+      h: 1405,
+      alt: "Crispy fried chicken drumsticks",
+      caption: "Fried to order",
+    },
   },
   {
     id: "wraps",
@@ -53,6 +72,13 @@ const CURATED = [
     tagline: "Twelve inches, rolled and loaded",
     items: by("Wrap Combo"),
     art: null,
+    photo: {
+      src: wrapPhoto,
+      w: 600,
+      h: 1200,
+      alt: "A loaded wrap, cut to show the filling",
+      caption: "12 inch",
+    },
   },
   {
     id: "family",
@@ -60,6 +86,13 @@ const CURATED = [
     tagline: "Sharing platters built for a table",
     items: by("Family Combo 1", "Family Combo 2"),
     art: { src: fries, w: 900, h: 900 },
+    photo: {
+      src: loadedFriesPhoto,
+      w: 1024,
+      h: 1024,
+      alt: "Loaded fries with cheese sauce and crispy chicken",
+      caption: "Built for the table",
+    },
   },
 ];
 
@@ -138,120 +171,69 @@ function CombosPage() {
         </PageHero>
 
         {GROUPS.map((g, gi) => (
-          <Section key={g.id} id={g.id} tone={gi % 2 ? "warm" : "paper"}>
-            {g.art && (
-              <motion.img
-                src={g.art.src}
-                alt=""
-                aria-hidden
-                loading="lazy"
-                width={g.art.w}
-                height={g.art.h}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 0.12, scale: 1 }}
-                viewport={{ once: true, margin: "-20%" }}
-                transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                className={`pointer-events-none absolute top-[-8%] w-[45vw] blur-[2px] md:w-[22vw] ${
-                  gi % 2 ? "left-[-8vw]" : "right-[-6vw]"
-                }`}
+          <Fragment key={g.id}>
+            <Section id={g.id} tone={gi % 2 ? "warm" : "paper"}>
+              {g.art && (
+                <motion.img
+                  src={g.art.src}
+                  alt=""
+                  aria-hidden
+                  loading="lazy"
+                  width={g.art.w}
+                  height={g.art.h}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  whileInView={{ opacity: 0.12, scale: 1 }}
+                  viewport={{ once: true, margin: "-20%" }}
+                  transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+                  className={`pointer-events-none absolute top-[-8%] w-[45vw] blur-[2px] md:w-[22vw] ${
+                    gi % 2 ? "left-[-8vw]" : "right-[-6vw]"
+                  }`}
+                />
+              )}
+
+              <SectionHead align="center" eyebrow={g.tagline} title={g.title} />
+
+              {"photo" in g && g.photo && g.items.length === 1 && g.items[0] ? (
+                <SoloCombo
+                  combo={g.items[0]}
+                  photo={g.photo}
+                  related={wraps}
+                  relatedLabel="Also rolled to order"
+                  menuHash="wraps"
+                />
+              ) : (
+                <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                  {/* each combo prints in as an order ticket */}
+                  {g.items.map((c, i) => (
+                    <ComboTicket key={c.name} combo={c} index={i} />
+                  ))}
+
+                  {/* two combos leave the third column empty: the food fills it */}
+                  {"photo" in g && g.photo && g.items.length === 2 && (
+                    <PhotoTile photo={g.photo} caption={g.photo.caption} index={2} />
+                  )}
+                </div>
+              )}
+            </Section>
+
+            {/* the burger banner sits straight after the signature combos */}
+            {g.id === "signature" && (
+              <FeatureBanner
+                src={burgerSplash}
+                width={1254}
+                height={1254}
+                eyebrow="Built for big bites"
+                title="STACKED,"
+                accent="SAUCED, SERVED."
+                lede="Fried chicken fillet, cheese, crisp lettuce and the signature sauce — assembled the moment you order."
+                cta={{ to: "/menu", label: "See the burgers" }}
               />
             )}
-
-            <SectionHead align="center" eyebrow={g.tagline} title={g.title} />
-
-            <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {g.items.map((c, i) => (
-                <RevealCard key={c.name} index={i}>
-                  <article
-                    data-cursor="view"
-                    className={`group flex h-full flex-col rounded-2xl border p-6 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_26px_55px_-30px_oklch(0.175_0.008_60/0.45)] ${
-                      c.hero
-                        ? "border-orange bg-orange"
-                        : "border-ink/10 bg-paper hover:border-orange"
-                    }`}
-                  >
-                    <h3
-                      className="font-display text-xl font-extrabold uppercase tracking-[-0.02em] text-ink md:text-2xl"
-                    >
-                      {c.name}
-                    </h3>
-
-                    <ul className="mt-4 space-y-1.5">
-                      {c.contents.map((line) => (
-                        <li
-                          key={line}
-                          className={`flex gap-2.5 text-sm ${c.hero ? "text-ink/80" : "text-ink/65"}`}
-                        >
-                          <span
-                            aria-hidden
-                            className={`mt-1.5 size-1.5 shrink-0 rounded-full ${
-                              c.hero ? "bg-ink/50" : "bg-orange"
-                            }`}
-                          />
-                          {line}
-                        </li>
-                      ))}
-                    </ul>
-
-                    <p
-                      className={`mt-auto pt-6 font-display text-3xl font-extrabold md:text-4xl ${
-                        c.hero ? "text-ink" : "text-orange-ink"
-                      }`}
-                    >
-                      ₹{c.price}
-                    </p>
-                  </article>
-                </RevealCard>
-              ))}
-            </div>
-          </Section>
+          </Fragment>
         ))}
 
         {/* Sides from Happy Treats — priced on their own, not combo-priced */}
-        <Section id="sides" tone="ink">
-          <SectionHead
-            align="center"
-            dark
-            eyebrow="Make it bigger"
-            title="SIDES TO"
-            accent="ADD ON"
-            lede="Straight from Happy Treats. Add any of these to a combo for the table."
-          />
-          <ul className="mt-12 grid gap-5 md:grid-cols-3">
-            {sides.map((k, i) => (
-              <RevealCard key={k.name} index={i}>
-                <li className="group flex h-full items-baseline gap-4 rounded-2xl border border-paper/12 p-6 transition-colors duration-500 hover:border-orange">
-                  <span className="min-w-0 flex-1">
-                    <span className="block font-display text-lg font-extrabold uppercase tracking-[-0.02em] text-paper md:text-xl">
-                      {k.name}
-                    </span>
-                    {k.note && (
-                      <span className="mt-1.5 block text-[0.55rem] font-extrabold uppercase tracking-[0.24em] text-paper/50">
-                        {k.note}
-                      </span>
-                    )}
-                  </span>
-                  <span className="shrink-0 font-display text-2xl font-extrabold text-orange">
-                    ₹{k.price}
-                  </span>
-                </li>
-              </RevealCard>
-            ))}
-          </ul>
-
-          <MaskReveal className="mt-10">
-            <p className="text-[0.58rem] font-extrabold uppercase tracking-[0.34em] text-paper/45">
-              Extra dip ₹25 · prices in INR
-            </p>
-          </MaskReveal>
-        </Section>
-
-        <CtaBand
-          title="ORDER YOUR"
-          accent="FAVOURITE COMBO"
-          primary={{ to: "/contact", label: "Order Now" }}
-          secondary={{ to: "/menu", label: "See the full menu" }}
-        />
+        <SidesBuilder id="sides" sides={sides} />
       </main>
 
       <SiteFooter />

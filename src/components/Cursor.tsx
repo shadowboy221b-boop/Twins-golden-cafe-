@@ -93,7 +93,6 @@ export function Cursor() {
           height: idle ? 0 : size,
           opacity: idle ? 0 : 1,
           background: "oklch(0.677 0.196 46 / 12%)",
-          backdropFilter: "blur(2px)",
         }}
       >
         <span className="text-[0.55rem] font-extrabold uppercase tracking-[0.28em] text-orange">

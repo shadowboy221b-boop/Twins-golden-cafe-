@@ -33,3 +33,9 @@ export const CAFE = {
 
 /** True once the contact details have actually been filled in. */
 export const CONTACT_DETAILS_READY = !CAFE.phone.includes("00000 00000");
+
+/** True once the address is a real one rather than the TODO note. */
+export const ADDRESS_READY = !CAFE.address.startsWith("TODO");
+
+/** Only the social profiles that have a real link — "#" goes nowhere. */
+export const SOCIAL = CAFE.social.filter((s) => s.href !== "#");

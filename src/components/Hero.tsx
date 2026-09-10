@@ -1,20 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { motion, useScroll, useSpring, useTransform } from "motion/react";
+import { motion, useMotionValue, useScroll, useSpring, useTransform } from "motion/react";
 import { useSpinAllowed } from "./bits";
 import burger from "@/assets/burger-hero.webp";
-import kunafa from "@/assets/kunafa.webp";
-import chicken from "@/assets/chicken.webp";
-import milkshake from "@/assets/milkshake.webp";
+import pizza from "@/assets/pizza.webp";
 import pizzaSlice from "@/assets/pizza-slice.webp";
 
 /** What rides the turntable, in order. The burger stays first — it's the shot
- *  the page loads with, so it's the one that has to be there instantly. */
+ *  the page loads with, so it's the one that has to be there instantly. Only
+ *  true cut-outs belong here: a photo with its own background would spin as a
+ *  visible square. Kunafa and fried chicken are left off: each has its own
+ *  section further down the page. */
 const HERO_DISHES = [
   { src: burger, alt: "Twin's Golden Cafe signature burger" },
-  { src: kunafa, alt: "The Golden Kunafa" },
-  { src: chicken, alt: "Crispy fried chicken" },
-  { src: milkshake, alt: "A loaded milkshake" },
+  { src: pizza, alt: "A stone-baked pizza, loaded with toppings" },
 ];
 
 /** how long each dish holds before the next fades in */
@@ -44,25 +43,23 @@ export function Hero() {
   const [dish, setDish] = useState(0);
   useEffect(() => {
     if (!spin) return; // reduce-motion: hold the first plate
-    const id = window.setInterval(
-      () => setDish((d) => (d + 1) % HERO_DISHES.length),
-      DISH_MS,
-    );
+    const id = window.setInterval(() => setDish((d) => (d + 1) % HERO_DISHES.length), DISH_MS);
     return () => window.clearInterval(id);
   }, [spin]);
 
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  // Motion values, not React state: the pointer moves many times a second, and
+  // state here re-rendered the whole hero on every one of those events.
+  const tiltX = useMotionValue(0);
+  const tiltY = useMotionValue(0);
   useEffect(() => {
     if (window.matchMedia("(pointer: coarse)").matches) return;
     const onMove = (e: MouseEvent) => {
-      setTilt({
-        x: (e.clientX / window.innerWidth - 0.5) * 2,
-        y: (e.clientY / window.innerHeight - 0.5) * 2,
-      });
+      tiltX.set((e.clientX / window.innerWidth - 0.5) * -28);
+      tiltY.set((e.clientY / window.innerHeight - 0.5) * -20);
     };
     window.addEventListener("mousemove", onMove);
     return () => window.removeEventListener("mousemove", onMove);
-  }, []);
+  }, [tiltX, tiltY]);
 
   return (
     <div
@@ -73,7 +70,7 @@ export function Hero() {
       {/* a single warm glow behind the food, the only light in the room */}
       <div
         aria-hidden
-        className="pointer-events-none absolute right-[-10%] top-1/2 size-[70vw] -translate-y-1/2 rounded-full opacity-45 blur-[100px]"
+        className="pointer-events-none absolute right-[-10%] top-1/2 size-[70vw] -translate-y-1/2 rounded-full opacity-45"
         style={{ background: "radial-gradient(circle, var(--orange) 0%, transparent 65%)" }}
       />
 
@@ -162,8 +159,8 @@ export function Hero() {
             style={{
               y: burgerY,
               scale: burgerScale,
-              translateX: tilt.x * -14,
-              translateY: tilt.y * -10,
+              translateX: tiltX,
+              translateY: tiltY,
             }}
           >
             {/* One turntable, and the dish on it changes. The rotation lives on

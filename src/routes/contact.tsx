@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { CtaBand, PageHero, RevealCard, Section, SectionHead } from "@/components/page";
 import { MaskReveal } from "@/components/bits";
-import { CAFE, CONTACT_DETAILS_READY } from "@/data/site";
+import { ADDRESS_READY, CAFE, CONTACT_DETAILS_READY, SOCIAL } from "@/data/site";
 
 const title = "Contact Us — Twin's Golden Cafe";
 const description =
@@ -19,10 +19,10 @@ export const Route = createFileRoute("/contact")({
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/contact" },
+      { property: "og:url", content: "https://twinsgoldencafe.com/contact" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/contact" }],
+    links: [{ rel: "canonical", href: "https://twinsgoldencafe.com/contact" }],
   }),
   component: ContactPage,
 });
@@ -44,7 +44,9 @@ const FAQ = [
     q: "Do you take online orders?",
     a: "TODO — confirm which delivery platforms you're listed on.",
   },
-];
+  // An answer still marked TODO stays off the page: visitors should never see a
+  // note to the owner. It appears as soon as the real answer replaces it.
+].filter((f) => !f.a.startsWith("TODO"));
 
 function ContactPage() {
   return (
@@ -60,7 +62,8 @@ function ContactPage() {
           lede="Booking a table, ordering for a crowd, or just want to tell us how the kunafa was — here's how to reach us."
         />
 
-        {!CONTACT_DETAILS_READY && (
+        {/* development only: the live site must never show this to visitors */}
+        {import.meta.env.DEV && !CONTACT_DETAILS_READY && (
           <div className="border-b border-orange/30 bg-orange/10 px-5 py-3 md:px-12">
             <p className="mx-auto max-w-7xl text-[0.7rem] font-bold text-orange-ink">
               Setup note (visible to you only until it&apos;s fixed): the phone number, email,
@@ -70,70 +73,82 @@ function ContactPage() {
           </div>
         )}
 
-        {/* contact details */}
-        <Section tone="paper">
-          <SectionHead eyebrow="Contact information" title="REACH" accent="THE COUNTER" />
+        {/* Placeholders from site.ts never reach visitors: a fake number, an
+            address that reads "TODO", a map note or a link to "#" would cost
+            the cafe customers. Each piece appears on its own once its real
+            value is filled in. */}
 
-          <div className="mt-12 grid gap-5 md:grid-cols-3">
-            {[
-              { label: "Phone", value: CAFE.phone, href: `tel:${CAFE.phone.replace(/\s/g, "")}` },
-              {
-                label: "WhatsApp",
-                value: "Message us",
-                href: `https://wa.me/${CAFE.whatsapp}`,
-              },
-              { label: "Email", value: CAFE.email, href: `mailto:${CAFE.email}` },
-            ].map((c, i) => (
-              <RevealCard key={c.label} index={i}>
-                <a
-                  href={c.href}
-                  data-cursor="cta"
-                  className="group flex h-full flex-col rounded-2xl border border-ink/10 bg-paper p-7 transition-all duration-500 hover:-translate-y-1 hover:border-orange"
-                >
-                  <span className="text-[0.55rem] font-extrabold uppercase tracking-[0.3em] text-orange-ink">
-                    {c.label}
-                  </span>
-                  <span className="mt-3 font-display text-lg font-extrabold tracking-[-0.02em] text-ink transition-transform duration-500 group-hover:translate-x-1 md:text-xl">
-                    {c.value}
-                  </span>
-                </a>
-              </RevealCard>
-            ))}
-          </div>
-        </Section>
+        {/* contact details */}
+        {CONTACT_DETAILS_READY && (
+          <Section tone="paper">
+            <SectionHead eyebrow="Contact information" title="REACH" accent="THE COUNTER" />
+
+            <div className="mt-12 grid gap-5 md:grid-cols-3">
+              {[
+                {
+                  label: "Phone",
+                  value: CAFE.phone,
+                  href: `tel:${CAFE.phone.replace(/\s/g, "")}`,
+                },
+                {
+                  label: "WhatsApp",
+                  value: "Message us",
+                  href: `https://wa.me/${CAFE.whatsapp}`,
+                },
+                { label: "Email", value: CAFE.email, href: `mailto:${CAFE.email}` },
+              ].map((c, i) => (
+                <RevealCard key={c.label} index={i}>
+                  <a
+                    href={c.href}
+                    data-cursor="cta"
+                    className="group flex h-full flex-col rounded-2xl border border-ink/10 bg-paper p-7 transition-all duration-500 hover:-translate-y-1 hover:border-orange"
+                  >
+                    <span className="text-[0.55rem] font-extrabold uppercase tracking-[0.3em] text-orange-ink">
+                      {c.label}
+                    </span>
+                    <span className="mt-3 font-display text-lg font-extrabold tracking-[-0.02em] text-ink transition-transform duration-500 group-hover:translate-x-1 md:text-xl">
+                      {c.value}
+                    </span>
+                  </a>
+                </RevealCard>
+              ))}
+            </div>
+          </Section>
+        )}
 
         {/* location + hours */}
         <Section tone="warm">
-          <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr]">
-            <div>
-              <SectionHead eyebrow="Location" title="FIND" accent="US HERE" />
-              <MaskReveal delay={0.16}>
-                <p className="serif-accent mt-6 max-w-md text-lg text-ink/70">{CAFE.address}</p>
-              </MaskReveal>
+          <div
+            className={`grid gap-12 ${
+              ADDRESS_READY || CAFE.mapEmbedSrc ? "lg:grid-cols-[1.2fr_0.8fr]" : ""
+            }`}
+          >
+            {(ADDRESS_READY || CAFE.mapEmbedSrc) && (
+              <div>
+                <SectionHead eyebrow="Location" title="FIND" accent="US HERE" />
+                {ADDRESS_READY && (
+                  <MaskReveal delay={0.16}>
+                    <p className="serif-accent mt-6 max-w-md text-lg text-ink/70">{CAFE.address}</p>
+                  </MaskReveal>
+                )}
 
-              <div className="mt-8 overflow-hidden rounded-2xl border border-ink/10 bg-paper">
-                {CAFE.mapEmbedSrc ? (
-                  <iframe
-                    src={CAFE.mapEmbedSrc}
-                    title={`Map showing ${CAFE.name}`}
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    className="aspect-[16/10] w-full border-0"
-                  />
-                ) : (
-                  <div className="flex aspect-[16/10] flex-col items-center justify-center gap-2 text-center">
-                    <span aria-hidden className="font-display text-2xl font-extrabold text-ink/25">MAP</span>
-                    <span className="max-w-xs px-6 text-[0.6rem] font-extrabold uppercase tracking-[0.22em] text-ink/65">
-                      Add the Google Maps embed URL to site.ts
-                    </span>
+                {CAFE.mapEmbedSrc && (
+                  <div className="mt-8 overflow-hidden rounded-2xl border border-ink/10 bg-paper">
+                    <iframe
+                      src={CAFE.mapEmbedSrc}
+                      title={`Map showing ${CAFE.name}`}
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      className="aspect-[16/10] w-full border-0"
+                    />
                   </div>
                 )}
               </div>
-            </div>
+            )}
 
             <div>
               <SectionHead eyebrow="Opening hours" title="WHEN" accent="WE'RE OPEN" />
-              <ul className="mt-8">
+              <ul className="mt-8 max-w-xl">
                 {CAFE.hoursRows.map((h, i) => (
                   <RevealCard key={h.days} index={i}>
                     <li className="flex items-baseline justify-between gap-4 border-b border-ink/10 py-4">
@@ -148,31 +163,36 @@ function ContactPage() {
                 ))}
               </ul>
 
-              <MaskReveal className="mt-10">
-                <p className="rule-label text-ink/70">Follow us</p>
-              </MaskReveal>
-              <ul className="mt-5 flex flex-wrap gap-3">
-                {CAFE.social.map((s, i) => (
-                  <RevealCard key={s.label} index={i}>
-                    <li>
-                      <a
-                        href={s.href}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        data-cursor="cta"
-                        className="inline-flex rounded-full border border-ink/15 px-5 py-2.5 text-[0.6rem] font-extrabold uppercase tracking-[0.2em] text-ink/70 transition-colors hover:border-orange hover:text-orange-ink"
-                      >
-                        {s.label}
-                      </a>
-                    </li>
-                  </RevealCard>
-                ))}
-              </ul>
+              {SOCIAL.length > 0 && (
+                <>
+                  <MaskReveal className="mt-10">
+                    <p className="rule-label text-ink/70">Follow us</p>
+                  </MaskReveal>
+                  <ul className="mt-5 flex flex-wrap gap-3">
+                    {SOCIAL.map((s, i) => (
+                      <RevealCard key={s.label} index={i}>
+                        <li>
+                          <a
+                            href={s.href}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            data-cursor="cta"
+                            className="inline-flex rounded-full border border-ink/15 px-5 py-2.5 text-[0.6rem] font-extrabold uppercase tracking-[0.2em] text-ink/70 transition-colors hover:border-orange hover:text-orange-ink"
+                          >
+                            {s.label}
+                          </a>
+                        </li>
+                      </RevealCard>
+                    ))}
+                  </ul>
+                </>
+              )}
             </div>
           </div>
         </Section>
 
-        <EnquiryForm />
+        {/* the form hands the message to WhatsApp, so it needs the real number */}
+        {CONTACT_DETAILS_READY && <EnquiryForm />}
 
         {/* faq */}
         <Section tone="warm">

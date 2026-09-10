@@ -65,10 +65,7 @@ export function MaskReveal({
 }
 
 /** Gentle background parallax — a few dozen pixels of drift, never a scroll hijack. */
-export function useParallax(
-  ref: React.RefObject<HTMLElement | null>,
-  distance = 80,
-) {
+export function useParallax(ref: React.RefObject<HTMLElement | null>, distance = 80) {
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "end start"],
@@ -121,7 +118,11 @@ export function PriceRow({
         )}
       </span>
       <span className={`h-px flex-1 ${light ? "bg-ink/10" : "bg-paper/12"}`} />
-      <span className={`font-display text-lg font-extrabold ${light ? "text-orange-ink" : "text-orange"}`}>₹{price}</span>
+      <span
+        className={`font-display text-lg font-extrabold ${light ? "text-orange-ink" : "text-orange"}`}
+      >
+        ₹{price}
+      </span>
     </motion.li>
   );
 }
@@ -167,7 +168,9 @@ export function StatRow({
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.6, delay: i * 0.09, ease: [0.16, 1, 0.3, 1] }}
         >
-          <dt className={`font-display text-3xl font-extrabold tracking-[-0.03em] md:text-4xl ${light ? "text-orange-ink" : "text-orange"}`}>
+          <dt
+            className={`font-display text-3xl font-extrabold tracking-[-0.03em] md:text-4xl ${light ? "text-orange-ink" : "text-orange"}`}
+          >
             {s.value}
           </dt>
           <dd

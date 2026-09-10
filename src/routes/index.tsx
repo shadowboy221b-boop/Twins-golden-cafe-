@@ -4,12 +4,12 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Hero } from "@/components/Hero";
 import { BrandMarquee } from "@/components/BrandMarquee";
-import { FeatureBanner } from "@/components/FeatureBanner";
-import burgerSplash from "@/assets/burger-splash.webp";
 import { BestCombos } from "@/components/home/BestCombos";
 import { GoldenSpecials } from "@/components/home/GoldenSpecials";
+import { FriedChickenSpecial } from "@/components/home/FriedChickenSpecial";
 import { KunafaSpecial } from "@/components/home/KunafaSpecial";
-import { CategoriesPreview, WhyChooseUs } from "@/components/home/HomeSections";
+import { CategoriesPreview } from "@/components/home/HomeSections";
+import { CtaBand } from "@/components/page";
 
 const title = "Twin's Golden Cafe — Taste the Golden Side";
 const description =
@@ -23,10 +23,10 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
-      { property: "og:url", content: "/" },
+      { property: "og:url", content: "https://twinsgoldencafe.com/" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [{ rel: "canonical", href: "https://twinsgoldencafe.com/" }],
   }),
   component: Index,
 });
@@ -41,22 +41,18 @@ function Index() {
         <Hero />
         <BrandMarquee tone="orange" />
         <BestCombos />
-
-        <FeatureBanner
-          src={burgerSplash}
-          width={1254}
-          height={1254}
-          eyebrow="Built for big bites"
-          title="STACKED,"
-          accent="SAUCED, SERVED."
-          lede="Fried chicken fillet, cheese, crisp lettuce and the signature sauce — assembled the moment you order."
-          cta={{ to: "/menu", label: "See the burgers" }}
-        />
-
+        <FriedChickenSpecial />
         <GoldenSpecials />
         <KunafaSpecial />
         <CategoriesPreview />
-        <WhyChooseUs />
+
+        {/* the page closes on the one thing to do next */}
+        <CtaBand
+          title="ORDER YOUR"
+          accent="FAVOURITE COMBO"
+          primary={{ to: "/contact", label: "Order Now" }}
+          secondary={{ to: "/menu", label: "See the full menu" }}
+        />
       </main>
 
       <SiteFooter />
