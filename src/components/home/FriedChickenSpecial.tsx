@@ -46,7 +46,7 @@ export function FriedChickenSpecial() {
     <section
       ref={ref}
       id="fried-chicken"
-      className="grain relative overflow-hidden border-b border-paper/10 bg-ink px-5 py-24 md:px-12 md:py-32"
+      className="grain relative overflow-hidden bg-ink px-5 pt-24 md:px-12 md:pt-32"
     >
       <div
         aria-hidden
@@ -201,7 +201,9 @@ export function FriedChickenSpecial() {
       </div>
 
       {/* --------------------------------------------------- chicken ticker */}
-      <div className="relative z-10 mt-16 overflow-hidden border-y border-paper/12 py-5">
+      {/* The ticker closes the section: it runs edge to edge and sits on the
+          section's bottom edge, so there is no empty band beneath it. */}
+      <div className="relative z-10 -mx-5 mt-16 overflow-hidden border-t border-paper/12 py-6 md:-mx-12">
         <div className="marquee flex w-max" style={{ ["--marquee-dur" as string]: "56s" }}>
           {[0, 1].map((half) => (
             <div key={half} aria-hidden={half === 1} className="flex shrink-0 items-center pr-10">

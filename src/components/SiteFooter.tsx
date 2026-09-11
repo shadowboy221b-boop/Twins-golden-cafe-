@@ -182,12 +182,14 @@ export function SiteFooter() {
                   >
                     {CAFE.phone}
                   </a>
-                  <a
-                    href={`mailto:${CAFE.email}`}
-                    className="block text-sm font-semibold text-paper/65 transition-colors hover:text-orange"
-                  >
-                    {CAFE.email}
-                  </a>
+                  {CAFE.email && (
+                    <a
+                      href={`mailto:${CAFE.email}`}
+                      className="block text-sm font-semibold text-paper/65 transition-colors hover:text-orange"
+                    >
+                      {CAFE.email}
+                    </a>
+                  )}
                 </>
               )}
               {ADDRESS_READY && (

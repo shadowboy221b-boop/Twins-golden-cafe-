@@ -142,19 +142,20 @@ export function CategoriesPreview() {
   const shown = hover === null ? undefined : ROWS[hover];
 
   return (
-    <Section id="categories" tone="ink">
+    // A light ground: the Kunafa section above and the call to action below are
+    // both dark, and three dark sections in a row read as one long block.
+    <Section id="categories" tone="warm">
       <FloatingFood opacity={0.06} count={3} />
 
       <div
         aria-hidden
-        className="blob-a pointer-events-none absolute left-1/2 top-0 size-[55vw] -translate-x-1/2 -translate-y-1/3 rounded-full opacity-30"
+        className="blob-a pointer-events-none absolute left-1/2 top-0 size-[55vw] -translate-x-1/2 -translate-y-1/3 rounded-full opacity-20"
         style={{ background: "radial-gradient(circle, var(--orange) 0%, transparent 65%)" }}
       />
 
       <div className="relative">
         <SectionHead
           align="center"
-          dark
           eyebrow="The board"
           title="EVERY"
           accent="SECTION"
@@ -167,7 +168,7 @@ export function CategoriesPreview() {
         onPointerMove={onMove}
         onPointerEnter={onEnter}
         onPointerLeave={() => setHover(null)}
-        className="relative z-10 mx-auto mt-14 max-w-6xl border-t border-paper/12"
+        className="relative z-10 mx-auto mt-14 max-w-6xl border-t border-ink/12"
       >
         {/* the photograph that trails the pointer, behind the type */}
         <motion.li
@@ -214,7 +215,7 @@ export function CategoriesPreview() {
           const on = hover === i;
           const dim = hover !== null && !on;
           return (
-            <li key={r.name} className="relative z-10 border-b border-paper/12">
+            <li key={r.name} className="relative z-10 border-b border-ink/12">
               <Link
                 to="/menu"
                 hash={r.hash}
@@ -232,14 +233,14 @@ export function CategoriesPreview() {
 
                 <span
                   className={`w-7 shrink-0 font-display text-xs font-black tabular-nums transition-colors duration-300 md:w-9 md:text-sm ${
-                    on ? "text-orange" : "text-paper/40"
+                    on ? "text-orange-ink" : "text-ink/35"
                   }`}
                 >
                   {pad(i + 1)}
                 </span>
 
                 {/* touch screens: the photograph sits in the row */}
-                <span className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-paper/5 lg:hidden">
+                <span className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-ink/5 lg:hidden">
                   <img
                     src={r.src}
                     alt=""
@@ -262,23 +263,23 @@ export function CategoriesPreview() {
                     <MaskReveal delay={Math.min(i * 0.05, 0.3)}>
                       <span
                         className={`block font-display text-3xl font-black uppercase leading-[0.95] tracking-[-0.03em] transition-colors duration-500 sm:text-5xl lg:text-6xl ${
-                          on ? "text-orange" : "text-paper"
+                          on ? "text-orange-ink" : "text-ink"
                         }`}
                       >
                         {r.name}
                       </span>
                     </MaskReveal>
                   </span>
-                  <span className="mt-1.5 block text-[0.55rem] font-extrabold uppercase tracking-[0.22em] text-paper/50 md:hidden">
+                  <span className="mt-1.5 block text-[0.55rem] font-extrabold uppercase tracking-[0.22em] text-ink/55 md:hidden">
                     {r.dishes} dishes · from ₹{r.from}
                   </span>
                 </span>
 
                 <span className="hidden shrink-0 text-right md:block">
-                  <span className="block text-[0.6rem] font-extrabold uppercase tracking-[0.22em] text-paper/65">
+                  <span className="block text-[0.6rem] font-extrabold uppercase tracking-[0.22em] text-ink/65">
                     {r.dishes} dishes · from ₹{r.from}
                   </span>
-                  <span className="mt-1 block text-[0.55rem] font-extrabold uppercase tracking-[0.22em] text-paper/35">
+                  <span className="mt-1 block text-[0.55rem] font-extrabold uppercase tracking-[0.22em] text-ink/45">
                     {r.tagline}
                   </span>
                 </span>
@@ -288,7 +289,7 @@ export function CategoriesPreview() {
                   className={`grid size-10 shrink-0 place-items-center rounded-full border transition-all duration-500 md:size-12 ${
                     on
                       ? "rotate-0 border-orange bg-orange text-ink"
-                      : "-rotate-45 border-paper/25 text-paper group-hover:border-orange"
+                      : "-rotate-45 border-ink/20 text-ink group-hover:border-orange"
                   }`}
                 >
                   <svg viewBox="0 0 24 24" fill="none" className="size-4">

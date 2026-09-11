@@ -9,7 +9,6 @@ import { GoldenSpecials } from "@/components/home/GoldenSpecials";
 import { FriedChickenSpecial } from "@/components/home/FriedChickenSpecial";
 import { KunafaSpecial } from "@/components/home/KunafaSpecial";
 import { CategoriesPreview } from "@/components/home/HomeSections";
-import { CtaBand } from "@/components/page";
 
 const title = "Twin's Golden Cafe — Taste the Golden Side";
 const description =
@@ -46,13 +45,8 @@ function Index() {
         <KunafaSpecial />
         <CategoriesPreview />
 
-        {/* the page closes on the one thing to do next */}
-        <CtaBand
-          title="ORDER YOUR"
-          accent="FAVOURITE COMBO"
-          primary={{ to: "/contact", label: "Order Now" }}
-          secondary={{ to: "/menu", label: "See the full menu" }}
-        />
+        {/* no closing band here: the footer's sign-off is the one call to
+            action every page ends on */}
       </main>
 
       <SiteFooter />

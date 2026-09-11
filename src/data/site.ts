@@ -1,22 +1,31 @@
 /**
  * Cafe details used across the footer and the contact page.
  *
- * ⚠️ EVERY VALUE MARKED "TODO" IS A PLACEHOLDER, NOT REAL DATA.
- * Publishing a wrong phone number, address or map pin actively costs the
- * business customers, so these are deliberately obvious rather than
- * plausible-looking. Replace them before the site goes live.
+ * Taken from the cafe's Google Business Profile. A value left empty (or still
+ * marked TODO) is kept off the page rather than shown as a placeholder —
+ * publishing a wrong phone number, address or map pin costs the business
+ * customers.
  */
+const ADDRESS = "251, Market Rd, Arani Palayam, Old Bus Stand, Arani, Tamil Nadu 632301";
+
 export const CAFE = {
   name: "Twin's Golden Cafe",
   founder: "Yuvaraj Venkatesan",
 
-  phone: "+91 00000 00000", // TODO: real phone number
-  whatsapp: "910000000000", // TODO: real WhatsApp number, digits only with country code
-  email: "hello@example.com", // TODO: real email
+  phone: "+91 78717 87143",
+  whatsapp: "917871787143", // digits only, with the country code
+  email: "", // none published yet — the email card and footer link stay hidden
 
-  address: "TODO — add the full street address, city and PIN code",
-  // TODO: paste the embed URL from Google Maps → Share → Embed a map
-  mapEmbedSrc: "",
+  address: ADDRESS,
+  /** the part people navigate by, for badges where the full address won't fit */
+  shortAddress: "Old Bus Stand, Arani",
+  directionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+    `Twin's Golden Cafe, ${ADDRESS}`,
+  )}`,
+  // Google Maps' keyless embed, pointed at the cafe by name and address
+  mapEmbedSrc: `https://maps.google.com/maps?q=${encodeURIComponent(
+    `Twin's Golden Cafe, ${ADDRESS}`,
+  )}&z=17&output=embed`,
 
   hours: "Open daily · 11 AM – 11 PM", // TODO: confirm real opening hours
   hoursRows: [
@@ -25,9 +34,9 @@ export const CAFE = {
   ], // TODO: confirm
 
   social: [
-    { label: "Instagram", href: "#" }, // TODO: real profile URL
-    { label: "Facebook", href: "#" }, // TODO: real profile URL
-    { label: "WhatsApp", href: "#" }, // TODO: https://wa.me/<number>
+    { label: "Instagram", href: "https://www.instagram.com/twins_golden_cafe/" },
+    { label: "Facebook", href: "https://www.facebook.com/Twinsgoldencafe/" },
+    { label: "WhatsApp", href: "https://wa.me/917871787143" },
   ],
 } as const;
 
@@ -38,4 +47,4 @@ export const CONTACT_DETAILS_READY = !CAFE.phone.includes("00000 00000");
 export const ADDRESS_READY = !CAFE.address.startsWith("TODO");
 
 /** Only the social profiles that have a real link — "#" goes nowhere. */
-export const SOCIAL = CAFE.social.filter((s) => s.href !== "#");
+export const SOCIAL = CAFE.social.filter((s: { label: string; href: string }) => s.href !== "#");

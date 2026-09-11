@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
 import { MaskReveal } from "./bits";
@@ -135,58 +134,6 @@ export function PageHero({
         {children}
       </div>
     </header>
-  );
-}
-
-/** The closing call to action shared by every page. */
-export function CtaBand({
-  title,
-  accent,
-  primary,
-  secondary,
-}: {
-  title: string;
-  accent: string;
-  primary: { to: string; label: string };
-  secondary: { to: string; label: string };
-}) {
-  return (
-    <Section tone="ink" className="text-center">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 size-[65vw] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-30"
-        style={{ background: "radial-gradient(circle, var(--orange) 0%, transparent 65%)" }}
-      />
-      <h2 className="display-xl text-paper">
-        <MaskReveal>{title}</MaskReveal>
-        <MaskReveal delay={0.09}>
-          <span className="block text-orange">{accent}</span>
-        </MaskReveal>
-      </h2>
-      <motion.div
-        initial={{ opacity: 0, y: 22 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-60px" }}
-        transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-        className="mt-12 flex flex-wrap items-center justify-center gap-6"
-      >
-        <Link
-          to={primary.to}
-          data-cursor="cta"
-          className="inline-flex items-center rounded-full bg-orange px-9 py-4 text-[0.68rem] font-extrabold uppercase tracking-[0.24em] text-ink transition-transform duration-300 hover:-translate-y-0.5"
-        >
-          {primary.label}
-        </Link>
-        <Link
-          to={secondary.to}
-          data-cursor="cta"
-          className="group inline-flex items-center gap-3 text-[0.68rem] font-extrabold uppercase tracking-[0.26em] text-paper transition-colors hover:text-orange"
-        >
-          {secondary.label}
-          <span className="h-px w-10 bg-current transition-all duration-500 group-hover:w-16" />
-        </Link>
-      </motion.div>
-    </Section>
   );
 }
 

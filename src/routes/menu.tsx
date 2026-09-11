@@ -7,7 +7,7 @@ import { MenuBackdrop } from "@/components/MenuBackdrop";
 import { FloatingFood } from "@/components/FloatingFood";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { CtaBand, RevealCard, Section, SectionHead } from "@/components/page";
+import { RevealCard, Section, SectionHead } from "@/components/page";
 import { specialGroups } from "@/data/specials";
 import drumstick from "@/assets/drumstick.webp";
 import chickenBurger from "@/assets/chicken-burger.webp";
@@ -284,13 +284,6 @@ function MenuPage() {
         <SpecialsBoard />
 
         <MustTry />
-
-        <CtaBand
-          title="VISIT TWIN'S"
-          accent="GOLDEN CAFE TODAY"
-          primary={{ to: "/combos", label: "See best combos" }}
-          secondary={{ to: "/contact", label: "Contact us" }}
-        />
       </main>
 
       <SiteFooter />

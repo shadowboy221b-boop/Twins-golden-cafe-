@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { Cursor } from "@/components/Cursor";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { CtaBand, PageHero, RevealCard, Section, SectionHead } from "@/components/page";
+import { PageHero, RevealCard, Section, SectionHead } from "@/components/page";
 import { MaskReveal } from "@/components/bits";
 import { CAFE } from "@/data/site";
 import { FloatingFood } from "@/components/FloatingFood";
@@ -438,13 +438,6 @@ function AboutPage() {
             </MaskReveal>
           </div>
         </Section>
-
-        <CtaBand
-          title="VISIT TWIN'S"
-          accent="GOLDEN CAFE TODAY"
-          primary={{ to: "/contact", label: "Get in touch" }}
-          secondary={{ to: "/menu", label: "See the menu" }}
-        />
       </main>
 
       <SiteFooter />
