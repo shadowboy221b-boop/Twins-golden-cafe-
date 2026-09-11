@@ -8,7 +8,7 @@ import { RevealCard, Section, SectionHead } from "@/components/page";
 import { MaskReveal } from "@/components/bits";
 import { SocialIcons } from "@/components/SocialIcons";
 import { ADDRESS_READY, CAFE, CONTACT_DETAILS_READY, SOCIAL } from "@/data/site";
-import heroPhoto from "@/assets/burger-splash.webp";
+import heroPhoto from "@/assets/shop-front.webp";
 
 const title = "Contact Us — Twin's Golden Cafe";
 const description =
@@ -284,19 +284,47 @@ function ContactHero() {
           transition={{ duration: 1.2, delay: 0.25, ease: EASE }}
           className="relative mx-auto w-full max-w-sm lg:max-w-md"
         >
+          {/* corner brackets set just outside the frame — top left and bottom
+              right, clear of the address badge */}
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -left-4 -top-4 z-10 size-14 rounded-tl-[1.6rem] border-l-[3px] border-t-[3px] border-orange"
+          />
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -bottom-4 -right-4 z-10 size-14 rounded-br-[1.6rem] border-b-[3px] border-r-[3px] border-orange"
+          />
+
+          {/* The border is a conic gradient whose angle turns, so a band of
+              golden light keeps running round the frame. */}
           <div
-            data-cursor="food"
-            className="overflow-hidden rounded-[2rem] shadow-[0_40px_90px_-30px_rgba(0,0,0,0.8)] ring-1 ring-orange/30"
-            style={{ aspectRatio: "4 / 5" }}
+            className="border-spin relative rounded-[2.2rem] p-[3px] shadow-[0_40px_90px_-30px_rgba(0,0,0,0.8),0_0_70px_-25px_oklch(0.677_0.196_46/0.7)]"
+            style={{
+              background:
+                "conic-gradient(from var(--border-angle), oklch(0.677 0.196 46 / 0.25) 0deg, oklch(0.677 0.196 46 / 0.25) 210deg, #f76b0a 265deg, #ffdca8 300deg, #f76b0a 335deg, oklch(0.677 0.196 46 / 0.25) 360deg)",
+            }}
           >
-            <img
-              src={heroPhoto}
-              alt="A crispy chicken burger at Twin's Golden Cafe"
-              width={1100}
-              height={1100}
-              decoding="async"
-              className="size-full object-cover"
-            />
+            {/* the shop front at its own 3:4, so neither the sign nor the steps
+                are cropped away */}
+            <div
+              data-cursor="view"
+              className="relative overflow-hidden rounded-[2rem] bg-ink"
+              style={{ aspectRatio: "3 / 4" }}
+            >
+              <img
+                src={heroPhoto}
+                alt="The Twin's Golden Cafe shop front at Old Bus Stand, Arani"
+                width={900}
+                height={1200}
+                decoding="async"
+                className="size-full object-cover"
+              />
+              {/* a band of light that crosses the photo every few seconds */}
+              <span
+                aria-hidden
+                className="photo-sheen pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-white/25 to-transparent"
+              />
+            </div>
           </div>
 
           {ADDRESS_READY && (

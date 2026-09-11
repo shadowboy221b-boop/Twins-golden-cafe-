@@ -261,10 +261,7 @@
     /* plain alpha, no blend mode: an overlay blend made the browser re-blend
        the whole section under it on every animation frame */
     opacity: 0.12;
-    background-image: radial-gradient(
-      oklch(0.5 0 0 / 14%) 0.5px,
-      transparent 0.6px
-    );
+    background-image: radial-gradient(oklch(0.5 0 0 / 14%) 0.5px, transparent 0.6px);
     background-size: 3px 3px;
   }
 }
@@ -389,11 +386,7 @@
 }
 
 @utility menu-grid {
-  background-image: linear-gradient(
-    to bottom,
-    oklch(0.175 0.008 60 / 6%) 1px,
-    transparent 1px
-  );
+  background-image: linear-gradient(to bottom, oklch(0.175 0.008 60 / 6%) 1px, transparent 1px);
   background-size: 100% 56px;
   animation: grid-slide 12s linear infinite;
 }
@@ -433,8 +426,6 @@
   animation: float-sway 58s ease-in-out infinite;
 }
 
-
-
 /* A slow colour wash inside a card, so a light surface still has life in it.
    Transform-only, and the prefers-reduced-motion rule above freezes it. */
 @keyframes card-wash {
@@ -462,3 +453,36 @@
   }
 }
 
+/* A light that runs round a photo frame. The angle is a registered property so
+   the conic gradient that paints the border can animate smoothly; a browser
+   without @property shows the same border, just still. */
+@property --border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes border-spin {
+  to {
+    --border-angle: 360deg;
+  }
+}
+
+@utility border-spin {
+  animation: border-spin 5s linear infinite;
+}
+
+/* a band of light that crosses a photo now and then, like glass catching it */
+@keyframes photo-sheen {
+  0%,
+  55% {
+    transform: translateX(-160%) skewX(-18deg);
+  }
+  100% {
+    transform: translateX(360%) skewX(-18deg);
+  }
+}
+
+@utility photo-sheen {
+  animation: photo-sheen 6s ease-in-out infinite;
+}
