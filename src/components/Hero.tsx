@@ -150,7 +150,7 @@ export function Hero() {
             width={1280}
             height={1024}
             style={{ y: sliceY }}
-            className="floaty pointer-events-none absolute -right-[8%] top-[-4%] -z-10 w-36 opacity-40 blur-[2px] md:w-56"
+            className="floaty pointer-events-none absolute -right-[8%] top-[-4%] -z-10 w-36 opacity-40 md:w-56"
           />
 
           {/* scroll + mouse live on the wrapper so the spin below never fights them */}

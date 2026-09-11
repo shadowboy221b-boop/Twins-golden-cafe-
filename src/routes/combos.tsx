@@ -185,7 +185,7 @@ function CombosPage() {
                   whileInView={{ opacity: 0.12, scale: 1 }}
                   viewport={{ once: true, margin: "-20%" }}
                   transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                  className={`pointer-events-none absolute top-[-8%] w-[45vw] blur-[2px] md:w-[22vw] ${
+                  className={`pointer-events-none absolute top-[-8%] w-[45vw] md:w-[22vw] ${
                     gi % 2 ? "left-[-8vw]" : "right-[-6vw]"
                   }`}
                 />

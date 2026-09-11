@@ -127,7 +127,7 @@ function AboutPage() {
             whileInView={{ opacity: 0.12, scale: 1 }}
             viewport={{ once: true, margin: "-20%" }}
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-            className="floaty pointer-events-none absolute right-[-8vw] top-[-6%] w-[45vw] blur-[2px] md:w-[22vw]"
+            className="floaty pointer-events-none absolute right-[-8vw] top-[-6%] w-[45vw] md:w-[22vw]"
           />
 
           {/* Centred, like every head that sits above a full-width body. The
@@ -315,7 +315,7 @@ function AboutPage() {
             whileInView={{ opacity: 0.1, scale: 1 }}
             viewport={{ once: true, margin: "-20%" }}
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-            className="floaty pointer-events-none absolute left-[-8vw] top-[10%] w-[45vw] blur-[2px] md:w-[20vw]"
+            className="floaty pointer-events-none absolute left-[-8vw] top-[10%] w-[45vw] md:w-[20vw]"
           />
 
           <div className="relative">

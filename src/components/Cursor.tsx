@@ -32,14 +32,21 @@ export function Cursor() {
     setEnabled(true);
     document.documentElement.classList.add("cursor-none-desktop");
 
+    // The pointer moves many times a second but only rarely crosses onto a
+    // different kind of target, so React state is touched only when it does.
+    let last: typeof mode = "idle";
     const move = (e: MouseEvent) => {
       x.set(e.clientX);
       y.set(e.clientY);
       const el = (e.target as HTMLElement | null)?.closest?.("[data-cursor]");
       const v = el?.getAttribute("data-cursor");
-      setMode(v === "food" || v === "cta" || v === "view" ? v : "idle");
+      const next = v === "food" || v === "cta" || v === "view" ? v : "idle";
+      if (next !== last) {
+        last = next;
+        setMode(next);
+      }
     };
-    window.addEventListener("mousemove", move);
+    window.addEventListener("mousemove", move, { passive: true });
     return () => {
       window.removeEventListener("mousemove", move);
       document.documentElement.classList.remove("cursor-none-desktop");
