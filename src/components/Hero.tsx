@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, useMotionValue, useScroll, useSpring, useTransform } from "motion/react";
-import { useSpinAllowed } from "./bits";
+import { useLoopInView } from "./bits";
 import burger from "@/assets/burger-hero.webp";
 import pizza from "@/assets/pizza.webp";
+import momoPlate from "@/assets/momo-plate.webp";
+import chocoShake from "@/assets/choco-shake.webp";
 import pizzaSlice from "@/assets/pizza-slice.webp";
 
 /** What rides the turntable, in order. The burger stays first — it's the shot
@@ -14,6 +16,8 @@ import pizzaSlice from "@/assets/pizza-slice.webp";
 const HERO_DISHES = [
   { src: burger, alt: "Twin's Golden Cafe signature burger" },
   { src: pizza, alt: "A stone-baked pizza, loaded with toppings" },
+  { src: momoPlate, alt: "A plate of steamed momos with red chutney" },
+  { src: chocoShake, alt: "A chocolate milkshake topped with cream" },
 ];
 
 /** how long each dish holds before the next fades in */
@@ -36,7 +40,7 @@ export function Hero() {
   const copyOpacity = useTransform(p, [0, 0.8], [1, 0]);
   const sliceY = useTransform(p, [0, 1], [0, -180]);
 
-  const spin = useSpinAllowed();
+  const spin = useLoopInView(ref);
 
   // Which dish is on the turntable. Starts at 0 and the first image is opaque
   // by default, so the hero is never blank if this timer never runs.

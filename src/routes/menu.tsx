@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { motion } from "motion/react";
 import { categories, type MenuItem } from "@/data/menu";
 import { Cursor } from "@/components/Cursor";
@@ -8,12 +8,14 @@ import { FloatingFood } from "@/components/FloatingFood";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { RevealCard, Section, SectionHead } from "@/components/page";
-import { specialGroups } from "@/data/specials";
 import drumstick from "@/assets/drumstick.webp";
 import chickenBurger from "@/assets/chicken-burger.webp";
 import kunafaImg from "@/assets/kunafa.webp";
 import milkshakeImg from "@/assets/milkshake.webp";
 import { MaskReveal } from "@/components/bits";
+import { MenuMasthead } from "@/components/menu/MenuMasthead";
+import { AddButton } from "@/components/cart/AddButton";
+import { itemKey } from "@/lib/cart";
 
 const title = "The Full Menu — Twin's Golden Cafe";
 const description =
@@ -36,8 +38,6 @@ export const Route = createFileRoute("/menu")({
 });
 
 const ALL_ITEMS = categories.flatMap((c) => c.items);
-const PRICE_MIN = Math.min(...ALL_ITEMS.map((i) => i.price));
-const PRICE_MAX = Math.max(...ALL_ITEMS.map((i) => i.price));
 
 function MenuPage() {
   const [active, setActive] = useState(categories[0]?.id ?? "");
@@ -92,50 +92,8 @@ function MenuPage() {
       <main className="relative">
         <MenuBackdrop />
 
-        {/* ---------- masthead ---------- */}
-        <header className="grain relative overflow-hidden bg-ink px-5 pb-16 pt-32 md:px-12 md:pb-20 md:pt-36">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute right-[-12%] top-[-20%] size-[60vw] rounded-full opacity-35"
-            style={{ background: "radial-gradient(circle, var(--orange) 0%, transparent 65%)" }}
-          />
-
-          <div className="relative z-10 mx-auto max-w-7xl">
-            <div>
-              <MaskReveal>
-                <p className="eyebrow !text-orange">Everything we cook</p>
-              </MaskReveal>
-              <h1 className="mt-5 display-xl text-paper">
-                <MaskReveal delay={0.06}>THE FULL</MaskReveal>
-                <MaskReveal delay={0.14}>
-                  <span className="block text-orange">MENU</span>
-                </MaskReveal>
-              </h1>
-
-              <motion.dl
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="mt-10 flex flex-wrap gap-x-12 gap-y-6"
-              >
-                {[
-                  { v: String(categories.length), l: "Categories" },
-                  { v: String(ALL_ITEMS.length), l: "Dishes" },
-                  { v: `₹${PRICE_MIN}–₹${PRICE_MAX}`, l: "Price range" },
-                ].map((s) => (
-                  <div key={s.l}>
-                    <dt className="font-display text-3xl font-extrabold tracking-[-0.03em] text-orange md:text-4xl">
-                      {s.v}
-                    </dt>
-                    <dd className="mt-1 text-[0.55rem] font-extrabold uppercase tracking-[0.26em] text-paper/50">
-                      {s.l}
-                    </dd>
-                  </div>
-                ))}
-              </motion.dl>
-            </div>
-          </div>
-        </header>
+        {/* ---------- masthead: the dishes fly in and form the title ---------- */}
+        <MenuMasthead vegOnly={vegOnly} onVegOnly={setVegOnly} />
 
         {/* ---------- sticky toolbar ---------- */}
         <div className="sticky top-[5.1rem] z-30 border-b border-ink/10 bg-paper/95">
@@ -281,8 +239,6 @@ function MenuPage() {
           </div>
         </div>
 
-        <SpecialsBoard />
-
         <MustTry />
       </main>
 
@@ -349,8 +305,16 @@ function MustTry() {
   );
 }
 
-/** One price with the way it is served printed above it (steam / fried). */
-function PriceCol({ label, value }: { label: string; value: number }) {
+/** One price with the way it is served printed above it (steam / fried), and its add button below. */
+function PriceCol({
+  label,
+  value,
+  children,
+}: {
+  label: string;
+  value: number;
+  children?: ReactNode;
+}) {
   return (
     <span className="flex w-16 shrink-0 flex-col items-end">
       <span className="text-[0.55rem] font-extrabold uppercase tracking-[0.16em] text-ink/70">
@@ -359,6 +323,7 @@ function PriceCol({ label, value }: { label: string; value: number }) {
       <span className="font-display text-[0.95rem] font-extrabold tabular-nums text-ink transition-colors duration-300 group-hover:text-orange-ink">
         ₹{value}
       </span>
+      {children && <span className="mt-1.5">{children}</span>}
     </span>
   );
 }
@@ -450,13 +415,44 @@ function Category({
 
                 {it.altPrice != null && priceColumns ? (
                   <span className="flex shrink-0 items-start gap-3">
-                    <PriceCol label={priceColumns[0]} value={it.price} />
-                    <PriceCol label={priceColumns[1]} value={it.altPrice} />
+                    <PriceCol label={priceColumns[0]} value={it.price}>
+                      <AddButton
+                        item={{
+                          key: itemKey(id, it.name, priceColumns[0]),
+                          name: it.name,
+                          variant: priceColumns[0],
+                          price: it.price,
+                          veg: it.veg,
+                        }}
+                      />
+                    </PriceCol>
+                    <PriceCol label={priceColumns[1]} value={it.altPrice}>
+                      <AddButton
+                        item={{
+                          key: itemKey(id, it.name, priceColumns[1]),
+                          name: it.name,
+                          variant: priceColumns[1],
+                          price: it.altPrice,
+                          veg: it.veg,
+                        }}
+                      />
+                    </PriceCol>
                   </span>
                 ) : (
-                  <span className="shrink-0 font-display text-[0.95rem] font-extrabold tabular-nums text-ink transition-colors duration-300 group-hover:text-orange-ink">
-                    ₹{it.price}
-                  </span>
+                  <>
+                    <span className="shrink-0 font-display text-[0.95rem] font-extrabold tabular-nums text-ink transition-colors duration-300 group-hover:text-orange-ink">
+                      ₹{it.price}
+                    </span>
+                    <AddButton
+                      item={{
+                        key: itemKey(id, it.name),
+                        name: it.name,
+                        price: it.price,
+                        veg: it.veg,
+                      }}
+                      className="self-center"
+                    />
+                  </>
                 )}
               </span>
 
@@ -484,145 +480,5 @@ function Category({
         </ul>
       )}
     </section>
-  );
-}
-
-/**
- * The signature board, repeated on the menu page. Names only — every price on
- * this page comes from `menu.ts`, and these specials do not carry one yet.
- */
-/** One line on a specials card, revealed as the card comes up. */
-function SpecialLine({ label, index }: { label: string; index: number }) {
-  return (
-    <motion.li
-      initial={{ opacity: 0, x: -8 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.45, delay: Math.min(index * 0.03, 0.3), ease: [0.16, 1, 0.3, 1] }}
-      className="group/line flex items-center gap-3 border-b border-paper/10 py-2 last:border-0"
-    >
-      <span
-        aria-hidden
-        className="size-1 shrink-0 rounded-full bg-orange transition-all duration-300 group-hover/line:scale-[2]"
-      />
-      <span className="text-[0.82rem] font-semibold leading-snug text-paper/80 transition-colors duration-300 group-hover/line:text-paper">
-        {label}
-      </span>
-    </motion.li>
-  );
-}
-
-function SpecialsBoard() {
-  return (
-    <Section tone="warm">
-      <FloatingFood opacity={0.1} />
-
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 top-0 size-[55vw] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-25"
-        style={{ background: "radial-gradient(circle, var(--orange) 0%, transparent 65%)" }}
-      />
-
-      <div className="relative">
-        <SectionHead
-          align="center"
-          eyebrow="The Golden Specials"
-          title="SIGNATURE"
-          accent="CREATIONS"
-          lede="Premium favourites and customer-loved treats, alongside the board above."
-        />
-      </div>
-
-      {/* Masonry columns, not a grid: these lists are wildly different lengths,
-          and a row-aligned grid stretches the short cards into dead white space.
-          Columns let each card end where its content ends. */}
-      <div className="relative z-10 mt-14 columns-1 gap-6 md:columns-2 xl:columns-3">
-        {specialGroups.map((g, gi) => (
-          <RevealCard key={g.id} index={gi} className="mb-6 break-inside-avoid">
-            <section className="group relative flex flex-col overflow-hidden rounded-3xl bg-ink transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:shadow-[0_34px_70px_-38px_oklch(0.175_0.008_60/0.6)]">
-              {/* an orange wash drifting inside the card, so the dark ground
-                  keeps moving instead of sitting there as a flat block */}
-              <span
-                aria-hidden
-                className="card-wash pointer-events-none absolute -inset-1/4"
-                style={{
-                  background:
-                    "radial-gradient(circle at 30% 30%, var(--orange) 0%, transparent 62%)",
-                  opacity: 0.22,
-                  animationDelay: `${gi * -2.4}s`,
-                }}
-              />
-
-              {/* hairline that lights up orange on hover */}
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-0 rounded-3xl border border-paper/12 transition-colors duration-500 group-hover:border-orange"
-              />
-              {/* photo band: the shot leans in as the card is hovered */}
-              <div className="relative h-40 overflow-hidden bg-ink md:h-44">
-                <img
-                  src={g.src}
-                  alt=""
-                  aria-hidden
-                  loading="lazy"
-                  width={g.w}
-                  height={g.h}
-                  className="size-full scale-105 object-cover opacity-80 transition-transform duration-[1100ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-115"
-                />
-                <span
-                  aria-hidden
-                  className="absolute inset-0 bg-gradient-to-t from-ink via-ink/55 to-ink/10"
-                />
-
-                <div className="absolute inset-x-0 bottom-0 p-5">
-                  <p className="text-[0.5rem] font-extrabold uppercase tracking-[0.28em] text-orange">
-                    {g.tagline}
-                  </p>
-                  <h3 className="mt-1.5 font-display text-lg font-extrabold uppercase leading-tight tracking-[-0.02em] text-paper md:text-xl">
-                    {g.title}
-                  </h3>
-                </div>
-
-                {/* the rule draws itself across the card on hover */}
-                <span
-                  aria-hidden
-                  className="absolute inset-x-0 bottom-0 h-[3px] w-0 bg-orange transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-full"
-                />
-              </div>
-
-              <div className="relative p-5">
-                {g.lists ? (
-                  <div className="space-y-4">
-                    {g.lists.map((l) => (
-                      <div key={l.label}>
-                        <p className="flex items-center gap-2.5 text-[0.55rem] font-extrabold uppercase tracking-[0.28em] text-orange">
-                          <span aria-hidden className="h-px w-5 shrink-0 bg-orange" />
-                          {l.label}
-                        </p>
-                        <ul className="mt-2">
-                          {l.items.map((it, i) => (
-                            <SpecialLine key={it} label={it} index={i} />
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <ul>
-                    {g.items.map((it, i) => (
-                      <SpecialLine key={it} label={it} index={i} />
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </section>
-          </RevealCard>
-        ))}
-      </div>
-
-      <p className="relative z-10 mt-12 rule-label text-ink/65">
-        Ask the counter for specials pricing
-      </p>
-    </Section>
   );
 }

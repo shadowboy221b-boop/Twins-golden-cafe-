@@ -486,3 +486,16 @@
 @utility photo-sheen {
   animation: photo-sheen 6s ease-in-out infinite;
 }
+
+/* On a phone the smallest uppercase labels (8–9px on a laptop, where they sit
+   in plenty of space) are too small to read, so under 640px none of them goes
+   below 10px. Left outside a layer on purpose, so it outranks the utilities it
+   corrects; the md: sizes are separate classes and stay as they are. */
+@media (max-width: 639px) {
+  .text-\[0\.5rem\],
+  .text-\[0\.52rem\],
+  .text-\[0\.55rem\],
+  .text-\[0\.58rem\] {
+    font-size: 0.625rem;
+  }
+}

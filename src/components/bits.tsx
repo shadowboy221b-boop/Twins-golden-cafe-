@@ -1,5 +1,5 @@
-import { motion } from "motion/react";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { motion, useInView } from "motion/react";
+import { useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 
 /**
  * Mask reveal — content slides out from under a clip.
@@ -81,4 +81,17 @@ export function useSpinAllowed() {
   }, []);
 
   return allowed;
+}
+
+/**
+ * Whether a section's never-ending motion should be running: motion is welcome
+ * and the section is on screen, or about to be. A turning dish that has
+ * scrolled away still costs work on every frame — on a phone, a page full of
+ * them was what made scrolling stutter — so each loop stops when it leaves the
+ * screen and picks up again as it comes back.
+ */
+export function useLoopInView(ref: RefObject<Element | null>) {
+  const allowed = useSpinAllowed();
+  const near = useInView(ref, { margin: "200px 0px 200px 0px" });
+  return allowed && near;
 }

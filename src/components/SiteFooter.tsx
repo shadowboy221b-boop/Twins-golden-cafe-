@@ -210,8 +210,14 @@ export function SiteFooter() {
           {/* the platforms' own marks, no text — same icons as the contact page */}
           <SocialIcons size="sm" className="gap-3" />
 
+          {/* only the home page has a #top to land on, so the scroll is done
+              here; the href is what's left without script */}
           <a
             href="#top"
+            onClick={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
             className="group inline-flex items-center gap-3 self-start text-[0.55rem] font-extrabold uppercase tracking-[0.28em] text-paper/55 transition-colors duration-300 hover:text-orange md:self-auto"
           >
             Back to top

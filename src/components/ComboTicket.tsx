@@ -1,5 +1,6 @@
 import { useRef, type PointerEvent } from "react";
-import { Link } from "@tanstack/react-router";
+import { AddButton } from "@/components/cart/AddButton";
+import { itemKey } from "@/lib/cart";
 import {
   motion,
   useMotionTemplate,
@@ -157,30 +158,13 @@ export function ComboTicket({ combo: c, index }: { combo: Combo; index: number }
             })}
           </motion.ul>
 
-          {/* there's no online cart: orders go through the counter, so this
-              takes the visitor to the contact page */}
-          <Link
-            to="/contact"
-            data-cursor="cta"
-            className={`group/order relative mb-6 inline-flex w-full items-center justify-center gap-3 rounded-full px-5 py-3 text-[0.62rem] font-extrabold uppercase tracking-[0.22em] transition-transform duration-300 hover:-translate-y-0.5 ${
-              hero ? "bg-orange text-ink" : "bg-ink text-paper"
-            }`}
-          >
-            <svg aria-hidden viewBox="0 0 24 24" fill="none" className="size-4">
-              <path
-                d="M6 8h12l-1.2 12H7.2L6 8Zm3 0V7a3 3 0 0 1 6 0v1"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            Order this combo
-            <span
-              aria-hidden
-              className="h-px w-5 bg-current transition-all duration-500 group-hover/order:w-9"
-            />
-          </Link>
+          {/* into the cart; once it's in, the bar turns into a − count + stepper */}
+          <AddButton
+            wide
+            tone={hero ? "orange" : "ink"}
+            item={{ key: itemKey("combo", c.name), name: c.name, price: c.price }}
+            className="relative mb-6"
+          />
         </div>
 
         {/* --------------------------------------------------------- stub */}

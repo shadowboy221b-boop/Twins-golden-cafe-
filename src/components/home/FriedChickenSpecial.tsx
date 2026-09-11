@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import { combos, happyTreats } from "@/data/menu";
-import { MaskReveal, useSpinAllowed } from "@/components/bits";
+import { MaskReveal, useLoopInView } from "@/components/bits";
 import { RevealCard } from "@/components/page";
 import friedChicken from "@/assets/fried-chicken.webp";
 
@@ -40,7 +40,7 @@ export function FriedChickenSpecial() {
   const frameY = useTransform(p, [0, 1], ["5%", "-5%"]);
   const wordY = useTransform(p, [0, 1], ["30%", "-30%"]);
 
-  const spin = useSpinAllowed();
+  const spin = useLoopInView(ref);
 
   return (
     <section

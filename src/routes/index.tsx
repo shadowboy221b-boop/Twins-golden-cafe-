@@ -9,6 +9,8 @@ import { GoldenSpecials } from "@/components/home/GoldenSpecials";
 import { FriedChickenSpecial } from "@/components/home/FriedChickenSpecial";
 import { KunafaSpecial } from "@/components/home/KunafaSpecial";
 import { CategoriesPreview } from "@/components/home/HomeSections";
+import { VegSpecial } from "@/components/home/VegSpecial";
+import { JuiceBar } from "@/components/home/JuiceBar";
 
 const title = "Twin's Golden Cafe — Taste the Golden Side";
 const description =
@@ -40,9 +42,11 @@ function Index() {
         <Hero />
         <BrandMarquee tone="orange" />
         <BestCombos />
+        <VegSpecial />
         <FriedChickenSpecial />
         <GoldenSpecials />
         <KunafaSpecial />
+        <JuiceBar />
         <CategoriesPreview />
 
         {/* no closing band here: the footer's sign-off is the one call to

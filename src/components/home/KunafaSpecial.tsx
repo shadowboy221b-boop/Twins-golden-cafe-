@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import { kunafas } from "@/data/menu";
-import { MaskReveal, useSpinAllowed } from "@/components/bits";
+import { MaskReveal, useLoopInView } from "@/components/bits";
 import { RevealCard } from "@/components/page";
 import kunafa from "@/assets/kunafa.webp";
 
@@ -37,7 +37,7 @@ export function KunafaSpecial() {
   const dishScale = useTransform(p, [0, 0.5, 1], [0.94, 1.06, 0.94]);
   const wordY = useTransform(p, [0, 1], ["30%", "-30%"]);
 
-  const spin = useSpinAllowed();
+  const spin = useLoopInView(ref);
 
   return (
     <section
