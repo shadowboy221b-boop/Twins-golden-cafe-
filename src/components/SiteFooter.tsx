@@ -3,7 +3,8 @@ import { motion } from "motion/react";
 import { Logo } from "./Logo";
 import { MaskReveal } from "./bits";
 import { FloatingFood } from "./FloatingFood";
-import { ADDRESS_READY, CAFE, CONTACT_DETAILS_READY, SOCIAL } from "@/data/site";
+import { ADDRESS_READY, CAFE, CONTACT_DETAILS_READY } from "@/data/site";
+import { SocialIcons } from "@/components/SocialIcons";
 import { categories } from "@/data/menu";
 
 const NAV = [
@@ -206,25 +207,8 @@ export function SiteFooter() {
             © {new Date().getFullYear()} Twin&apos;s Golden Cafe
           </p>
 
-          {/* only profiles that actually exist — a link to "#" goes nowhere */}
-          <ul className="flex flex-wrap gap-x-7 gap-y-2">
-            {SOCIAL.map((s) => (
-              <li key={s.label}>
-                <a
-                  href={s.href}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="group inline-flex items-center gap-2 text-[0.55rem] font-extrabold uppercase tracking-[0.28em] text-paper/55 transition-colors duration-300 hover:text-orange"
-                >
-                  {s.label}
-                  <span
-                    aria-hidden
-                    className="h-px w-0 bg-orange transition-all duration-500 group-hover:w-4"
-                  />
-                </a>
-              </li>
-            ))}
-          </ul>
+          {/* the platforms' own marks, no text — same icons as the contact page */}
+          <SocialIcons size="sm" className="gap-3" />
 
           <a
             href="#top"

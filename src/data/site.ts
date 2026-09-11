@@ -27,11 +27,8 @@ export const CAFE = {
     `Twin's Golden Cafe, ${ADDRESS}`,
   )}&z=17&output=embed`,
 
-  hours: "Open daily · 11 AM – 11 PM", // TODO: confirm real opening hours
-  hoursRows: [
-    { days: "Monday – Thursday", time: "11:00 AM – 11:00 PM" },
-    { days: "Friday – Sunday", time: "11:00 AM – 11:30 PM" },
-  ], // TODO: confirm
+  hours: "Open daily · 9 AM – 9 PM",
+  hoursRows: [{ days: "Monday – Sunday", time: "9:00 AM – 9:00 PM" }],
 
   social: [
     { label: "Instagram", href: "https://www.instagram.com/twins_golden_cafe/" },

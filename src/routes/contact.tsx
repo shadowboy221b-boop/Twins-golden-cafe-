@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { RevealCard, Section, SectionHead } from "@/components/page";
 import { MaskReveal } from "@/components/bits";
+import { SocialIcons } from "@/components/SocialIcons";
 import { ADDRESS_READY, CAFE, CONTACT_DETAILS_READY, SOCIAL } from "@/data/site";
 import heroPhoto from "@/assets/burger-splash.webp";
 
@@ -113,9 +114,6 @@ function Icon({ name, className = "size-5" }: { name: IconName; className?: stri
   );
 }
 
-const socialIcon = (label: string): IconName =>
-  /insta/i.test(label) ? "instagram" : /face/i.test(label) ? "facebook" : "whatsapp";
-
 /* ------------------------------------------------------------------ hours */
 
 const WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -165,7 +163,6 @@ function ContactPage() {
           </div>
         )}
 
-        {CONTACT_DETAILS_READY && <WaysToReach />}
         <VisitUs />
         {CONTACT_DETAILS_READY && <EnquiryForm />}
         {FAQ.length > 0 && <Questions />}
@@ -324,97 +321,6 @@ function ContactHero() {
   );
 }
 
-/* ---------------------------------------------------------- ways to reach */
-
-/** Three big doors: call, message, visit — each one does the thing on tap. */
-function WaysToReach() {
-  const ways = [
-    {
-      icon: "phone" as const,
-      label: "Call the counter",
-      value: CAFE.phone,
-      note: "Orders, tables, questions",
-      href: TEL,
-      external: false,
-    },
-    {
-      icon: "whatsapp" as const,
-      label: "WhatsApp us",
-      value: "Message the cafe",
-      note: "Send your order or enquiry",
-      href: WHATSAPP,
-      external: true,
-    },
-    ...(ADDRESS_READY
-      ? [
-          {
-            icon: "pin" as const,
-            label: "Visit us",
-            value: CAFE.shortAddress,
-            note: "Open Google Maps directions",
-            href: CAFE.directionsUrl,
-            external: true,
-          },
-        ]
-      : []),
-  ];
-
-  return (
-    <Section tone="paper">
-      <SectionHead
-        align="center"
-        eyebrow="Contact information"
-        title="REACH"
-        accent="THE COUNTER"
-      />
-
-      <div
-        className={`mt-12 grid gap-5 ${ways.length === 3 ? "md:grid-cols-3" : "md:grid-cols-2"}`}
-      >
-        {ways.map((w, i) => (
-          <RevealCard key={w.label} index={i} className="h-full">
-            <a
-              href={w.href}
-              {...(w.external ? { target: "_blank", rel: "noreferrer noopener" } : {})}
-              data-cursor="cta"
-              className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-ink/10 bg-paper p-8 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:border-ink hover:shadow-[0_30px_60px_-30px_oklch(0.175_0.008_60/0.5)]"
-            >
-              {/* the card darkens from the bottom as it's hovered */}
-              <span
-                aria-hidden
-                className="pointer-events-none absolute inset-0 origin-bottom scale-y-0 bg-ink transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-y-100"
-              />
-
-              <span className="relative grid size-14 place-items-center rounded-2xl bg-orange text-ink transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-110">
-                <Icon name={w.icon} className="size-6" />
-              </span>
-
-              <span className="relative mt-8 text-[0.58rem] font-extrabold uppercase tracking-[0.28em] text-orange-ink transition-colors duration-500 group-hover:text-orange">
-                {w.label}
-              </span>
-              <span className="relative mt-2 font-display text-2xl font-black tracking-[-0.02em] text-ink transition-colors duration-500 group-hover:text-paper">
-                {w.value}
-              </span>
-              <span className="relative mt-2 text-sm text-ink/60 transition-colors duration-500 group-hover:text-paper/60">
-                {w.note}
-              </span>
-
-              <span className="relative mt-auto flex items-center justify-end pt-8">
-                <span className="grid size-11 place-items-center rounded-full border border-ink/15 text-ink transition-all duration-500 group-hover:border-orange group-hover:bg-orange group-hover:text-ink">
-                  <Icon
-                    name="arrow"
-                    className="size-4 -rotate-45 transition-transform duration-500 group-hover:rotate-0"
-                  />
-                </span>
-              </span>
-            </a>
-          </RevealCard>
-        ))}
-      </div>
-    </Section>
-  );
-}
-
 /* ---------------------------------------------------------------- visit us */
 
 /** The map with the address laid over it, and the week's hours beside it. */
@@ -423,23 +329,30 @@ function VisitUs() {
 
   return (
     <Section tone="warm">
+      {/* One heading for the whole section. Two headings of different lengths
+          wrapped to different heights and left the map and the hours starting
+          at different levels; with small labels instead, both start level. */}
+      <SectionHead align="center" eyebrow="Visit us" title="FIND US" accent="HERE" />
+
+      {/* The two columns stretch to one height and the map fills its column,
+          so the map and the opening hours end level as well as start level. */}
       <div
-        className={`grid items-start gap-12 ${
-          CAFE.mapEmbedSrc ? "lg:grid-cols-[1.25fr_0.75fr]" : ""
+        className={`mt-14 grid items-stretch gap-10 ${
+          CAFE.mapEmbedSrc ? "lg:grid-cols-[1.25fr_0.75fr] lg:gap-12" : ""
         }`}
       >
         {CAFE.mapEmbedSrc && (
-          <div>
-            <SectionHead eyebrow="Location" title="FIND" accent="US HERE" />
+          <div className="flex flex-col">
+            <p className="rule-label text-ink/70">Location</p>
 
-            <RevealCard className="relative mt-10">
-              <div className="overflow-hidden rounded-[2rem] border border-ink/10 bg-paper shadow-[0_30px_70px_-40px_oklch(0.175_0.008_60/0.5)]">
+            <RevealCard className="relative mt-5 flex-1">
+              <div className="h-full overflow-hidden rounded-[2rem] border border-ink/10 bg-paper shadow-[0_30px_70px_-40px_oklch(0.175_0.008_60/0.5)]">
                 <iframe
                   src={CAFE.mapEmbedSrc}
                   title={`Map showing ${CAFE.name}`}
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  className="aspect-[4/3] w-full border-0 md:aspect-[16/10]"
+                  className="block aspect-[4/3] w-full border-0 md:aspect-[16/10] lg:aspect-auto lg:h-full"
                 />
               </div>
 
@@ -475,34 +388,38 @@ function VisitUs() {
           </div>
         )}
 
-        <div className="lg:pt-2">
-          <SectionHead eyebrow="Opening hours" title="WHEN" accent="WE'RE OPEN" />
+        <div>
+          <p className="rule-label text-ink/70">Opening hours</p>
 
-          <ul className="mt-10 overflow-hidden rounded-3xl border border-ink/10 bg-paper">
+          <ul className="mt-5 overflow-hidden rounded-3xl border border-ink/10 bg-paper shadow-[0_24px_60px_-40px_oklch(0.175_0.008_60/0.45)]">
             {WEEK_HOURS.map((h, i) => {
               const isToday = h.day === today;
               return (
                 <RevealCard key={h.day} index={i}>
                   <li
-                    className={`relative flex items-center justify-between gap-4 border-b border-ink/8 px-6 py-4 last:border-b-0 ${
+                    className={`relative flex items-center justify-between gap-4 border-b border-ink/8 px-5 py-5 last:border-b-0 sm:px-7 md:px-8 md:py-6 ${
                       isToday ? "bg-orange text-ink" : "text-ink"
                     }`}
                   >
                     <span className="flex items-center gap-3">
-                      <span className="text-sm font-bold uppercase tracking-[0.08em]">{h.day}</span>
+                      {/* three letters on a phone, so the day and its hours share one line */}
+                      <span className="text-sm font-bold uppercase tracking-[0.08em] sm:text-base md:text-lg">
+                        <span className="sm:hidden">{h.day.slice(0, 3)}</span>
+                        <span className="hidden sm:inline">{h.day}</span>
+                      </span>
                       {isToday && (
                         <motion.span
                           initial={{ scale: 0.6, opacity: 0 }}
                           animate={{ scale: 1, opacity: 1 }}
                           transition={{ type: "spring", stiffness: 420, damping: 18 }}
-                          className="rounded-full bg-ink px-2.5 py-1 text-[0.5rem] font-extrabold uppercase tracking-[0.2em] text-orange"
+                          className="rounded-full bg-ink px-3 py-1 text-[0.55rem] font-extrabold uppercase tracking-[0.2em] text-orange"
                         >
                           Today
                         </motion.span>
                       )}
                     </span>
                     <span
-                      className={`font-display text-sm font-extrabold tabular-nums ${
+                      className={`whitespace-nowrap font-display text-sm font-extrabold tabular-nums sm:text-base md:text-xl ${
                         isToday ? "text-ink" : "text-orange-ink"
                       }`}
                     >
@@ -513,36 +430,19 @@ function VisitUs() {
               );
             })}
           </ul>
-
-          {SOCIAL.length > 0 && (
-            <>
-              <MaskReveal className="mt-10">
-                <p className="rule-label text-ink/70">Follow us</p>
-              </MaskReveal>
-              <ul className="mt-5 flex flex-wrap gap-3">
-                {SOCIAL.map((s, i) => (
-                  <RevealCard key={s.label} index={i}>
-                    <li>
-                      <a
-                        href={s.href}
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        data-cursor="cta"
-                        className="group inline-flex items-center gap-2.5 rounded-full border border-ink/15 bg-paper py-2 pl-2 pr-5 text-[0.6rem] font-extrabold uppercase tracking-[0.2em] text-ink/80 transition-all duration-300 hover:-translate-y-0.5 hover:border-ink hover:bg-ink hover:text-paper"
-                      >
-                        <span className="grid size-8 place-items-center rounded-full bg-orange text-ink transition-transform duration-500 group-hover:rotate-12">
-                          <Icon name={socialIcon(s.label)} className="size-4" />
-                        </span>
-                        {s.label}
-                      </a>
-                    </li>
-                  </RevealCard>
-                ))}
-              </ul>
-            </>
-          )}
         </div>
       </div>
+
+      {/* Follow us sits under both cards rather than in the hours column, so it
+          doesn't make one column taller than the other. */}
+      {SOCIAL.length > 0 && (
+        <div className="mt-14">
+          <MaskReveal>
+            <p className="rule-label text-ink/70">Follow us</p>
+          </MaskReveal>
+          <SocialIcons className="mt-6 justify-center" />
+        </div>
+      )}
     </Section>
   );
 }
