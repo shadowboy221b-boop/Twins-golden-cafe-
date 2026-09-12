@@ -15,9 +15,16 @@ export const ORDERING = {
    * their UPI app. A business UPI ID works best — some apps refuse pay links
    * to a personal ID.
    */
-  upiId: "" as string,
-  /** the payee name the guest sees in their UPI app */
+  upiId: "paytm.s1r5ob1@pty" as string,
+  /** the name we ask the guest's UPI app to show */
   upiName: "Twin's Golden Cafe",
+  /**
+   * The name the account is actually registered under. A UPI app shows the
+   * registered merchant name, not the one a pay link asks for, so the guest
+   * sees this — saying so up front stops it looking like the wrong shop.
+   * Empty when the account is registered in the cafe's own name.
+   */
+  upiAccountName: "Village Milk",
 
   times: ["As soon as possible", "In 30 minutes", "In 1 hour"],
 } as const;

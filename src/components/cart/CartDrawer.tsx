@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { AnimatePresence, motion } from "motion/react";
 import { Link } from "@tanstack/react-router";
@@ -80,6 +80,7 @@ function orderMessage(
   d: Details,
   orderNo: string,
   payment: string,
+  paid: boolean,
 ) {
   const delivery = d.type === "delivery";
   return [
@@ -102,6 +103,14 @@ function orderMessage(
     delivery ? `*Address:* ${d.address.trim()}` : null,
     delivery && d.landmark.trim() ? `*Landmark:* ${d.landmark.trim()}` : null,
     `*Payment:* ${payment}`,
+    // The guest reads this in WhatsApp before sending, so it is written to
+    // them: the screenshot is what the cafe checks the payment against.
+    paid ? "📎 *Payment screenshot* — please attach it in this chat." : null,
+    // The cafe reads this in its own chat. A screenshot proves nothing on its
+    // own, so the money has to be seen in Paytm before the order is accepted.
+    paid
+      ? "⚠️ _Cafe: check this payment in Paytm before confirming — a screenshot can be edited._"
+      : null,
     d.notes.trim() ? `*Notes:* ${d.notes.trim()}` : null,
   ]
     .filter((line): line is string => line !== null)
@@ -265,11 +274,21 @@ export function CartDrawer() {
   const [utr, setUtr] = useState("");
   const [utrError, setUtrError] = useState("");
   const [copied, setCopied] = useState(false);
+  /** the payment screenshot: kept on the phone, handed on only by the guest */
+  const [shot, setShot] = useState<File | null>(null);
+  const [shotUrl, setShotUrl] = useState<string | null>(null);
+  const [shareFailed, setShareFailed] = useState(false);
+  /** the guest has been handed to their UPI app and has come back to the page */
+  const [backFromApp, setBackFromApp] = useState(false);
+  const wentToApp = useRef(false);
+  /** seconds left before the order goes on to WhatsApp by itself */
+  const [countdown, setCountdown] = useState<number | null>(null);
   const [sent, setSent] = useState<{
     url: string;
     orderNo: string;
     total: number;
     paid: boolean;
+    shared: boolean;
   } | null>(null);
 
   // bring back the name, number and address from the guest's last order
@@ -290,10 +309,74 @@ export function CartDrawer() {
     }
   }, []);
 
+  // The UPI app opens over the page. When the page comes back the payment is
+  // either done or abandoned, so the send-order button stops being a quiet
+  // afterthought and asks the question outright.
+  useEffect(() => {
+    if (step !== "pay") return;
+    const onVisible = () => {
+      if (document.visibilityState !== "visible" || !wentToApp.current) return;
+      setBackFromApp(true);
+      // every trip to the app starts the countdown again, including a second
+      // attempt after the guest stopped the first one
+      setCountdown(4);
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [step]);
+
+  // Back from the app, the order carries on to WhatsApp on its own. The site
+  // cannot see whether the payment went through, so this is a countdown the
+  // guest can stop — never a claim that it worked.
+  const sendNow = useRef<(auto: boolean) => void>(() => {});
+  useEffect(() => {
+    if (countdown === null) return;
+    if (countdown <= 0) {
+      setCountdown(null);
+      sendNow.current(true);
+      return;
+    }
+    const id = window.setTimeout(() => setCountdown((c) => (c === null ? null : c - 1)), 1000);
+    return () => window.clearTimeout(id);
+  }, [countdown]);
+
   const set = <K extends keyof Details>(key: K, value: Details[K]) => {
     setDetails((d) => ({ ...d, [key]: value }));
     if (errors[key]) setErrors((e) => ({ ...e, [key]: undefined }));
   };
+
+  /** Can this phone hand WhatsApp the picture and the order together? */
+  const canShareShot = (file: File | null): file is File =>
+    file !== null &&
+    typeof navigator.canShare === "function" &&
+    navigator.canShare({ files: [file] });
+
+  const pickShot = (file: File | null) => {
+    if (!file || !file.type.startsWith("image/")) return;
+    setCountdown(null);
+    setShareFailed(false);
+    setShot(file);
+    setShotUrl((old) => {
+      if (old) URL.revokeObjectURL(old);
+      return URL.createObjectURL(file);
+    });
+  };
+
+  const clearShot = () => {
+    setShot(null);
+    setShotUrl((old) => {
+      if (old) URL.revokeObjectURL(old);
+      return null;
+    });
+  };
+
+  // the preview URL is the browser holding on to the file; let it go on the way out
+  useEffect(
+    () => () => {
+      if (shotUrl) URL.revokeObjectURL(shotUrl);
+    },
+    [shotUrl],
+  );
 
   const openCart = () => {
     if (step === "done") setStep("cart");
@@ -305,21 +388,53 @@ export function CartDrawer() {
     if (!next && step === "done") setStep("cart");
   };
 
-  /** Write the order into WhatsApp, open it, and finish. */
-  const sendToWhatsApp = (no: string, payment: string, paid: boolean) => {
-    const url = `https://wa.me/${CAFE.whatsapp}?text=${encodeURIComponent(
-      orderMessage(lines, total, details, no, payment),
-    )}`;
+  /**
+   * Hand the order to WhatsApp. With a screenshot on a phone that can do it,
+   * both go together through the share sheet — a wa.me link can only carry
+   * text. Otherwise the message opens on its own and the guest attaches the
+   * picture themselves.
+   */
+  const sendToWhatsApp = async (no: string, payment: string, paid: boolean, auto = false) => {
+    const text = orderMessage(lines, total, details, no, payment, paid);
+    const url = `https://wa.me/${CAFE.whatsapp}?text=${encodeURIComponent(text)}`;
+
+    const finish = (shared: boolean) => {
+      setSent({ url, orderNo: no, total, paid, shared });
+      clear();
+      setUtr("");
+      clearShot();
+      setStep("done");
+    };
+
+    // The share sheet only opens off the guest own tap, so the countdown
+    // firing by itself takes the plain-message route.
+    if (!auto && canShareShot(shot)) {
+      try {
+        await navigator.share({ files: [shot], text });
+        finish(true);
+        return;
+      } catch (err) {
+        // backed out of the share sheet: stay where they are
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        setShareFailed(true);
+      }
+    }
+
+    finish(false);
+
+    if (auto) {
+      // No tap behind this one, so a new tab would be blocked: this page goes
+      // to WhatsApp itself, a tick later so the emptied cart is saved first.
+      window.setTimeout(() => {
+        window.location.href = url;
+      }, 80);
+      return;
+    }
 
     // a new tab where the browser allows it; the same tab if pop-ups are blocked
     const win = window.open(url, "_blank");
     if (win) win.opener = null;
     else window.location.href = url;
-
-    setSent({ url, orderNo: no, total, paid });
-    clear();
-    setUtr("");
-    setStep("done");
   };
 
   const submitDetails = (e: FormEvent) => {
@@ -345,36 +460,48 @@ export function CartDrawer() {
     if (details.payment === "upi" && UPI_READY) {
       setCopied(false);
       setUtrError("");
+      setBackFromApp(false);
+      setCountdown(null);
+      wentToApp.current = false;
       setStep("pay");
       return;
     }
 
-    sendToWhatsApp(
+    void sendToWhatsApp(
       no,
       details.payment === "upi" ? "UPI — on pickup/delivery" : "Cash — on pickup/delivery",
       false,
     );
   };
 
-  const confirmPaid = () => {
+  const confirmPaid = (auto = false) => {
     const ref = utr.replace(/\s/g, "");
     if (ref && !/^\d{12}$/.test(ref)) {
+      setCountdown(null);
       setUtrError("A UPI transaction ID has 12 digits");
       document.getElementById("order-utr")?.focus();
       return;
     }
-    sendToWhatsApp(
+    void sendToWhatsApp(
       orderNo,
       `UPI — paid ${money(total)} to ${ORDERING.upiId.trim()}${
         ref ? `, UTR ${ref}` : ""
       } (please check before confirming)`,
       true,
+      auto,
     );
   };
 
+  // the countdown fires the current version of the send, not the one from the
+  // render that started it
+  useEffect(() => {
+    sendNow.current = (auto: boolean) => confirmPaid(auto);
+  });
+
   const payInCash = () => {
+    setCountdown(null);
     set("payment", "cash");
-    sendToWhatsApp(orderNo, "Cash — on pickup/delivery", false);
+    void sendToWhatsApp(orderNo, "Cash — on pickup/delivery", false);
   };
 
   const copyUpiId = () => {
@@ -710,9 +837,22 @@ export function CartDrawer() {
                     {money(total)}
                   </p>
 
+                  {/* The UPI app shows the name the account is registered under,
+                      which isn't the cafe's — better said here than wondered at. */}
+                  {ORDERING.upiAccountName && (
+                    <p className="mx-auto mt-3 max-w-xs rounded-xl bg-ink/5 px-4 py-2.5 text-xs leading-relaxed text-ink/70">
+                      Your UPI app will show{" "}
+                      <strong className="font-bold text-ink">{ORDERING.upiAccountName}</strong> —
+                      that is {CAFE.name}&apos;s payment account.
+                    </p>
+                  )}
+
                   {/* on a phone, straight into the guest's UPI app */}
                   <a
                     href={upiLink(total, orderNo)}
+                    onClick={() => {
+                      wentToApp.current = true;
+                    }}
                     className="mt-6 hidden w-full items-center justify-center gap-3 rounded-full bg-ink px-6 py-4 text-[0.68rem] font-extrabold uppercase tracking-[0.22em] text-paper pointer-coarse:flex"
                   >
                     Pay {money(total)} with a UPI app
@@ -726,6 +866,13 @@ export function CartDrawer() {
                     <UpiQr value={upiLink(total, orderNo)} amount={total} />
                   </div>
                   <p className="mt-3 text-xs text-ink/55">GPay · PhonePe · Paytm · BHIM</p>
+
+                  {/* the screenshot is what the cafe checks the payment against */}
+                  <p className="mx-auto mt-5 max-w-xs rounded-xl bg-ink/5 px-4 py-2.5 text-xs leading-relaxed text-ink/70">
+                    After paying, take a <strong className="font-bold text-ink">screenshot</strong>{" "}
+                    and send it in the WhatsApp chat with your order — that is how the cafe checks
+                    your payment.
+                  </p>
 
                   <div className="mt-6 flex items-center justify-between gap-3 rounded-xl border border-ink/15 bg-white px-4 py-3 text-left">
                     <span className="min-w-0">
@@ -743,6 +890,63 @@ export function CartDrawer() {
                     </button>
                   </div>
 
+                  {/* The picture goes to WhatsApp through the phone own share
+                      sheet, so it is never uploaded to this site or anywhere else. */}
+                  <div className="mt-6 text-left">
+                    <p className={`mb-1.5 ${LABEL}`}>
+                      Payment screenshot
+                      <span className="ml-1.5 normal-case tracking-normal text-ink/45">
+                        optional
+                      </span>
+                    </p>
+
+                    {shotUrl ? (
+                      <div className="flex items-center gap-3 rounded-xl border border-ink/15 bg-white p-3">
+                        <img
+                          src={shotUrl}
+                          alt="The payment screenshot you picked"
+                          className="size-16 shrink-0 rounded-lg object-cover"
+                        />
+                        <span className="min-w-0 flex-1 truncate text-xs text-ink/70">
+                          {shot?.name}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={clearShot}
+                          className="shrink-0 rounded-full border border-ink/20 px-3 py-1.5 text-[0.58rem] font-extrabold uppercase tracking-[0.18em] transition-colors hover:border-orange hover:bg-orange"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ) : (
+                      <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-ink/20 px-4 py-4 text-xs font-semibold text-ink/60 transition-colors hover:border-orange hover:text-ink">
+                        <svg aria-hidden viewBox="0 0 24 24" fill="none" className="size-4">
+                          <path
+                            d="M4 16.5V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5M12 15V4m0 0L7.5 8.5M12 4l4.5 4.5"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        Add the screenshot
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="sr-only"
+                          onChange={(e) => pickShot(e.target.files?.[0] ?? null)}
+                        />
+                      </label>
+                    )}
+
+                    <p className="mt-1.5 text-xs text-ink/55">
+                      {shot
+                        ? "It goes to the cafe with your order. Nothing is uploaded anywhere else."
+                        : "Add it here and it goes with your order, or send it in the chat yourself."}{" "}
+                      The cafe checks every payment in its Paytm account before confirming.
+                    </p>
+                  </div>
+
                   <div className="mt-5 text-left">
                     <Field
                       id="order-utr"
@@ -756,7 +960,9 @@ export function CartDrawer() {
                         inputMode="numeric"
                         autoComplete="off"
                         value={utr}
+                        onFocus={() => setCountdown(null)}
                         onChange={(e) => {
+                          setCountdown(null);
                           setUtr(e.target.value);
                           if (utrError) setUtrError("");
                         }}
@@ -769,21 +975,57 @@ export function CartDrawer() {
                 </div>
 
                 <div className="border-t border-ink/10 px-6 py-5">
+                  {shareFailed && (
+                    <p className="mb-3 text-center text-xs font-semibold text-red-700">
+                      This phone could not attach the picture. The order still goes to WhatsApp —
+                      please add the screenshot in the chat.
+                    </p>
+                  )}
+                  {backFromApp && (
+                    <p className="mb-3 text-center text-xs font-semibold text-ink/70">
+                      {countdown === null
+                        ? "Paid? The order still has to reach the cafe — send it on WhatsApp."
+                        : `Taking your order to WhatsApp in ${countdown}…`}
+                    </p>
+                  )}
                   <button
                     type="button"
-                    onClick={confirmPaid}
-                    className="flex w-full items-center justify-center gap-3 rounded-full px-6 py-4 text-[0.68rem] font-extrabold uppercase tracking-[0.2em] text-white transition-transform duration-300 hover:-translate-y-0.5"
-                    style={{ background: WHATSAPP_GREEN }}
+                    onClick={() => confirmPaid()}
+                    className={`flex w-full items-center justify-center gap-3 rounded-full px-6 py-4 text-[0.68rem] font-extrabold uppercase tracking-[0.2em] text-white transition-transform duration-300 hover:-translate-y-0.5 ${
+                      backFromApp ? "ring-4 ring-offset-2" : ""
+                    }`}
+                    style={{
+                      background: WHATSAPP_GREEN,
+                      ...(backFromApp ? { boxShadow: "0 0 0 4px rgba(31,170,83,0.28)" } : {}),
+                    }}
                   >
                     <WhatsAppGlyph />
-                    I've paid — send order
+                    {countdown !== null
+                      ? `Send order now (${countdown})`
+                      : shot
+                        ? "Send order + screenshot"
+                        : backFromApp
+                          ? "Payment done — send order"
+                          : "I've paid — send order"}
                   </button>
+                  {countdown !== null && (
+                    <button
+                      type="button"
+                      onClick={() => setCountdown(null)}
+                      className={quietButton}
+                    >
+                      Not paid yet — wait
+                    </button>
+                  )}
                   <button type="button" onClick={payInCash} className={quietButton}>
                     Pay in cash instead
                   </button>
                   <button
                     type="button"
-                    onClick={() => setStep("details")}
+                    onClick={() => {
+                      setCountdown(null);
+                      setStep("details");
+                    }}
                     className="mt-2 w-full text-[0.58rem] font-extrabold uppercase tracking-[0.22em] text-ink/55 hover:text-ink"
                   >
                     ← Back to details
@@ -815,7 +1057,9 @@ export function CartDrawer() {
                 <p className="mt-6 font-display text-2xl font-black uppercase">Almost there!</p>
                 <p className="mt-2 text-sm leading-relaxed text-ink/70">
                   {sent.paid
-                    ? "Your order and payment details are written out in WhatsApp. Tap Send there — the cafe will check the payment and confirm your order in the same chat."
+                    ? sent.shared
+                      ? "Your order and the payment screenshot have gone to WhatsApp. Check the chat and press Send there — the cafe confirms your order in the same chat."
+                      : "Your order is written out in WhatsApp. Tap Send there, then send your payment screenshot in the same chat — the cafe checks it and confirms your order."
                     : "Your order is written out in WhatsApp. Tap Send there, and the cafe will confirm it in the same chat."}
                 </p>
                 <dl className="mt-6 flex gap-10">
