@@ -1,0 +1,1 @@
+var e=`/assets/chicken-burger-NJg7HCUf.webp`;export{e as t};

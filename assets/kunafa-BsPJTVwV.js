@@ -1,0 +1,1 @@
+var e=`/assets/kunafa-BCUKFl4w.webp`;export{e as t};
