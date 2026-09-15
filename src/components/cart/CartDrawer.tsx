@@ -5,9 +5,10 @@ import { Link } from "@tanstack/react-router";
 import { useCart, type CartLine } from "@/lib/cart";
 import { AddButton, BagIcon } from "@/components/cart/AddButton";
 import { CAFE } from "@/data/site";
-import { ORDERING, UPI_READY } from "@/data/ordering";
+import { ORDERING, OTP_READY, UPI_READY } from "@/data/ordering";
+import { confirmOtp, isOtpUnavailable, otpErrorMessage, sendOtp } from "@/lib/otp";
 
-type Step = "cart" | "details" | "pay" | "done";
+type Step = "cart" | "details" | "verify" | "pay" | "done";
 
 type Details = {
   name: string;
@@ -23,6 +24,21 @@ type Details = {
 type Errors = Partial<Record<keyof Details, string>>;
 
 const DETAILS_KEY = "tgc-details-v1";
+/** the number this phone has already proved, and when — asked again after 30 days */
+const VERIFIED_KEY = "tgc-verified-v1";
+const VERIFIED_FOR_MS = 30 * 24 * 60 * 60 * 1000;
+/** the day Firebase last refused to send codes; orders skip the code step until tomorrow */
+const OTP_OFF_KEY = "tgc-otp-off-v1";
+
+const today = () => new Date().toISOString().slice(0, 10);
+
+const otpOffToday = () => {
+  try {
+    return window.localStorage.getItem(OTP_OFF_KEY) === today();
+  } catch {
+    return false;
+  }
+};
 
 const EMPTY: Details = {
   name: "",
@@ -81,6 +97,8 @@ function orderMessage(
   orderNo: string,
   payment: string,
   paid: boolean,
+  verified: boolean,
+  otpSkipped: boolean,
 ) {
   const delivery = d.type === "delivery";
   return [
@@ -99,7 +117,9 @@ function orderMessage(
     `*Order type:* ${delivery ? "Delivery" : "Pickup at the cafe"}`,
     `*Time:* ${d.when}`,
     `*Name:* ${d.name.trim()}`,
-    `*Phone:* ${phoneDigits(d.phone)}`,
+    `*Phone:* ${phoneDigits(d.phone)}${
+      verified ? " ✅ OTP verified" : otpSkipped ? " ⚠️ not OTP verified" : ""
+    }`,
     delivery ? `*Address:* ${d.address.trim()}` : null,
     delivery && d.landmark.trim() ? `*Landmark:* ${d.landmark.trim()}` : null,
     `*Payment:* ${payment}`,
@@ -278,6 +298,16 @@ export function CartDrawer() {
   const [shot, setShot] = useState<File | null>(null);
   const [shotUrl, setShotUrl] = useState<string | null>(null);
   const [shareFailed, setShareFailed] = useState(false);
+  // the one-time code: what is typed, whether a code is on its way or being
+  // checked, the wait before another can be sent, and the number already proved
+  const [otpCode, setOtpCode] = useState("");
+  const [otpError, setOtpError] = useState("");
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpChecking, setOtpChecking] = useState(false);
+  const [resendIn, setResendIn] = useState(0);
+  const verifiedPhone = useRef<string | null>(null);
+  /** this order went through without a code, because codes couldn't be sent */
+  const otpSkipped = useRef(false);
   /** the guest has been handed to their UPI app and has come back to the page */
   const [backFromApp, setBackFromApp] = useState(false);
   const wentToApp = useRef(false);
@@ -290,6 +320,30 @@ export function CartDrawer() {
     paid: boolean;
     shared: boolean;
   } | null>(null);
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(VERIFIED_KEY) ?? "null") as {
+        phone?: unknown;
+        at?: unknown;
+      } | null;
+      if (
+        saved &&
+        typeof saved.phone === "string" &&
+        typeof saved.at === "number" &&
+        Date.now() - saved.at < VERIFIED_FOR_MS
+      )
+        verifiedPhone.current = saved.phone;
+    } catch {
+      // nothing saved: the number is checked on this order
+    }
+  }, []);
+
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const id = window.setTimeout(() => setResendIn((s) => s - 1), 1000);
+    return () => window.clearTimeout(id);
+  }, [resendIn]);
 
   // bring back the name, number and address from the guest's last order
   useEffect(() => {
@@ -395,7 +449,17 @@ export function CartDrawer() {
    * picture themselves.
    */
   const sendToWhatsApp = async (no: string, payment: string, paid: boolean, auto = false) => {
-    const text = orderMessage(lines, total, details, no, payment, paid);
+    const verified = OTP_READY && verifiedPhone.current === phoneDigits(details.phone);
+    const text = orderMessage(
+      lines,
+      total,
+      details,
+      no,
+      payment,
+      paid,
+      verified,
+      OTP_READY && !verified && otpSkipped.current,
+    );
     const url = `https://wa.me/${CAFE.whatsapp}?text=${encodeURIComponent(text)}`;
 
     const finish = (shared: boolean) => {
@@ -437,23 +501,8 @@ export function CartDrawer() {
     else window.location.href = url;
   };
 
-  const submitDetails = (e: FormEvent) => {
-    e.preventDefault();
-    const found = validate(details);
-    setErrors(found);
-    const first = Object.keys(found)[0];
-    if (first) {
-      document.getElementById(`order-${first}`)?.focus();
-      return;
-    }
-
-    try {
-      const { name, phone, address, landmark } = details;
-      window.localStorage.setItem(DETAILS_KEY, JSON.stringify({ name, phone, address, landmark }));
-    } catch {
-      // storage blocked: the order still goes through
-    }
-
+  /** Past the details (and the number, where codes are on): the pay step, or straight to WhatsApp. */
+  const proceed = () => {
     const no = `TGC-${Date.now().toString(36).slice(-5).toUpperCase()}`;
     setOrderNo(no);
 
@@ -472,6 +521,88 @@ export function CartDrawer() {
       details.payment === "upi" ? "UPI — on pickup/delivery" : "Cash — on pickup/delivery",
       false,
     );
+  };
+
+  const requestOtp = async () => {
+    setOtpSending(true);
+    setOtpError("");
+    try {
+      await sendOtp(phoneDigits(details.phone), "otp-recaptcha");
+      setResendIn(30);
+    } catch (err) {
+      if (isOtpUnavailable(err)) {
+        // Codes can't go out today (no billing, or the free SMS are used up):
+        // the order carries on, marked unverified, and this phone stops
+        // asking Firebase for the rest of the day.
+        try {
+          window.localStorage.setItem(OTP_OFF_KEY, today());
+        } catch {
+          // storage blocked: the next order simply tries once more
+        }
+        otpSkipped.current = true;
+        proceed();
+        return;
+      }
+      setOtpError(otpErrorMessage(err));
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  const checkOtp = async (typed = otpCode) => {
+    const code = typed.replace(/\D/g, "");
+    if (code.length !== 6) {
+      setOtpError("Enter the 6-digit code from the SMS.");
+      return;
+    }
+    setOtpChecking(true);
+    setOtpError("");
+    try {
+      await confirmOtp(code);
+      const phone = phoneDigits(details.phone);
+      verifiedPhone.current = phone;
+      try {
+        window.localStorage.setItem(VERIFIED_KEY, JSON.stringify({ phone, at: Date.now() }));
+      } catch {
+        // storage blocked: the number is simply checked again next time
+      }
+      proceed();
+    } catch (err) {
+      setOtpError(otpErrorMessage(err));
+    } finally {
+      setOtpChecking(false);
+    }
+  };
+
+  const submitDetails = (e: FormEvent) => {
+    e.preventDefault();
+    const found = validate(details);
+    setErrors(found);
+    const first = Object.keys(found)[0];
+    if (first) {
+      document.getElementById(`order-${first}`)?.focus();
+      return;
+    }
+
+    try {
+      const { name, phone, address, landmark } = details;
+      window.localStorage.setItem(DETAILS_KEY, JSON.stringify({ name, phone, address, landmark }));
+    } catch {
+      // storage blocked: the order still goes through
+    }
+
+    // A number this phone hasn't proved yet gets a code first — unless codes
+    // already couldn't be sent today, in which case the order goes straight on.
+    otpSkipped.current = OTP_READY && otpOffToday();
+    if (OTP_READY && !otpSkipped.current && verifiedPhone.current !== phoneDigits(details.phone)) {
+      setOtpCode("");
+      setOtpError("");
+      setStep("verify");
+      void requestOtp();
+      return;
+    }
+
+    proceed();
   };
 
   const confirmPaid = (auto = false) => {
@@ -516,11 +647,12 @@ export function CartDrawer() {
   const delivery = details.type === "delivery";
   const payNow = details.payment === "upi" && UPI_READY;
   const steps = payNow ? 3 : 2;
-  const stepNo = { cart: 1, details: 2, pay: 3, done: steps }[step];
+  const stepNo = { cart: 1, details: 2, verify: 2, pay: 3, done: steps }[step];
 
   const titles: Record<Step, string> = {
     cart: "Your order",
     details: "Your details",
+    verify: "Verify number",
     pay: "Pay with UPI",
     done: "Order sent",
   };
@@ -692,7 +824,14 @@ export function CartDrawer() {
                     />
                   </Field>
 
-                  <Field id="order-phone" label="Mobile number" error={errors.phone}>
+                  <Field
+                    id="order-phone"
+                    label="Mobile number"
+                    error={errors.phone}
+                    {...(OTP_READY
+                      ? { hint: "We'll text a code to this number to check it's yours." }
+                      : {})}
+                  >
                     <input
                       id="order-phone"
                       type="tel"
@@ -821,6 +960,74 @@ export function CartDrawer() {
                   )}
                   <button type="button" onClick={() => setStep("cart")} className={quietButton}>
                     ← Back to the order
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* ------------------------------------------- 2b. verify number */}
+            {step === "verify" && (
+              <>
+                <div className="flex-1 overflow-y-auto overscroll-contain px-6 py-8 text-center">
+                  <p className={LABEL}>Code sent by SMS to</p>
+                  <p className="mt-2 font-display text-2xl font-black tabular-nums">
+                    +91 {phoneDigits(details.phone).replace(/(\d{5})(\d{5})/, "$1 $2")}
+                  </p>
+                  <p className="mx-auto mt-2 max-w-xs text-sm text-ink/65">
+                    {otpSending
+                      ? "Sending your code…"
+                      : "Enter the 6-digit code to place your order. It proves the number is yours."}
+                  </p>
+
+                  <label htmlFor="order-otp" className="sr-only">
+                    6-digit code
+                  </label>
+                  <input
+                    id="order-otp"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    placeholder="••••••"
+                    value={otpCode}
+                    disabled={otpChecking}
+                    onChange={(e) => {
+                      const next = e.target.value.replace(/\D/g, "").slice(0, 6);
+                      setOtpCode(next);
+                      if (otpError) setOtpError("");
+                      // a full code is checked without another tap
+                      if (next.length === 6) void checkOtp(next);
+                    }}
+                    aria-invalid={Boolean(otpError)}
+                    aria-describedby={otpError ? "order-otp-error" : undefined}
+                    className={`${INPUT} mx-auto mt-6 max-w-[16rem] text-center font-display text-2xl tracking-[0.5em]`}
+                  />
+                  {otpError && (
+                    <p id="order-otp-error" className="mt-2 text-xs font-semibold text-red-700">
+                      {otpError}
+                    </p>
+                  )}
+
+                  <button
+                    type="button"
+                    disabled={otpSending || resendIn > 0}
+                    onClick={() => void requestOtp()}
+                    className="mt-6 text-[0.6rem] font-extrabold uppercase tracking-[0.2em] text-ink/70 hover:text-ink disabled:text-ink/35"
+                  >
+                    {resendIn > 0 ? `Send a new code in ${resendIn}s` : "Send a new code"}
+                  </button>
+                </div>
+
+                <div className="border-t border-ink/10 px-6 py-5">
+                  <button
+                    type="button"
+                    disabled={otpChecking || otpSending}
+                    onClick={() => void checkOtp()}
+                    className="w-full rounded-full bg-orange px-6 py-4 text-[0.68rem] font-extrabold uppercase tracking-[0.24em] text-ink transition-transform duration-300 hover:-translate-y-0.5 disabled:opacity-60"
+                  >
+                    {otpChecking ? "Checking…" : "Verify & continue"}
+                  </button>
+                  <button type="button" onClick={() => setStep("details")} className={quietButton}>
+                    ← Change the number
                   </button>
                 </div>
               </>
@@ -1091,6 +1298,8 @@ export function CartDrawer() {
                 </Dialog.Close>
               </div>
             )}
+            {/* Firebase puts its invisible reCAPTCHA here */}
+            {OTP_READY && <div id="otp-recaptcha" />}
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>

@@ -370,13 +370,16 @@ function AboutPage() {
               />
               <ul className="mt-10 space-y-4">
                 {["Building Food Brands", "Helping Entrepreneurs"].map((v, i) => (
-                  <RevealCard key={v} index={i}>
-                    <li className="flex items-center gap-4 border-b border-paper/12 pb-4">
-                      <span aria-hidden className="size-2 shrink-0 rounded-full bg-orange" />
-                      <span className="font-display text-xl font-extrabold uppercase tracking-[-0.02em] text-paper md:text-2xl">
-                        {v}
-                      </span>
-                    </li>
+                  <RevealCard
+                    as="li"
+                    key={v}
+                    index={i}
+                    className="flex items-center gap-4 border-b border-paper/12 pb-4"
+                  >
+                    <span aria-hidden className="size-2 shrink-0 rounded-full bg-orange" />
+                    <span className="font-display text-xl font-extrabold uppercase tracking-[-0.02em] text-paper md:text-2xl">
+                      {v}
+                    </span>
                   </RevealCard>
                 ))}
               </ul>
@@ -384,10 +387,13 @@ function AboutPage() {
               {/* what the training platform is meant to cover */}
               <ul className="mt-8 flex flex-wrap gap-2">
                 {PLATFORM.map((p, i) => (
-                  <RevealCard key={p} index={i}>
-                    <li className="rounded-full border border-orange/45 bg-orange/10 px-3.5 py-2 text-[0.55rem] font-extrabold uppercase tracking-[0.16em] text-orange transition-all duration-300 hover:-translate-y-0.5 hover:bg-orange hover:text-ink">
-                      {p}
-                    </li>
+                  <RevealCard
+                    as="li"
+                    key={p}
+                    index={i}
+                    className="rounded-full border border-orange/45 bg-orange/10 px-3.5 py-2 text-[0.55rem] font-extrabold uppercase tracking-[0.16em] text-orange transition-all duration-300 hover:-translate-y-0.5 hover:bg-orange hover:text-ink"
+                  >
+                    {p}
                   </RevealCard>
                 ))}
               </ul>
@@ -399,15 +405,18 @@ function AboutPage() {
               </MaskReveal>
               <ul className="mt-8 space-y-3">
                 {BELIEFS.map((b, i) => (
-                  <RevealCard key={b} index={i}>
-                    <li className="group flex items-baseline gap-4 rounded-xl px-4 py-3 transition-colors duration-500 hover:bg-paper/5">
-                      <span className="font-display text-sm font-extrabold text-orange">
-                        {String(i + 1).padStart(2, "0")}
-                      </span>
-                      <span className="text-base font-semibold text-paper/80 transition-transform duration-500 group-hover:translate-x-1">
-                        {b}
-                      </span>
-                    </li>
+                  <RevealCard
+                    as="li"
+                    key={b}
+                    index={i}
+                    className="group flex items-baseline gap-4 rounded-xl px-4 py-3 transition-colors duration-500 hover:bg-paper/5"
+                  >
+                    <span className="font-display text-sm font-extrabold text-orange">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="text-base font-semibold text-paper/80 transition-transform duration-500 group-hover:translate-x-1">
+                      {b}
+                    </span>
                   </RevealCard>
                 ))}
               </ul>

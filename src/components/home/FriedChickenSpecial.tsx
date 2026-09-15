@@ -157,22 +157,23 @@ export function FriedChickenSpecial() {
           {/* the combos, priced straight off the board */}
           <ul className="relative mt-10 grid grid-cols-2 gap-3">
             {TILES.map((c, i) => (
-              <RevealCard key={c.name} index={i}>
-                <li className="group relative h-full overflow-hidden rounded-2xl border border-paper/12 px-4 py-3.5 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 hover:border-orange">
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute inset-x-0 bottom-0 h-0 bg-gradient-to-t from-orange/20 to-transparent transition-all duration-500 group-hover:h-full"
-                  />
-                  <span className="relative block font-display text-sm font-extrabold uppercase tracking-[-0.01em] text-paper md:text-base">
-                    {c.name.replace(/\s+Combo$/i, "")}
-                  </span>
-                  <span className="relative mt-0.5 block text-xs text-paper/50">
-                    {c.contents[0]}
-                  </span>
-                  <span className="relative mt-1 block font-display text-lg font-extrabold text-orange">
-                    ₹{c.price}
-                  </span>
-                </li>
+              <RevealCard
+                as="li"
+                key={c.name}
+                index={i}
+                className="group relative h-full overflow-hidden rounded-2xl border border-paper/12 px-4 py-3.5 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 hover:border-orange"
+              >
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-0 bg-gradient-to-t from-orange/20 to-transparent transition-all duration-500 group-hover:h-full"
+                />
+                <span className="relative block font-display text-sm font-extrabold uppercase tracking-[-0.01em] text-paper md:text-base">
+                  {c.name.replace(/\s+Combo$/i, "")}
+                </span>
+                <span className="relative mt-0.5 block text-xs text-paper/50">{c.contents[0]}</span>
+                <span className="relative mt-1 block font-display text-lg font-extrabold text-orange">
+                  ₹{c.price}
+                </span>
               </RevealCard>
             ))}
           </ul>

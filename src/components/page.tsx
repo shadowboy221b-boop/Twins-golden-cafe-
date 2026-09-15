@@ -122,14 +122,12 @@ export function PageHero({
           </MaskReveal>
         </h1>
         {lede && (
-          <motion.p
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="serif-accent mt-7 max-w-2xl text-lg text-paper/65 md:text-xl"
+          <p
+            className="rise-in serif-accent mt-7 max-w-2xl text-lg text-paper/65 md:text-xl"
+            style={{ animationDelay: "0.35s" }}
           >
             {lede}
-          </motion.p>
+          </p>
         )}
         {children}
       </div>
@@ -141,14 +139,18 @@ export function PageHero({
 export function RevealCard({
   index = 0,
   className = "",
+  as = "div",
   children,
 }: {
   index?: number;
   className?: string;
+  /** "li" when the card is itself an item of a list, so no wrapper sits between the ul and its li */
+  as?: "div" | "li";
   children: ReactNode;
 }) {
+  const Tag = as === "li" ? motion.li : motion.div;
   return (
-    <motion.div
+    <Tag
       initial={{ opacity: 0, y: 26 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
@@ -160,6 +162,6 @@ export function RevealCard({
       className={className}
     >
       {children}
-    </motion.div>
+    </Tag>
   );
 }

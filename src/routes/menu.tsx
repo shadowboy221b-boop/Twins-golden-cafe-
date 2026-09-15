@@ -282,22 +282,25 @@ function MustTry() {
 
       <ul className="relative z-10 mt-12 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {MUST_TRY.map((m, i) => (
-          <RevealCard key={m.name} index={i}>
-            <li className="group flex h-full flex-col items-center rounded-2xl border border-paper/12 p-6 text-center transition-all duration-500 hover:-translate-y-1 hover:border-orange">
-              <img
-                src={m.src}
-                alt=""
-                aria-hidden
-                loading="lazy"
-                width={m.w}
-                height={m.h}
-                className="w-24 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110 md:w-28"
-              />
-              <h3 className="mt-5 font-display text-base font-extrabold uppercase tracking-[-0.02em] text-paper md:text-lg">
-                {m.name}
-              </h3>
-              <p className="mt-2 font-display text-2xl font-extrabold text-orange">₹{m.price}</p>
-            </li>
+          <RevealCard
+            as="li"
+            key={m.name}
+            index={i}
+            className="group flex h-full flex-col items-center rounded-2xl border border-paper/12 p-6 text-center transition-all duration-500 hover:-translate-y-1 hover:border-orange"
+          >
+            <img
+              src={m.src}
+              alt=""
+              aria-hidden
+              loading="lazy"
+              width={m.w}
+              height={m.h}
+              className="w-24 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110 md:w-28"
+            />
+            <h3 className="mt-5 font-display text-base font-extrabold uppercase tracking-[-0.02em] text-paper md:text-lg">
+              {m.name}
+            </h3>
+            <p className="mt-2 font-display text-2xl font-extrabold text-orange">₹{m.price}</p>
           </RevealCard>
         ))}
       </ul>
@@ -346,7 +349,12 @@ function Category({
   filtering: boolean;
 }) {
   return (
-    <section id={id} className="relative scroll-mt-40">
+    // content-visibility lets the browser skip laying out the counters that
+    // are off screen, and remember their height once it has seen them
+    <section
+      id={id}
+      className="relative scroll-mt-40 [contain-intrinsic-size:auto_900px] [content-visibility:auto]"
+    >
       <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b-2 border-ink pb-3">
         <MaskReveal>
           <h2 className="font-display text-2xl font-extrabold uppercase tracking-[-0.02em] text-ink md:text-3xl">
@@ -362,26 +370,13 @@ function Category({
 
       {/* two tight columns, the way a printed menu sets a long list */}
       <ul className="relative z-10 mt-5 grid grid-cols-1 gap-x-14 lg:grid-cols-2">
-        {items.map((it, i) => {
-          // while filtering the rows are already on screen, so they fade in
-          // straight away instead of waiting for a scroll that never comes
-          const reveal = filtering
-            ? { animate: { opacity: 1, y: 0 } }
-            : {
-                whileInView: { opacity: 1, y: 0 },
-                viewport: { once: true, margin: "-40px" },
-              };
-
+        {items.map((it) => {
+          // 191 rows each with its own scroll animation was most of the
+          // menu's lag on a phone; the rows are plain, the section header
+          // still reveals
           return (
-            <motion.li
+            <li
               key={`${id}-${it.name}`}
-              initial={{ opacity: 0, y: 12 }}
-              {...reveal}
-              transition={{
-                duration: 0.45,
-                delay: Math.min(i * 0.025, 0.25),
-                ease: [0.16, 1, 0.3, 1],
-              }}
               data-cursor="view"
               className="group border-b border-ink/8 py-2.5 transition-colors duration-300 hover:border-orange/50"
             >
@@ -461,7 +456,7 @@ function Category({
                   {it.note}
                 </span>
               )}
-            </motion.li>
+            </li>
           );
         })}
       </ul>

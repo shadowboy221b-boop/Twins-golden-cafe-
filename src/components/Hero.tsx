@@ -3,7 +3,9 @@ import { Link } from "@tanstack/react-router";
 import { motion, useMotionValue, useScroll, useSpring, useTransform } from "motion/react";
 import { useLoopInView } from "./bits";
 import burger from "@/assets/burger-hero.webp";
+import burgerSm from "@/assets/burger-hero-600.webp";
 import pizza from "@/assets/pizza.webp";
+import pizzaSm from "@/assets/pizza-600.webp";
 import momoPlate from "@/assets/momo-plate.webp";
 import chocoShake from "@/assets/choco-shake.webp";
 import pizzaSlice from "@/assets/pizza-slice.webp";
@@ -14,8 +16,16 @@ import pizzaSlice from "@/assets/pizza-slice.webp";
  *  visible square. Kunafa and fried chicken are left off: each has its own
  *  section further down the page. */
 const HERO_DISHES = [
-  { src: burger, alt: "Twin's Golden Cafe signature burger" },
-  { src: pizza, alt: "A stone-baked pizza, loaded with toppings" },
+  {
+    src: burger,
+    srcSet: `${burgerSm} 600w, ${burger} 900w`,
+    alt: "Twin's Golden Cafe signature burger",
+  },
+  {
+    src: pizza,
+    srcSet: `${pizzaSm} 600w, ${pizza} 900w`,
+    alt: "A stone-baked pizza, loaded with toppings",
+  },
   { src: momoPlate, alt: "A plate of steamed momos with red chutney" },
   { src: chocoShake, alt: "A chocolate milkshake topped with cream" },
 ];
@@ -80,44 +90,31 @@ export function Hero() {
 
       <div className="relative mx-auto grid w-full max-w-7xl items-center gap-10 px-5 md:px-12 lg:grid-cols-[1.05fr_1fr] lg:gap-6">
         <motion.div style={{ y: copyY, opacity: copyOpacity }} className="relative z-20">
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="eyebrow !text-orange"
-          >
-            Fresh · Hot · Made to love
-          </motion.p>
+          <p className="rise-in eyebrow !text-orange">Fresh · Hot · Made to love</p>
 
           <h1 className="mt-6">
             {lines.map((line, i) => (
               <span key={line.text} className="block overflow-hidden pb-[0.06em]">
-                <motion.span
-                  initial={{ y: "112%" }}
-                  animate={{ y: 0 }}
-                  transition={{ duration: 1.1, delay: 0.12 + i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                  className={`block display-xl ${line.tone}`}
+                <span
+                  className={`line-in block display-xl ${line.tone}`}
+                  style={{ animationDelay: `${0.12 + i * 0.1}s` }}
                 >
                   {line.text}
-                </motion.span>
+                </span>
               </span>
             ))}
           </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="serif-accent mt-7 max-w-md text-lg text-paper/65 md:text-xl"
+          <p
+            className="rise-in serif-accent mt-7 max-w-md text-lg text-paper/65 md:text-xl"
+            style={{ animationDelay: "0.5s" }}
           >
             A café that behaves like a studio — every plate art-directed, fried to order.
-          </motion.p>
+          </p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.62, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4"
+          <div
+            className="rise-in mt-10 flex flex-wrap items-center gap-x-8 gap-y-4"
+            style={{ animationDelay: "0.62s" }}
           >
             <Link
               to="/menu"
@@ -134,15 +131,10 @@ export function Hero() {
               See what&apos;s cooking
               <span className="h-px w-8 bg-current transition-all duration-500 group-hover:w-14" />
             </a>
-          </motion.div>
+          </div>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
-          className="relative z-10"
-        >
+        <div className="pop-in relative z-10" style={{ animationDelay: "0.25s" }}>
           {/* The slice sits behind the burger and drifts on its own clock —
               depth, not clutter. Rendered first and pushed back so the burger
               always reads in front of it. */}
@@ -183,6 +175,8 @@ export function Hero() {
                 <img
                   key={d.src}
                   src={d.src}
+                  srcSet={d.srcSet}
+                  sizes="(min-width: 1024px) 45vw, 78vw"
                   alt={i === dish ? d.alt : ""}
                   aria-hidden={i === dish ? undefined : true}
                   width={1200}
@@ -200,7 +194,7 @@ export function Hero() {
               ))}
             </motion.div>
           </motion.div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

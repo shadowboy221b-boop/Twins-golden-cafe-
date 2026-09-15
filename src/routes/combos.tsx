@@ -15,9 +15,11 @@ import friedChickenPhoto from "@/assets/fried-chicken.webp";
 import loadedFriesPhoto from "@/assets/loaded-fries.webp";
 import { PageHero, Section, SectionHead } from "@/components/page";
 import burgerSplash from "@/assets/burger-splash.webp";
-import chicken from "@/assets/chicken.webp";
-import chickenBurger from "@/assets/chicken-burger.webp";
-import fries from "@/assets/fries.webp";
+// the faint dishes behind the headings sit at 12% and about a fifth of the
+// screen wide, so they use the small builds
+import chickenBurgerArt from "@/assets/chicken-burger-sm.webp";
+import chickenArt from "@/assets/chicken-sm.webp";
+import friesArt from "@/assets/fries-sm.webp";
 
 const title = "Best Combos — Twin's Golden Cafe";
 const description =
@@ -47,7 +49,7 @@ const CURATED = [
     title: "Signature Combos",
     tagline: "The three people come back for",
     items: by("Snack Combo", "Burger Combo", "Premium Burger Combo"),
-    art: { src: chickenBurger, w: 1000, h: 1000 },
+    art: { src: chickenBurgerArt, w: 320, h: 320 },
     photo: null,
   },
   {
@@ -55,7 +57,7 @@ const CURATED = [
     title: "Chicken Combos",
     tagline: "Crispy, popcorn, wings — pick your cut",
     items: by("Chicken Lover Combo", "Wings Combo"),
-    art: { src: chicken, w: 1104, h: 1104 },
+    art: { src: chickenArt, w: 320, h: 320 },
     // Groups short of a full row get a photograph: beside a single combo, or
     // in the empty third column next to two.
     photo: {
@@ -85,7 +87,7 @@ const CURATED = [
     title: "Family Combos",
     tagline: "Sharing platters built for a table",
     items: by("Family Combo 1", "Family Combo 2"),
-    art: { src: fries, w: 900, h: 900 },
+    art: { src: friesArt, w: 320, h: 320 },
     photo: {
       src: loadedFriesPhoto,
       w: 1024,
@@ -174,18 +176,13 @@ function CombosPage() {
           <Fragment key={g.id}>
             <Section id={g.id} tone={gi % 2 ? "warm" : "paper"}>
               {g.art && (
-                <motion.img
+                <img
                   src={g.art.src}
                   alt=""
                   aria-hidden
-                  loading="lazy"
                   width={g.art.w}
                   height={g.art.h}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 0.12, scale: 1 }}
-                  viewport={{ once: true, margin: "-20%" }}
-                  transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                  className={`pointer-events-none absolute top-[-8%] w-[45vw] md:w-[22vw] ${
+                  className={`art-in pointer-events-none absolute top-[-8%] w-[45vw] md:w-[22vw] ${
                     gi % 2 ? "left-[-8vw]" : "right-[-6vw]"
                   }`}
                 />

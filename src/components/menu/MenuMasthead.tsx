@@ -4,12 +4,12 @@ import { categories } from "@/data/menu";
 import { MaskReveal, useLoopInView, useSpinAllowed } from "@/components/bits";
 import { VegMark } from "@/components/VegMark";
 import burger from "@/assets/burger-hero.webp";
+import burgerSm from "@/assets/burger-hero-600.webp";
 import pizza from "@/assets/pizza.webp";
+import pizzaSm from "@/assets/pizza-600.webp";
 import chocoShake from "@/assets/choco-shake.webp";
 import momoPlate from "@/assets/momo-plate.webp";
 import freshJuice from "@/assets/fresh-juice.webp";
-
-const EASE = [0.16, 1, 0.3, 1] as const;
 
 const ALL_ITEMS = categories.flatMap((c) => c.items);
 const PRICE_MIN = Math.min(...ALL_ITEMS.map((i) => i.price));
@@ -52,12 +52,22 @@ const STARS = [
     label: "Burgers",
     ids: ["burgers-veg", "burgers-nonveg"],
     src: burger,
+    srcSet: `${burgerSm} 600w, ${burger} 900w`,
     w: 900,
     h: 900,
     spin: -18,
     framed: false,
   },
-  { label: "Pizza", ids: ["pizza"], src: pizza, w: 900, h: 900, spin: 26, framed: false },
+  {
+    label: "Pizza",
+    ids: ["pizza"],
+    src: pizza,
+    srcSet: `${pizzaSm} 600w, ${pizza} 900w`,
+    w: 900,
+    h: 900,
+    spin: 26,
+    framed: false,
+  },
   {
     label: "Milkshakes",
     ids: ["milkshakes"],
@@ -85,14 +95,11 @@ function Star({
   star,
   index,
   progress,
-  moving,
   looping,
 }: {
   star: (typeof STARS)[number];
   index: number;
   progress: MotionValue<number>;
-  /** motion is welcome at all: the drop-in plays */
-  moving: boolean;
   /** …and the masthead is on screen: the spin and the bob run */
   looping: boolean;
 }) {
@@ -115,11 +122,9 @@ function Star({
         className="group flex flex-col items-center text-center"
       >
         {/* each dish drops onto the page and lands with a bounce, one after another */}
-        <motion.span
-          initial={moving ? { opacity: 0, y: -160, scale: 0.4, rotate: -120 } : false}
-          animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
-          transition={{ type: "spring", stiffness: 80, damping: 13, delay: 0.5 + index * 0.12 }}
-          className={`relative block aspect-square ${middle ? "w-[92%] md:w-full" : "w-[82%] md:w-[84%]"}`}
+        <span
+          className={`drop-in relative block aspect-square ${middle ? "w-[92%] md:w-full" : "w-[82%] md:w-[84%]"}`}
+          style={{ animationDelay: `${0.5 + index * 0.12}s` }}
         >
           {/* a warm light and a shadow to stand on; neither of them turns */}
           <span
@@ -167,6 +172,8 @@ function Star({
               ) : (
                 <motion.img
                   src={star.src}
+                  srcSet={star.srcSet}
+                  sizes="(min-width: 768px) 200px, 30vw"
                   alt={star.label}
                   width={star.w}
                   height={star.h}
@@ -179,14 +186,9 @@ function Star({
               )}
             </span>
           </motion.span>
-        </motion.span>
+        </span>
 
-        <motion.span
-          initial={moving ? { opacity: 0, y: 14 } : false}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.95 + index * 0.12, ease: EASE }}
-          className="mt-4 block"
-        >
+        <span className="rise-in mt-4 block" style={{ animationDelay: `${0.95 + index * 0.12}s` }}>
           <span className="block font-display text-sm font-black uppercase tracking-[0.02em] text-paper transition-colors group-hover:text-orange md:text-lg">
             {star.label}
           </span>
@@ -202,7 +204,7 @@ function Star({
               {star.veg} veg
             </span>
           )}
-        </motion.span>
+        </span>
       </a>
     </motion.li>
   );
@@ -269,22 +271,13 @@ export function MenuMasthead({
 
       <ul className="relative z-10 mx-auto mt-10 flex max-w-6xl flex-wrap items-start justify-center gap-y-8 md:mt-4 md:flex-nowrap">
         {STARS.map((s, i) => (
-          <Star
-            key={s.label}
-            star={s}
-            index={i}
-            progress={progress}
-            moving={moving}
-            looping={looping}
-          />
+          <Star key={s.label} star={s} index={i} progress={progress} looping={looping} />
         ))}
       </ul>
 
-      <motion.div
-        initial={moving ? { opacity: 0, y: 20 } : false}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 1.5, ease: EASE }}
-        className="relative z-10 mt-14 flex flex-wrap items-center justify-center gap-x-12 gap-y-6 text-center"
+      <div
+        style={{ animationDelay: "1.5s" }}
+        className="rise-in relative z-10 mt-14 flex flex-wrap items-center justify-center gap-x-12 gap-y-6 text-center"
       >
         <dl className="contents">
           {[
@@ -328,7 +321,7 @@ export function MenuMasthead({
             </span>
           </span>
         </button>
-      </motion.div>
+      </div>
     </header>
   );
 }

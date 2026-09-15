@@ -1,18 +1,23 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
-  createRootRouteWithContext,
+  createRootRoute,
   useRouter,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { Suspense, lazy, useEffect, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { CartProvider } from "../lib/cart";
-import { CartDrawer } from "../components/cart/CartDrawer";
+import { CartProvider, useCart } from "../lib/cart";
+
+// The cart drawer — dialog, checkout form, payment step — is fetched once the
+// page has settled, or at once if something is already in the cart. None of
+// it is needed to show a page, so it stays out of the first download.
+const CartDrawer = lazy(() =>
+  import("../components/cart/CartDrawer").then((m) => ({ default: m.CartDrawer })),
+);
 
 function NotFoundComponent() {
   return (
@@ -74,7 +79,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -103,12 +108,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:image", content: "https://twinsgoldencafe.com/og-image.jpg" },
     ],
     links: [
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Manrope:wght@400;500;600;700;800&display=swap",
-      },
       {
         rel: "stylesheet",
         href: appCss,
@@ -142,16 +141,34 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 function RootComponent() {
-  const { queryClient } = Route.useRouteContext();
-
   return (
-    <QueryClientProvider client={queryClient}>
-      {/* the cart lives above the pages, so an order survives moving between them */}
-      <CartProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-        <CartDrawer />
-      </CartProvider>
-    </QueryClientProvider>
+    // the cart lives above the pages, so an order survives moving between them
+    <CartProvider>
+      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+      <Outlet />
+      <LazyCart />
+    </CartProvider>
+  );
+}
+
+/** Loads the cart drawer when the browser is idle, or straight away once the cart has something in it. */
+function LazyCart() {
+  const { count } = useCart();
+  const [idle, setIdle] = useState(false);
+
+  useEffect(() => {
+    if (typeof window.requestIdleCallback === "function") {
+      const id = window.requestIdleCallback(() => setIdle(true), { timeout: 3000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const id = window.setTimeout(() => setIdle(true), 1500);
+    return () => window.clearTimeout(id);
+  }, []);
+
+  if (!idle && count === 0) return null;
+  return (
+    <Suspense fallback={null}>
+      <CartDrawer />
+    </Suspense>
   );
 }

@@ -122,7 +122,7 @@ export function ComboTicket({ combo: c, index }: { combo: Combo; index: number }
           <span className="text-[0.55rem] font-extrabold uppercase tracking-[0.3em]">
             Order No. <span className={hero ? "text-ink" : "text-orange"}>{pad(index + 1)}</span>
           </span>
-          <span className="text-[0.5rem] font-extrabold uppercase tracking-[0.24em] opacity-75">
+          <span className="text-[0.5rem] font-extrabold uppercase tracking-[0.24em] opacity-90">
             {hero ? "★ Family feast" : "Twin's Golden"}
           </span>
         </div>

@@ -61,10 +61,8 @@ export function BestCombos() {
 
         <ul className="grid items-start gap-4 sm:grid-cols-2">
           {combos.map((c, i) => (
-            <RevealCard key={c.name} index={i}>
-              <li>
-                <ComboCard combo={c} />
-              </li>
+            <RevealCard as="li" key={c.name} index={i}>
+              <ComboCard combo={c} />
             </RevealCard>
           ))}
         </ul>

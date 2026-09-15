@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { AnimatePresence, motion, useInView } from "motion/react";
 import { Cursor } from "@/components/Cursor";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -9,6 +9,7 @@ import { MaskReveal } from "@/components/bits";
 import { SocialIcons } from "@/components/SocialIcons";
 import { ADDRESS_READY, CAFE, CONTACT_DETAILS_READY, SOCIAL } from "@/data/site";
 import heroPhoto from "@/assets/shop-front.webp";
+import heroPhotoSm from "@/assets/shop-front-600.webp";
 
 const title = "Contact Us — Twin's Golden Cafe";
 const description =
@@ -181,11 +182,8 @@ function ContactPage() {
  * the food carrying a pin for where to find it.
  */
 function ContactHero() {
-  const rise = (delay: number) => ({
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.8, delay, ease: EASE },
-  });
+  /** a CSS entrance, so the hero paints at once instead of after the script loads */
+  const rise = (delay: number) => ({ animationDelay: `${delay}s` });
 
   return (
     <header className="grain relative overflow-hidden bg-ink px-5 pb-24 pt-32 md:px-12 md:pb-28 md:pt-40">
@@ -207,18 +205,18 @@ function ContactHero() {
             </MaskReveal>
           </h1>
 
-          <motion.p
-            {...rise(0.3)}
-            className="serif-accent mt-7 max-w-xl text-lg text-paper/65 md:text-xl"
+          <p
+            style={rise(0.3)}
+            className="rise-in serif-accent mt-7 max-w-xl text-lg text-paper/65 md:text-xl"
           >
             Booking a table, ordering for a crowd, or just want to tell us how the kunafa was —
             call, message or drop in.
-          </motion.p>
+          </p>
 
           {/* the hours, with a light that keeps pulsing */}
-          <motion.div
-            {...rise(0.4)}
-            className="mt-8 inline-flex items-center gap-3 rounded-full border border-paper/15 bg-paper/5 px-4 py-2"
+          <div
+            style={rise(0.4)}
+            className="rise-in mt-8 inline-flex items-center gap-3 rounded-full border border-paper/15 bg-paper/5 px-4 py-2"
           >
             <span className="relative flex size-2.5">
               <span className="absolute inline-flex size-full animate-ping rounded-full bg-orange opacity-60" />
@@ -227,21 +225,21 @@ function ContactHero() {
             <span className="text-[0.6rem] font-extrabold uppercase tracking-[0.22em] text-paper/80">
               {CAFE.hours}
             </span>
-          </motion.div>
+          </div>
 
           {CONTACT_DETAILS_READY && (
             <>
-              <motion.a
-                {...rise(0.5)}
+              <a
+                style={rise(0.5)}
                 href={TEL}
                 data-cursor="cta"
-                className="group mt-8 block w-fit font-display text-4xl font-black tabular-nums tracking-[-0.03em] text-paper transition-colors hover:text-orange md:text-6xl"
+                className="rise-in group mt-8 block w-fit font-display text-4xl font-black tabular-nums tracking-[-0.03em] text-paper transition-colors hover:text-orange md:text-6xl"
               >
                 {CAFE.phone}
                 <span className="mt-2 block h-[3px] w-12 bg-orange transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-full" />
-              </motion.a>
+              </a>
 
-              <motion.div {...rise(0.6)} className="mt-9 flex flex-wrap gap-3">
+              <div style={rise(0.6)} className="rise-in mt-9 flex flex-wrap gap-3">
                 <a
                   href={TEL}
                   data-cursor="cta"
@@ -272,18 +270,13 @@ function ContactHero() {
                     Directions
                   </a>
                 )}
-              </motion.div>
+              </div>
             </>
           )}
         </div>
 
         {/* the photograph, set at a slight angle, with the pin on it */}
-        <motion.div
-          initial={{ opacity: 0, y: 40, rotate: 4 }}
-          animate={{ opacity: 1, y: 0, rotate: -2 }}
-          transition={{ duration: 1.2, delay: 0.25, ease: EASE }}
-          className="relative mx-auto w-full max-w-sm lg:max-w-md"
-        >
+        <div style={rise(0.25)} className="tilt-in relative mx-auto w-full max-w-sm lg:max-w-md">
           {/* corner brackets set just outside the frame — top left and bottom
               right, clear of the address badge */}
           <span
@@ -313,6 +306,9 @@ function ContactHero() {
             >
               <img
                 src={heroPhoto}
+                srcSet={`${heroPhotoSm} 600w, ${heroPhoto} 900w`}
+                sizes="(min-width: 1024px) 28rem, 90vw"
+                fetchPriority="high"
                 alt="The Twin's Golden Cafe shop front at Old Bus Stand, Arani"
                 width={900}
                 height={1200}
@@ -328,11 +324,9 @@ function ContactHero() {
           </div>
 
           {ADDRESS_READY && (
-            <motion.div
-              initial={{ opacity: 0, x: -24, rotate: -6 }}
-              animate={{ opacity: 1, x: 0, rotate: 2 }}
-              transition={{ duration: 0.8, delay: 0.9, ease: EASE }}
-              className="absolute -bottom-6 -left-3 max-w-[15rem] rounded-2xl bg-orange p-4 text-ink shadow-[0_20px_40px_-15px_rgba(0,0,0,0.6)] md:-left-10"
+            <div
+              style={rise(0.9)}
+              className="badge-in absolute -bottom-6 -left-3 max-w-[15rem] rounded-2xl bg-orange p-4 text-ink shadow-[0_20px_40px_-15px_rgba(0,0,0,0.6)] md:-left-10"
             >
               <Icon name="pin" className="size-5" />
               <p className="mt-2 text-[0.55rem] font-extrabold uppercase tracking-[0.24em] text-ink/70">
@@ -341,9 +335,9 @@ function ContactHero() {
               <p className="mt-1 font-display text-base font-black uppercase leading-tight">
                 {CAFE.shortAddress}
               </p>
-            </motion.div>
+            </div>
           )}
-        </motion.div>
+        </div>
       </div>
     </header>
   );
@@ -352,6 +346,37 @@ function ContactHero() {
 /* ---------------------------------------------------------------- visit us */
 
 /** The map with the address laid over it, and the week's hours beside it. */
+/**
+ * The Google map, fetched only once its box is nearly on screen. The browser's
+ * own lazy loading starts more than a screen early on a phone, which pulled
+ * about 440KB of Maps code into every visit to this page, scrolled or not.
+ */
+function MapEmbed() {
+  const ref = useRef<HTMLDivElement>(null);
+  const near = useInView(ref, { once: true, margin: "200px 0px" });
+
+  return (
+    <div ref={ref} className="block aspect-[4/3] w-full md:aspect-[16/10] lg:aspect-auto lg:h-full">
+      {near ? (
+        <iframe
+          src={CAFE.mapEmbedSrc}
+          title={`Map showing ${CAFE.name}`}
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          className="block size-full border-0"
+        />
+      ) : (
+        <div
+          aria-hidden
+          className="grid size-full place-items-center bg-ink/5 text-[0.6rem] font-extrabold uppercase tracking-[0.22em] text-ink/45"
+        >
+          Loading map…
+        </div>
+      )}
+    </div>
+  );
+}
+
 function VisitUs() {
   const today = useToday();
 
@@ -375,13 +400,7 @@ function VisitUs() {
 
             <RevealCard className="relative mt-5 flex-1">
               <div className="h-full overflow-hidden rounded-[2rem] border border-ink/10 bg-paper shadow-[0_30px_70px_-40px_oklch(0.175_0.008_60/0.5)]">
-                <iframe
-                  src={CAFE.mapEmbedSrc}
-                  title={`Map showing ${CAFE.name}`}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  className="block aspect-[4/3] w-full border-0 md:aspect-[16/10] lg:aspect-auto lg:h-full"
-                />
+                <MapEmbed />
               </div>
 
               {ADDRESS_READY && (
@@ -423,37 +442,38 @@ function VisitUs() {
             {WEEK_HOURS.map((h, i) => {
               const isToday = h.day === today;
               return (
-                <RevealCard key={h.day} index={i}>
-                  <li
-                    className={`relative flex items-center justify-between gap-4 border-b border-ink/8 px-5 py-5 last:border-b-0 sm:px-7 md:px-8 md:py-6 ${
-                      isToday ? "bg-orange text-ink" : "text-ink"
+                <RevealCard
+                  as="li"
+                  key={h.day}
+                  index={i}
+                  className={`relative flex items-center justify-between gap-4 border-b border-ink/8 px-5 py-5 last:border-b-0 sm:px-7 md:px-8 md:py-6 ${
+                    isToday ? "bg-orange text-ink" : "text-ink"
+                  }`}
+                >
+                  <span className="flex items-center gap-3">
+                    {/* three letters on a phone, so the day and its hours share one line */}
+                    <span className="text-sm font-bold uppercase tracking-[0.08em] sm:text-base md:text-lg">
+                      <span className="sm:hidden">{h.day.slice(0, 3)}</span>
+                      <span className="hidden sm:inline">{h.day}</span>
+                    </span>
+                    {isToday && (
+                      <motion.span
+                        initial={{ scale: 0.6, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: "spring", stiffness: 420, damping: 18 }}
+                        className="rounded-full bg-ink px-3 py-1 text-[0.55rem] font-extrabold uppercase tracking-[0.2em] text-orange"
+                      >
+                        Today
+                      </motion.span>
+                    )}
+                  </span>
+                  <span
+                    className={`whitespace-nowrap font-display text-sm font-extrabold tabular-nums sm:text-base md:text-xl ${
+                      isToday ? "text-ink" : "text-orange-ink"
                     }`}
                   >
-                    <span className="flex items-center gap-3">
-                      {/* three letters on a phone, so the day and its hours share one line */}
-                      <span className="text-sm font-bold uppercase tracking-[0.08em] sm:text-base md:text-lg">
-                        <span className="sm:hidden">{h.day.slice(0, 3)}</span>
-                        <span className="hidden sm:inline">{h.day}</span>
-                      </span>
-                      {isToday && (
-                        <motion.span
-                          initial={{ scale: 0.6, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ type: "spring", stiffness: 420, damping: 18 }}
-                          className="rounded-full bg-ink px-3 py-1 text-[0.55rem] font-extrabold uppercase tracking-[0.2em] text-orange"
-                        >
-                          Today
-                        </motion.span>
-                      )}
-                    </span>
-                    <span
-                      className={`whitespace-nowrap font-display text-sm font-extrabold tabular-nums sm:text-base md:text-xl ${
-                        isToday ? "text-ink" : "text-orange-ink"
-                      }`}
-                    >
-                      {h.time}
-                    </span>
-                  </li>
+                    {h.time}
+                  </span>
                 </RevealCard>
               );
             })}

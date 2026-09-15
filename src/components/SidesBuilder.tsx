@@ -42,72 +42,70 @@ export function SidesBuilder({ id, sides }: { id: string; sides: MenuItem[] }) {
         {sides.map((s, i) => {
           const on = picked.includes(s.name);
           return (
-            <RevealCard key={s.name} index={i}>
-              <li className="h-full">
-                <motion.button
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() => toggle(s.name)}
-                  whileTap={{ scale: 0.97 }}
-                  data-cursor="cta"
-                  className={`group relative flex h-full w-full items-center gap-4 overflow-hidden rounded-2xl border p-6 text-left transition-colors duration-500 ${
-                    on ? "border-orange" : "border-paper/12 hover:border-orange/60"
+            <RevealCard as="li" key={s.name} index={i} className="h-full">
+              <motion.button
+                type="button"
+                aria-pressed={on}
+                onClick={() => toggle(s.name)}
+                whileTap={{ scale: 0.97 }}
+                data-cursor="cta"
+                className={`group relative flex h-full w-full items-center gap-4 overflow-hidden rounded-2xl border p-6 text-left transition-colors duration-500 ${
+                  on ? "border-orange" : "border-paper/12 hover:border-orange/60"
+                }`}
+              >
+                {/* orange sweeps across a side once it's on the tray */}
+                <span
+                  aria-hidden
+                  className={`pointer-events-none absolute inset-y-0 left-0 bg-orange/15 transition-[width] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                    on ? "w-full" : "w-0"
+                  }`}
+                />
+
+                <span className="relative min-w-0 flex-1">
+                  <span className="block font-display text-lg font-extrabold uppercase tracking-[-0.02em] text-paper md:text-xl">
+                    {s.name}
+                  </span>
+                  {s.note && (
+                    <span className="mt-1.5 block text-[0.55rem] font-extrabold uppercase tracking-[0.24em] text-paper/50">
+                      {s.note}
+                    </span>
+                  )}
+                </span>
+
+                <span className="relative shrink-0 font-display text-2xl font-extrabold text-orange">
+                  ₹{s.price}
+                </span>
+
+                <span
+                  aria-hidden
+                  className={`relative grid size-9 shrink-0 place-items-center rounded-full border transition-colors duration-500 ${
+                    on
+                      ? "border-orange bg-orange text-ink"
+                      : "border-paper/25 text-paper group-hover:border-orange"
                   }`}
                 >
-                  {/* orange sweeps across a side once it's on the tray */}
-                  <span
-                    aria-hidden
-                    className={`pointer-events-none absolute inset-y-0 left-0 bg-orange/15 transition-[width] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                      on ? "w-full" : "w-0"
-                    }`}
-                  />
-
-                  <span className="relative min-w-0 flex-1">
-                    <span className="block font-display text-lg font-extrabold uppercase tracking-[-0.02em] text-paper md:text-xl">
-                      {s.name}
-                    </span>
-                    {s.note && (
-                      <span className="mt-1.5 block text-[0.55rem] font-extrabold uppercase tracking-[0.24em] text-paper/50">
-                        {s.note}
-                      </span>
-                    )}
-                  </span>
-
-                  <span className="relative shrink-0 font-display text-2xl font-extrabold text-orange">
-                    ₹{s.price}
-                  </span>
-
-                  <span
-                    aria-hidden
-                    className={`relative grid size-9 shrink-0 place-items-center rounded-full border transition-colors duration-500 ${
-                      on
-                        ? "border-orange bg-orange text-ink"
-                        : "border-paper/25 text-paper group-hover:border-orange"
-                    }`}
-                  >
-                    <AnimatePresence mode="wait" initial={false}>
-                      <motion.svg
-                        key={on ? "on" : "off"}
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        className="size-4"
-                        initial={{ rotate: -90, scale: 0.4, opacity: 0 }}
-                        animate={{ rotate: 0, scale: 1, opacity: 1 }}
-                        exit={{ rotate: 90, scale: 0.4, opacity: 0 }}
-                        transition={{ duration: 0.25, ease: EASE }}
-                      >
-                        <path
-                          d={on ? "M5 12.5l4.5 4.5L19 7.5" : "M12 5v14M5 12h14"}
-                          stroke="currentColor"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </motion.svg>
-                    </AnimatePresence>
-                  </span>
-                </motion.button>
-              </li>
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.svg
+                      key={on ? "on" : "off"}
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      className="size-4"
+                      initial={{ rotate: -90, scale: 0.4, opacity: 0 }}
+                      animate={{ rotate: 0, scale: 1, opacity: 1 }}
+                      exit={{ rotate: 90, scale: 0.4, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: EASE }}
+                    >
+                      <path
+                        d={on ? "M5 12.5l4.5 4.5L19 7.5" : "M12 5v14M5 12h14"}
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </motion.svg>
+                  </AnimatePresence>
+                </span>
+              </motion.button>
             </RevealCard>
           );
         })}

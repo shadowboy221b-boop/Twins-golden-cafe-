@@ -233,7 +233,7 @@ export function CategoriesPreview() {
 
                 <span
                   className={`w-7 shrink-0 font-display text-xs font-black tabular-nums transition-colors duration-300 md:w-9 md:text-sm ${
-                    on ? "text-orange-ink" : "text-ink/35"
+                    on ? "text-orange-ink" : "text-ink/60"
                   }`}
                 >
                   {pad(i + 1)}
@@ -270,7 +270,7 @@ export function CategoriesPreview() {
                       </span>
                     </MaskReveal>
                   </span>
-                  <span className="mt-1.5 block text-[0.55rem] font-extrabold uppercase tracking-[0.22em] text-ink/55 md:hidden">
+                  <span className="mt-1.5 block text-[0.55rem] font-extrabold uppercase tracking-[0.22em] text-ink/70 md:hidden">
                     {r.dishes} dishes · from ₹{r.from}
                   </span>
                 </span>
