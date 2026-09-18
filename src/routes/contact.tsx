@@ -8,12 +8,13 @@ import { RevealCard, Section, SectionHead } from "@/components/page";
 import { MaskReveal } from "@/components/bits";
 import { SocialIcons } from "@/components/SocialIcons";
 import { ADDRESS_READY, CAFE, CONTACT_DETAILS_READY, SOCIAL } from "@/data/site";
+import { breadcrumbSchema, ld, restaurantSchema } from "@/data/seo";
 import heroPhoto from "@/assets/shop-front.webp";
 import heroPhotoSm from "@/assets/shop-front-600.webp";
 
-const title = "Contact Us — Twin's Golden Cafe";
+const title = "Contact & Location — Twin's Golden Cafe, Arani";
 const description =
-  "Call, message or visit Twin's Golden Cafe. Opening hours, location, social links and an enquiry form.";
+  "Call or WhatsApp Twin's Golden Cafe, Old Bus Stand, Arani. Opening hours 9 AM to 9 PM daily, directions on the map, social links and an enquiry form.";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -27,6 +28,16 @@ export const Route = createFileRoute("/contact")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://twinsgoldencafe.com/contact" }],
+    // the same place as on the home page, so the two entries are read as one
+    scripts: [
+      ld(restaurantSchema),
+      ld(
+        breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "Contact", path: "/contact" },
+        ]),
+      ),
+    ],
   }),
   component: ContactPage,
 });

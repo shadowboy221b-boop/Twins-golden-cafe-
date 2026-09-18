@@ -109,7 +109,8 @@ export function Hero() {
             className="rise-in serif-accent mt-7 max-w-md text-lg text-paper/65 md:text-xl"
             style={{ animationDelay: "0.5s" }}
           >
-            A café that behaves like a studio — every plate art-directed, fried to order.
+            A café that behaves like a studio — every plate art-directed, fried to order, at Old Bus
+            Stand, Arani.
           </p>
 
           <div

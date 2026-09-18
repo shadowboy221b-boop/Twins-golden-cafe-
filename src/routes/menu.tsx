@@ -16,10 +16,11 @@ import { MaskReveal } from "@/components/bits";
 import { MenuMasthead } from "@/components/menu/MenuMasthead";
 import { AddButton } from "@/components/cart/AddButton";
 import { itemKey } from "@/lib/cart";
+import { breadcrumbSchema, ld, menuSchema } from "@/data/seo";
 
-const title = "The Full Menu — Twin's Golden Cafe";
+const title = "Menu & Prices — Twin's Golden Cafe, Arani";
 const description =
-  "Every category and price at Twin's Golden Cafe: pizza, fried chicken, wings, burgers, wraps, combos, family feasts, kunafa, momos, pasta, sandwiches, shakes, lassi, mojito and falooda.";
+  "Every dish and price at Twin's Golden Cafe, Arani: pizza, fried chicken, burgers, wraps, momos, pasta, kunafa, falooda, shakes and fresh juices.";
 
 export const Route = createFileRoute("/menu")({
   head: () => ({
@@ -33,6 +34,16 @@ export const Route = createFileRoute("/menu")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://twinsgoldencafe.com/menu" }],
+    // the whole board, counter by counter, with every price
+    scripts: [
+      ld(menuSchema),
+      ld(
+        breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "Menu", path: "/menu" },
+        ]),
+      ),
+    ],
   }),
   component: MenuPage,
 });

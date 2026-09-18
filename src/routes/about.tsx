@@ -4,6 +4,7 @@ import { Cursor } from "@/components/Cursor";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { PageHero, RevealCard, Section, SectionHead } from "@/components/page";
+import { breadcrumbSchema, ld } from "@/data/seo";
 import { MaskReveal } from "@/components/bits";
 import { CAFE } from "@/data/site";
 import { FloatingFood } from "@/components/FloatingFood";
@@ -12,9 +13,9 @@ import chicken from "@/assets/chicken.webp";
 import founderPortrait from "@/assets/founder-portrait.webp";
 import founderCafe from "@/assets/founder-cafe.webp";
 
-const title = "About Us — Twin's Golden Cafe";
+const title = "About Us — Twin's Golden Cafe, Arani";
 const description =
-  "More than just a cafe. The story behind Twin's Golden Cafe, founder Yuvaraj Venkatesan, the food philosophy, and the plan to help other food entrepreneurs build.";
+  "The story behind Twin's Golden Cafe in Arani: founder Yuvaraj Venkatesan, the food philosophy, and the plan to help other food entrepreneurs build.";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -28,6 +29,14 @@ export const Route = createFileRoute("/about")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://twinsgoldencafe.com/about" }],
+    scripts: [
+      ld(
+        breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "About", path: "/about" },
+        ]),
+      ),
+    ],
   }),
   component: AboutPage,
 });

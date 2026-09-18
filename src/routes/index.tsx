@@ -11,10 +11,11 @@ import { KunafaSpecial } from "@/components/home/KunafaSpecial";
 import { CategoriesPreview } from "@/components/home/HomeSections";
 import { VegSpecial } from "@/components/home/VegSpecial";
 import { JuiceBar } from "@/components/home/JuiceBar";
+import { ld, restaurantSchema } from "@/data/seo";
 
-const title = "Twin's Golden Cafe — Taste the Golden Side";
+const title = "Twin's Golden Cafe — Cafe & Restaurant in Arani";
 const description =
-  "An immersive food-brand experience: fried chicken, big-bite burgers, loaded fries, the Golden Kunafa, shakes and mojitos — fried to order at Twin's Golden Cafe.";
+  "Pizza, burgers, fried chicken, momos, kunafa, shakes and juices, cooked to order at Twin's Golden Cafe, Old Bus Stand, Arani. Open daily 9 AM to 9 PM.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -28,6 +29,8 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://twinsgoldencafe.com/" }],
+    // tells Google this is a place in Arani — address, hours, phone, menu
+    scripts: [ld(restaurantSchema)],
   }),
   component: Index,
 });

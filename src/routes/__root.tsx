@@ -90,7 +90,7 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "Twin's Golden Cafe — pizza, burgers, momos, kunafa, shakes and fresh juices, cooked to order.",
+          "Twin's Golden Cafe, Arani — pizza, burgers, momos, kunafa, shakes and fresh juices, cooked to order.",
       },
       { name: "author", content: "Twin's Golden Cafe" },
       { property: "og:site_name", content: "Twin's Golden Cafe" },
@@ -100,6 +100,7 @@ export const Route = createRootRoute({
         content: "Pizza, burgers, momos, kunafa, shakes and fresh juices, cooked to order.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:locale", content: "en_IN" },
       // the picture WhatsApp, Facebook and Instagram show when the link is shared
       { property: "og:image", content: "https://twinsgoldencafe.com/og-image.jpg" },
       { property: "og:image:width", content: "1200" },

@@ -14,6 +14,7 @@ import wrapPhoto from "@/assets/wrap.webp";
 import friedChickenPhoto from "@/assets/fried-chicken.webp";
 import loadedFriesPhoto from "@/assets/loaded-fries.webp";
 import { PageHero, Section, SectionHead } from "@/components/page";
+import { breadcrumbSchema, ld } from "@/data/seo";
 import burgerSplash from "@/assets/burger-splash.webp";
 // the faint dishes behind the headings sit at 12% and about a fifth of the
 // screen wide, so they use the small builds
@@ -21,9 +22,9 @@ import chickenBurgerArt from "@/assets/chicken-burger-sm.webp";
 import chickenArt from "@/assets/chicken-sm.webp";
 import friesArt from "@/assets/fries-sm.webp";
 
-const title = "Best Combos — Twin's Golden Cafe";
+const title = "Combos & Family Feasts — Twin's Golden Cafe, Arani";
 const description =
-  "Every combo at Twin's Golden Cafe: snack combos, chicken lover, burger combos, wings, wraps and family feasts — with what's inside and what it costs.";
+  "Snack combos, chicken lover, burger combos, wings, wraps and family feasts at Twin's Golden Cafe, Arani — what is on each tray and what it costs.";
 
 export const Route = createFileRoute("/combos")({
   head: () => ({
@@ -37,6 +38,14 @@ export const Route = createFileRoute("/combos")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://twinsgoldencafe.com/combos" }],
+    scripts: [
+      ld(
+        breadcrumbSchema([
+          { name: "Home", path: "/" },
+          { name: "Combos", path: "/combos" },
+        ]),
+      ),
+    ],
   }),
   component: CombosPage,
 });
