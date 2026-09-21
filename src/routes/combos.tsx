@@ -183,6 +183,14 @@ function CombosPage() {
               </div>
             ))}
           </motion.dl>
+
+          {/* the page showed trays and prices but never said what a combo is */}
+          <p className="mt-9 max-w-2xl text-sm leading-relaxed text-paper/60">
+            A combo is one tray at one price, and every ticket below prints exactly what is on it.
+            There are {combos.length} of them, from ₹{Math.min(...PRICES)} for a snack on your own
+            to ₹{Math.max(...PRICES)} for a family feast, with extra dip at ₹25. Add one to your
+            order and it reaches the counter on WhatsApp.
+          </p>
         </PageHero>
 
         {GROUPS.map((g, gi) => (

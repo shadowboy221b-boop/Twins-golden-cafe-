@@ -603,3 +603,14 @@
 @utility art-in {
   animation: art-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+/* a dotted route that keeps walking towards the cafe, under "get directions" */
+@keyframes route-march {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+
+@utility route-march {
+  animation: route-march 1.4s linear infinite;
+}

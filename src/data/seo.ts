@@ -84,6 +84,19 @@ export const restaurantSchema = {
   hasMenu: `${SITE_URL}/menu`,
   hasMap: CAFE.directionsUrl,
   founder: { "@type": "Person", name: CAFE.founder },
+  // an order placed on the site starts on the menu and finishes on WhatsApp
+  potentialAction: {
+    "@type": "OrderAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${SITE_URL}/menu`,
+      inLanguage: "en-IN",
+      actionPlatform: [
+        "https://schema.org/DesktopWebPlatform",
+        "https://schema.org/MobileWebPlatform",
+      ],
+    },
+  },
   sameAs: SOCIAL.map((s) => s.href),
 };
 

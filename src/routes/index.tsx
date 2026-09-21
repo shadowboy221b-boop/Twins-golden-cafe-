@@ -11,6 +11,7 @@ import { KunafaSpecial } from "@/components/home/KunafaSpecial";
 import { CategoriesPreview } from "@/components/home/HomeSections";
 import { VegSpecial } from "@/components/home/VegSpecial";
 import { JuiceBar } from "@/components/home/JuiceBar";
+import { FindUs } from "@/components/home/FindUs";
 import { ld, restaurantSchema } from "@/data/seo";
 
 const title = "Twin's Golden Cafe — Cafe & Restaurant in Arani";
@@ -51,6 +52,7 @@ function Index() {
         <KunafaSpecial />
         <JuiceBar />
         <CategoriesPreview />
+        <FindUs />
 
         {/* no closing band here: the footer's sign-off is the one call to
             action every page ends on */}

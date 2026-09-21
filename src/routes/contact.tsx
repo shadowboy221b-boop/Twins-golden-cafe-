@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { AnimatePresence, motion, useInView } from "motion/react";
 import { Cursor } from "@/components/Cursor";
@@ -178,6 +178,7 @@ function ContactPage() {
         )}
 
         <VisitUs />
+        <HowOrdering />
         {CONTACT_DETAILS_READY && <EnquiryForm />}
         {FAQ.length > 0 && <Questions />}
       </main>
@@ -523,6 +524,90 @@ const REASONS = ["Table booking", "Party order", "Feedback", "Something else"];
  * to send and dropping the message, it hands the enquiry to WhatsApp — which
  * the cafe already reads. Picking a reason puts it at the top of the message.
  */
+/**
+ * What happens between "I want that" and food in a bag. The page had the phone
+ * number and the map but never said how ordering works, which is the question
+ * most first-time visitors actually arrive with.
+ */
+function HowOrdering() {
+  return (
+    <Section tone="paper">
+      <SectionHead
+        align="center"
+        eyebrow="Ordering"
+        title="HOW TO"
+        accent="ORDER"
+        lede="Three ways to get your food, all ending at the same counter."
+      />
+
+      <div className="relative z-10 mt-14 grid gap-6 md:grid-cols-3">
+        {[
+          {
+            step: "01",
+            title: "Order on the site",
+            body: (
+              <>
+                Add what you want from the{" "}
+                <Link
+                  to="/menu"
+                  className="font-bold text-orange-ink underline-offset-4 hover:underline"
+                >
+                  menu
+                </Link>{" "}
+                or the{" "}
+                <Link
+                  to="/combos"
+                  className="font-bold text-orange-ink underline-offset-4 hover:underline"
+                >
+                  combos
+                </Link>
+                , fill in your name and number, and the order opens in WhatsApp ready to send. We
+                confirm it in that same chat.
+              </>
+            ),
+          },
+          {
+            step: "02",
+            title: "Pay cash or UPI",
+            body: (
+              <>
+                Pay by UPI while you order, or with cash when you collect. A UPI payment comes with
+                a screenshot in the chat, and we check it against our account before confirming.
+              </>
+            ),
+          },
+          {
+            step: "03",
+            title: "Collect or call",
+            body: (
+              <>
+                Pick it up at {CAFE.shortAddress}, or call{" "}
+                <a
+                  href={TEL}
+                  className="font-bold text-orange-ink underline-offset-4 hover:underline"
+                >
+                  {CAFE.phone}
+                </a>{" "}
+                for a big order — family feasts and party trays are easier to plan on a call.
+              </>
+            ),
+          },
+        ].map((s, i) => (
+          <RevealCard key={s.step} index={i}>
+            <div className="h-full rounded-3xl border border-ink/10 bg-paper-warm p-7">
+              <p className="font-display text-3xl font-black text-orange">{s.step}</p>
+              <h3 className="mt-4 font-display text-lg font-black uppercase tracking-[-0.01em] text-ink">
+                {s.title}
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-ink/70">{s.body}</p>
+            </div>
+          </RevealCard>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
 function EnquiryForm() {
   const [reason, setReason] = useState(REASONS[0] ?? "");
   const [name, setName] = useState("");
