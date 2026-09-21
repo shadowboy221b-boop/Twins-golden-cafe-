@@ -65,7 +65,7 @@ export const restaurantSchema = {
   "@id": `${SITE_URL}/#restaurant`,
   name: CAFE.name,
   url: SITE_URL,
-  image: [`${SITE_URL}/og-image.jpg`],
+  image: [`${SITE_URL}/og-image.jpg`, `${SITE_URL}/shop-front.jpg`],
   logo: `${SITE_URL}/apple-touch-icon.png`,
   telephone: CAFE.phone.replace(/\s/g, ""),
   address: {
@@ -82,6 +82,7 @@ export const restaurantSchema = {
   paymentAccepted: "Cash, UPI",
   openingHoursSpecification: openingHours(),
   hasMenu: `${SITE_URL}/menu`,
+  hasMap: CAFE.directionsUrl,
   founder: { "@type": "Person", name: CAFE.founder },
   sameAs: SOCIAL.map((s) => s.href),
 };
@@ -111,6 +112,19 @@ export const menuSchema = {
     })),
   })),
 };
+
+/** The questions answered on the contact page, for the "People also ask" style result. */
+export function faqSchema(faq: { q: string; a: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faq.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  };
+}
 
 /** The trail Google prints under a result: Home › Menu. */
 export function breadcrumbSchema(trail: { name: string; path: string }[]) {

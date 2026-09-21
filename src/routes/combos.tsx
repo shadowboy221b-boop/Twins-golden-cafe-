@@ -153,6 +153,10 @@ function CombosPage() {
 
       <main className="relative">
         <PageHero
+          trail={[
+            { name: "Home", path: "/" },
+            { name: "Combos", path: "/combos" },
+          ]}
           eyebrow="Better together"
           title="BEST COMBOS"
           accent="FOR EVERY CRAVING"

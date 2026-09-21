@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { MaskReveal } from "./bits";
 
@@ -91,17 +92,51 @@ export function SectionHead({
 }
 
 /** A dark masthead for the inner pages. */
+/**
+ * The trail above a page's title: Home › Menu. Search engines like the visible
+ * trail to match the breadcrumb data in the page's head, and on a phone it is
+ * the quickest way back.
+ */
+export function Breadcrumbs({ trail }: { trail: { name: string; path: string }[] }) {
+  const last = trail.length - 1;
+  return (
+    <nav aria-label="Breadcrumb" className="mb-5">
+      <ol className="flex flex-wrap items-center gap-2 text-[0.58rem] font-extrabold uppercase tracking-[0.22em] text-paper/50">
+        {trail.map((step, i) => (
+          <li key={step.path} className="flex items-center gap-2">
+            {i === last ? (
+              <span aria-current="page" className="text-paper/80">
+                {step.name}
+              </span>
+            ) : (
+              <>
+                <Link to={step.path} className="transition-colors hover:text-orange">
+                  {step.name}
+                </Link>
+                <span aria-hidden>›</span>
+              </>
+            )}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}
+
 export function PageHero({
   eyebrow,
   title,
   accent,
   lede,
+  trail,
   children,
 }: {
   eyebrow: string;
   title: string;
   accent: string;
   lede?: string;
+  /** the page's place in the site, shown above the eyebrow */
+  trail?: { name: string; path: string }[];
   children?: ReactNode;
 }) {
   return (
@@ -112,6 +147,7 @@ export function PageHero({
         style={{ background: "radial-gradient(circle, var(--orange) 0%, transparent 65%)" }}
       />
       <div className="relative z-10 mx-auto max-w-7xl">
+        {trail && <Breadcrumbs trail={trail} />}
         <MaskReveal>
           <p className="eyebrow !text-orange">{eyebrow}</p>
         </MaskReveal>

@@ -119,9 +119,14 @@ async function main() {
     }
 
     // The site's own "page not found" screen, for addresses that don't exist.
+    // It is served from many different addresses, so it says so in its title
+    // and asks search engines to leave it out of their index.
     const missing = await fetch(`${ORIGIN}/__page-that-does-not-exist__`);
     if (missing.status !== 404) fail(`not-found page returned ${missing.status}, expected 404`);
-    await writeFile(join(OUT, "404.html"), await missing.text());
+    const notFound = (await missing.text())
+      .replace(/<title>[^<]*<\/title>/, "<title>Page not found — Twin&#x27;s Golden Cafe</title>")
+      .replace("<head>", '<head><meta name="robots" content="noindex, follow"/>');
+    await writeFile(join(OUT, "404.html"), notFound);
 
     // Hostinger rules. Vite normally copies this from public/, but it is a
     // dotfile and the site depends on it, so make sure it is there.

@@ -114,6 +114,10 @@ function AboutPage() {
 
       <main className="relative">
         <PageHero
+          trail={[
+            { name: "Home", path: "/" },
+            { name: "About", path: "/about" },
+          ]}
           eyebrow="Who we are"
           title="MORE THAN"
           accent="JUST A CAFE"

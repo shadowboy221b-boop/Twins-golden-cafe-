@@ -4,11 +4,11 @@ import { AnimatePresence, motion, useInView } from "motion/react";
 import { Cursor } from "@/components/Cursor";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { RevealCard, Section, SectionHead } from "@/components/page";
+import { Breadcrumbs, RevealCard, Section, SectionHead } from "@/components/page";
 import { MaskReveal } from "@/components/bits";
 import { SocialIcons } from "@/components/SocialIcons";
 import { ADDRESS_READY, CAFE, CONTACT_DETAILS_READY, SOCIAL } from "@/data/site";
-import { breadcrumbSchema, ld, restaurantSchema } from "@/data/seo";
+import { breadcrumbSchema, faqSchema, ld, restaurantSchema } from "@/data/seo";
 import heroPhoto from "@/assets/shop-front.webp";
 import heroPhotoSm from "@/assets/shop-front-600.webp";
 
@@ -37,6 +37,8 @@ export const Route = createFileRoute("/contact")({
           { name: "Contact", path: "/contact" },
         ]),
       ),
+      // only the questions that have a real answer on the page
+      ...(FAQ.length > 0 ? [ld(faqSchema(FAQ))] : []),
     ],
   }),
   component: ContactPage,
@@ -206,6 +208,12 @@ function ContactHero() {
 
       <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-[1.15fr_0.85fr]">
         <div>
+          <Breadcrumbs
+            trail={[
+              { name: "Home", path: "/" },
+              { name: "Contact", path: "/contact" },
+            ]}
+          />
           <MaskReveal>
             <p className="eyebrow !text-orange">Say hello</p>
           </MaskReveal>
@@ -630,6 +638,11 @@ function EnquiryForm() {
                 <input
                   id="cf-phone"
                   type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  // a phone keypad on a phone, and enough digits to be a real number
+                  pattern="[0-9+ ()-]{10,16}"
+                  title="Your mobile number, at least 10 digits"
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}

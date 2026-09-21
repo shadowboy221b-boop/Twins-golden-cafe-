@@ -1,6 +1,8 @@
 import { useRef } from "react";
 import { motion, useScroll, useSpring, useTransform, type MotionValue } from "motion/react";
+import { Link } from "@tanstack/react-router";
 import { categories } from "@/data/menu";
+import { CAFE } from "@/data/site";
 import { MaskReveal, useLoopInView, useSpinAllowed } from "@/components/bits";
 import { VegMark } from "@/components/VegMark";
 import burger from "@/assets/burger-hero.webp";
@@ -257,6 +259,23 @@ export function MenuMasthead({
         style={{ background: "radial-gradient(circle, var(--orange) 0%, transparent 62%)" }}
       />
 
+      {/* the visible trail, matching the breadcrumb data in the page's head */}
+      <nav aria-label="Breadcrumb" className="relative z-10 mb-5">
+        <ol className="flex flex-wrap items-center justify-center gap-2 text-[0.58rem] font-extrabold uppercase tracking-[0.22em] text-paper/50">
+          <li className="flex items-center gap-2">
+            <Link to="/" className="transition-colors hover:text-orange">
+              Home
+            </Link>
+            <span aria-hidden>›</span>
+          </li>
+          <li>
+            <span aria-current="page" className="text-paper/80">
+              Menu
+            </span>
+          </li>
+        </ol>
+      </nav>
+
       <motion.div style={{ y: titleY }} className="relative z-10 text-center">
         <MaskReveal>
           <p className="eyebrow !text-orange">Everything we cook</p>
@@ -267,6 +286,13 @@ export function MenuMasthead({
             <span className="block text-orange">MENU</span>
           </MaskReveal>
         </h1>
+
+        {/* what this page is, in the words people search for */}
+        <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-paper/60">
+          The full menu at {CAFE.name}, {CAFE.shortAddress} — {categories.length} counters,{" "}
+          {ALL_ITEMS.length} dishes, {VEG_TOTAL} of them vegetarian, from ₹{PRICE_MIN} to ₹
+          {PRICE_MAX}.
+        </p>
       </motion.div>
 
       <ul className="relative z-10 mx-auto mt-10 flex max-w-6xl flex-wrap items-start justify-center gap-y-8 md:mt-4 md:flex-nowrap">
