@@ -11,6 +11,7 @@ import { Suspense, lazy, useEffect, useState, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { CartProvider, useCart } from "../lib/cart";
+import { CAFE } from "@/data/site";
 
 // The cart drawer — dialog, checkout form, payment step — is fetched once the
 // page has settled, or at once if something is already in the cart. None of
@@ -112,6 +113,11 @@ export const Route = createRootRoute({
       { property: "og:image:height", content: "630" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: "https://twinsgoldencafe.com/og-image.jpg" },
+      // where the cafe is, for the directories and crawlers that still read these
+      { name: "geo.region", content: "IN-TN" },
+      { name: "geo.placename", content: "Arani, Tamil Nadu" },
+      { name: "geo.position", content: `${CAFE.geo.lat};${CAFE.geo.lng}` },
+      { name: "ICBM", content: `${CAFE.geo.lat}, ${CAFE.geo.lng}` },
     ],
     links: [
       {

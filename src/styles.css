@@ -448,6 +448,29 @@
   animation: card-wash 19s ease-in-out infinite;
 }
 
+/* A button that waves every few seconds: still most of the time, then one
+   small shake, so the eye finds it without the page ever feeling busy. */
+@keyframes nudge {
+  0%,
+  86%,
+  100% {
+    transform: rotate(0deg);
+  }
+  89% {
+    transform: rotate(-14deg);
+  }
+  92% {
+    transform: rotate(11deg);
+  }
+  95% {
+    transform: rotate(-6deg);
+  }
+}
+
+@utility nudge {
+  animation: nudge 6s ease-in-out infinite;
+}
+
 /* The specials showcase's timer: the bar fills once per slide, and the slide
    advances when the fill ends — so pausing the bar pauses the showcase too. */
 @keyframes grow-x {

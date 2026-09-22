@@ -36,6 +36,12 @@ export const CAFE = {
   /** how far the cafe takes its own deliveries */
   deliveryTown: "Arani",
   deliveryRadiusKm: 20,
+  /**
+   * Places inside that radius, named because an address here is usually given
+   * as one of them. Distances checked against the map — everything listed is
+   * within the 20 km, and nothing outside it is listed.
+   */
+  deliveryPlaces: ["Paiyur", "Sevur", "Kalambur", "Kannamangalam"],
 
   hours: "Open daily · 9 AM – 9 PM",
   hoursRows: [{ days: "Monday – Sunday", time: "9:00 AM – 9:00 PM" }],

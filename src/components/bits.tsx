@@ -84,6 +84,29 @@ export function useSpinAllowed() {
 }
 
 /**
+ * Whether the counter is open at this moment, worked out in the browser: the
+ * pages are built ahead of time, so the build machine's clock must never
+ * decide it. `null` until the browser has answered, which keeps the first
+ * paint identical on the server and here.
+ */
+export function useOpenNow(opens = 9, closes = 21) {
+  const [open, setOpen] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const check = () => {
+      const hour = new Date().getHours();
+      setOpen(hour >= opens && hour < closes);
+    };
+    check();
+    // the sign flips on the hour without anyone reloading the page
+    const id = window.setInterval(check, 60_000);
+    return () => window.clearInterval(id);
+  }, [opens, closes]);
+
+  return open;
+}
+
+/**
  * Whether a section's never-ending motion should be running: motion is welcome
  * and the section is on screen, or about to be. A turning dish that has
  * scrolled away still costs work on every frame — on a phone, a page full of

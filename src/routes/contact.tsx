@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
-import { AnimatePresence, motion, useInView } from "motion/react";
+import { motion, useInView } from "motion/react";
 import { Cursor } from "@/components/Cursor";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Breadcrumbs, RevealCard, Section, SectionHead } from "@/components/page";
-import { MaskReveal } from "@/components/bits";
+import { MaskReveal, useLoopInView, useOpenNow } from "@/components/bits";
 import { SocialIcons } from "@/components/SocialIcons";
 import { ADDRESS_READY, CAFE, CONTACT_DETAILS_READY, SOCIAL } from "@/data/site";
 import { breadcrumbSchema, faqSchema, ld, restaurantSchema } from "@/data/seo";
@@ -68,7 +68,7 @@ const FAQ = [
   },
   {
     q: "Do you deliver?",
-    a: `Yes — we deliver across ${CAFE.deliveryTown} town and up to about ${CAFE.deliveryRadiusKm} km around it, and Swiggy delivers for us as well (listed there as ${CAFE.swiggyName}). Tell us where you are when you order and we confirm the delivery charge on WhatsApp.`,
+    a: `Yes — we deliver across ${CAFE.deliveryTown} town, from the Old Bus Stand and Market Road out to Kilarani, Pudur and the Fort side, and up to about ${CAFE.deliveryRadiusKm} km around the town: ${CAFE.deliveryPlaces.join(", ")} and the villages along those roads. Swiggy delivers for us as well (listed there as ${CAFE.swiggyName}). Tell us where you are when you order and we confirm the delivery charge on WhatsApp.`,
   },
   // An answer still marked TODO stays off the page: visitors should never see a
   // note to the owner. It appears as soon as the real answer replaces it.
@@ -595,8 +595,9 @@ function HowOrdering() {
             body: (
               <>
                 Collect it at {CAFE.shortAddress}, or ask for delivery — we come to you anywhere in{" "}
-                {CAFE.deliveryTown} town and up to about {CAFE.deliveryRadiusKm} km around it, and
-                confirm the charge in the chat. For a big order, call{" "}
+                {CAFE.deliveryTown} town and up to about {CAFE.deliveryRadiusKm} km around it —{" "}
+                {CAFE.deliveryPlaces.join(", ")} included — and confirm the charge in the chat. For
+                a big order, call{" "}
                 <a
                   href={TEL}
                   className="font-bold text-orange-ink underline-offset-4 hover:underline"
@@ -791,6 +792,111 @@ function EnquiryForm() {
 
 /* --------------------------------------------------------------------- faq */
 
+/**
+ * The way to ask a question the list does not answer, beside the list itself.
+ *
+ * It keeps a little life: warmth washing slowly behind the card, the three
+ * facts dealt in one after another, a light that says whether the counter is on
+ * right now, and the WhatsApp mark waving every few seconds — all of it frozen
+ * for anyone who asks for less motion, and paused while the card is off screen.
+ */
+function AskCard() {
+  const ref = useRef<HTMLDivElement>(null);
+  const looping = useLoopInView(ref);
+  const openNow = useOpenNow();
+
+  const facts = [
+    { t: "9–9", d: "Every day", live: true },
+    { t: `${CAFE.deliveryRadiusKm} km`, d: "Delivery", live: false },
+    { t: "UPI", d: "Or cash", live: false },
+  ];
+
+  return (
+    <RevealCard className="mt-10 max-w-sm">
+      <div
+        ref={ref}
+        className="relative overflow-hidden rounded-3xl border border-ink/10 bg-paper-warm p-7"
+      >
+        {looping && (
+          <span
+            aria-hidden
+            className="card-wash pointer-events-none absolute -inset-1/4"
+            style={{
+              background: "radial-gradient(circle at 30% 30%, var(--orange) 0%, transparent 62%)",
+              opacity: 0.1,
+            }}
+          />
+        )}
+
+        <div className="relative z-10">
+          <p className="text-sm leading-relaxed text-ink/70">
+            Not answered here? Ask on WhatsApp — someone is at the counter every day from 9 in the
+            morning to 9 at night, and that is the quickest way to get us.
+          </p>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <a
+              href={WHATSAPP}
+              target="_blank"
+              rel="noreferrer noopener"
+              data-cursor="cta"
+              className="group inline-flex items-center gap-2.5 rounded-full bg-orange px-6 py-3.5 text-[0.65rem] font-extrabold uppercase tracking-[0.22em] text-ink transition-transform duration-300 hover:-translate-y-0.5"
+            >
+              <Icon
+                name="whatsapp"
+                className={`size-4 ${looping ? "nudge" : ""} group-hover:[animation-play-state:paused]`}
+              />
+              Ask on WhatsApp
+            </a>
+            <a
+              href={TEL}
+              data-cursor="cta"
+              className="inline-flex items-center gap-2.5 rounded-full border border-ink/15 px-6 py-3.5 text-[0.65rem] font-extrabold uppercase tracking-[0.22em] text-ink transition-colors hover:border-orange hover:text-orange-ink"
+            >
+              <Icon name="phone" className="size-4" />
+              Call
+            </a>
+          </div>
+
+          {/* the three facts people ask for before they ask anything else */}
+          <dl className="mt-7 grid grid-cols-3 gap-px overflow-hidden rounded-2xl bg-ink/10 text-center">
+            {facts.map((f, i) => (
+              <motion.div
+                key={f.d}
+                initial={{ opacity: 0, y: 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.5, delay: 0.15 + i * 0.1, ease: EASE }}
+                className="bg-paper-warm px-2 py-4"
+              >
+                <dt className="font-display text-base font-black tracking-[-0.01em] text-ink">
+                  {f.t}
+                </dt>
+                <dd className="mt-1 flex items-center justify-center gap-1.5 text-[0.5rem] font-extrabold uppercase tracking-[0.18em] text-ink/50">
+                  {/* the first cell says whether that 9–9 is happening now */}
+                  {f.live && openNow !== null && (
+                    <span className="relative flex size-1.5">
+                      {looping && openNow && (
+                        <span className="absolute inline-flex size-full animate-ping rounded-full bg-leaf opacity-70" />
+                      )}
+                      <span
+                        className={`relative inline-flex size-1.5 rounded-full ${
+                          openNow ? "bg-leaf" : "bg-ink/30"
+                        }`}
+                      />
+                    </span>
+                  )}
+                  {f.live && openNow !== null ? (openNow ? "Open now" : "Closed now") : f.d}
+                </dd>
+              </motion.div>
+            ))}
+          </dl>
+        </div>
+      </div>
+    </RevealCard>
+  );
+}
+
 /** Questions as an accordion — one open at a time, the + turning into a ×. */
 function Questions() {
   const [open, setOpen] = useState<number | null>(0);
@@ -798,7 +904,13 @@ function Questions() {
   return (
     <Section tone="paper">
       <div className="grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
-        <SectionHead eyebrow="Good to know" title="COMMON" accent="QUESTIONS" />
+        {/* the heading left a tall empty column beside five questions: the way
+            to ask a sixth one belongs in it */}
+        <div className="lg:sticky lg:top-32 lg:self-start">
+          <SectionHead eyebrow="Good to know" title="COMMON" accent="QUESTIONS" />
+
+          <AskCard />
+        </div>
 
         <ul className="border-t border-ink/12">
           {FAQ.map((f, i) => {
@@ -836,20 +948,20 @@ function Questions() {
                     </svg>
                   </span>
                 </button>
-                <AnimatePresence initial={false}>
-                  {on && (
-                    <motion.div
-                      id={`faq-${i}`}
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.45, ease: EASE }}
-                      className="overflow-hidden"
-                    >
-                      <p className="max-w-2xl pb-6 text-base leading-relaxed text-ink/65">{f.a}</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {/* Every answer stays in the page and folds shut, rather than
+                    being built when it opens: a closed answer is still an
+                    answer, and a crawler that never clicks should read all
+                    five — which is also what the FAQ data in the head claims. */}
+                <motion.div
+                  id={`faq-${i}`}
+                  initial={false}
+                  animate={{ height: on ? "auto" : 0, opacity: on ? 1 : 0 }}
+                  transition={{ duration: 0.45, ease: EASE }}
+                  aria-hidden={!on}
+                  className="overflow-hidden"
+                >
+                  <p className="max-w-2xl pb-6 text-base leading-relaxed text-ink/65">{f.a}</p>
+                </motion.div>
               </li>
             );
           })}

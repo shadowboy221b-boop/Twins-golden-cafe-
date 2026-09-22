@@ -4,7 +4,7 @@ import { Cursor } from "@/components/Cursor";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { PageHero, RevealCard, Section, SectionHead } from "@/components/page";
-import { breadcrumbSchema, ld } from "@/data/seo";
+import { breadcrumbSchema, ld, restaurantSchema } from "@/data/seo";
 import { MaskReveal } from "@/components/bits";
 import { CAFE } from "@/data/site";
 import { FloatingFood } from "@/components/FloatingFood";
@@ -30,6 +30,7 @@ export const Route = createFileRoute("/about")({
     ],
     links: [{ rel: "canonical", href: "https://twinsgoldencafe.com/about" }],
     scripts: [
+      ld(restaurantSchema),
       ld(
         breadcrumbSchema([
           { name: "Home", path: "/" },

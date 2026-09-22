@@ -1,4 +1,5 @@
 import { categories } from "@/data/menu";
+import { GOOGLE } from "@/data/reviews";
 import { CAFE, SOCIAL } from "@/data/site";
 
 /**
@@ -61,7 +62,7 @@ function openingHours() {
 /** The cafe itself: one place, referred to by the same id from every page. */
 export const restaurantSchema = {
   "@context": "https://schema.org",
-  "@type": "Restaurant",
+  "@type": ["Restaurant", "CafeOrCoffeeShop"],
   "@id": `${SITE_URL}/#restaurant`,
   name: CAFE.name,
   url: SITE_URL,
@@ -88,6 +89,12 @@ export const restaurantSchema = {
   },
   areaServed: [
     { "@type": "City", name: CAFE.deliveryTown, addressRegion: "Tamil Nadu", addressCountry: "IN" },
+    // the named places inside that circle, each one somebody's address
+    ...CAFE.deliveryPlaces.map((name) => ({
+      "@type": "Place",
+      name,
+      address: { "@type": "PostalAddress", addressRegion: "Tamil Nadu", addressCountry: "IN" },
+    })),
     {
       // the cafe delivers itself within this circle
       "@type": "GeoCircle",
@@ -99,7 +106,18 @@ export const restaurantSchema = {
       geoRadius: String(CAFE.deliveryRadiusKm * 1000),
     },
   ],
-  hasMenu: `${SITE_URL}/menu`,
+  // Tamil first: it is what the counter speaks
+  knowsLanguage: ["ta", "en"],
+  // the facts the FAQ answers, said again in schema form
+  amenityFeature: [
+    { "@type": "LocationFeatureSpecification", name: "Dine-in", value: true },
+    { "@type": "LocationFeatureSpecification", name: "Takeaway", value: true },
+    { "@type": "LocationFeatureSpecification", name: "Delivery", value: true },
+    { "@type": "LocationFeatureSpecification", name: "Roadside parking", value: true },
+    { "@type": "LocationFeatureSpecification", name: "Vegetarian options", value: true },
+  ],
+  // the same node the menu page publishes, so the two are read as one board
+  hasMenu: { "@type": "Menu", "@id": `${SITE_URL}/menu#menu`, url: `${SITE_URL}/menu` },
   hasMap: CAFE.directionsUrl,
   founder: { "@type": "Person", name: CAFE.founder },
   // an order placed on the site starts on the menu and finishes on WhatsApp
@@ -119,7 +137,7 @@ export const restaurantSchema = {
       ],
     },
   },
-  sameAs: [...SOCIAL.map((s) => s.href), CAFE.swiggy].filter(Boolean),
+  sameAs: [...SOCIAL.map((s) => s.href), CAFE.swiggy, GOOGLE.url].filter(Boolean),
 };
 
 /** The board itself: every counter, every dish, with its price. */

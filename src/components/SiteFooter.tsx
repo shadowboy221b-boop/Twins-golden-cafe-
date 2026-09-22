@@ -194,7 +194,14 @@ export function SiteFooter() {
                 </>
               )}
               {ADDRESS_READY && (
-                <p className="max-w-xs text-sm leading-relaxed text-paper/55">{CAFE.address}</p>
+                <a
+                  href={CAFE.directionsUrl}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="block max-w-xs text-sm leading-relaxed text-paper/55 underline-offset-4 transition-colors hover:text-orange hover:underline"
+                >
+                  {CAFE.address}
+                </a>
               )}
               <p className="text-sm text-paper/55">{CAFE.hours}</p>
             </address>
