@@ -93,6 +93,11 @@ export const Route = createRootRoute({
           "Twin's Golden Cafe, Arani — pizza, burgers, momos, kunafa, shakes and fresh juices, cooked to order.",
       },
       { name: "author", content: "Twin's Golden Cafe" },
+      // proves to Search Console that the cafe owns this domain; safe to publish
+      {
+        name: "google-site-verification",
+        content: "b8HaQmi_waXgSACdPdUtgvKuXE1Flzl2u_TRIDVoASk",
+      },
       { property: "og:site_name", content: "Twin's Golden Cafe" },
       { property: "og:title", content: "Twin's Golden Cafe" },
       {

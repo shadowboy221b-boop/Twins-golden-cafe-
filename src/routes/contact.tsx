@@ -52,7 +52,7 @@ const WHATSAPP = `https://wa.me/${CAFE.whatsapp}`;
 const FAQ = [
   {
     q: "Is parking available?",
-    a: "TODO — confirm parking details for the cafe.",
+    a: "Roadside parking, right outside on Market Road by the Old Bus Stand — two-wheelers and cars both park along there.",
   },
   {
     q: "Can we dine in?",
