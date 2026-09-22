@@ -864,7 +864,7 @@ export function CartDrawer() {
                           checked={delivery}
                           onChange={() => set("type", "delivery")}
                           title="Delivery"
-                          hint="Charge confirmed on WhatsApp"
+                          hint={`${CAFE.deliveryTown} and ${CAFE.deliveryRadiusKm} km around · charge confirmed on WhatsApp`}
                         />
                       </div>
                     </fieldset>

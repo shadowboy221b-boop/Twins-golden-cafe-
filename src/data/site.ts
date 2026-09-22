@@ -19,13 +19,23 @@ export const CAFE = {
   address: ADDRESS,
   /** the part people navigate by, for badges where the full address won't fit */
   shortAddress: "Old Bus Stand, Arani",
-  directionsUrl: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
-    `Twin's Golden Cafe, ${ADDRESS}`,
-  )}`,
-  // Google Maps' keyless embed, pointed at the cafe by name and address
-  mapEmbedSrc: `https://maps.google.com/maps?q=${encodeURIComponent(
-    `Twin's Golden Cafe, ${ADDRESS}`,
-  )}&z=17&output=embed`,
+  /** the exact spot, so directions and search land on the door, not the street */
+  geo: { lat: 12.6723247, lng: 79.2857255 },
+  directionsUrl: "https://www.google.com/maps/dir/?api=1&destination=12.6723247,79.2857255",
+  // Google Maps' keyless embed, pointed at the coordinates above
+  mapEmbedSrc: "https://maps.google.com/maps?q=12.6723247,79.2857255&z=17&output=embed",
+
+  /**
+   * The cafe on Swiggy. The outlet is still listed there under its older name,
+   * so anything that sends a guest to it says so first — nobody should land on
+   * a shop they think is the wrong one.
+   */
+  swiggy: "https://www.swiggy.com/city/vellore/village-milk-arni-rest1059561",
+  swiggyName: "Village Milk",
+
+  /** how far the cafe takes its own deliveries */
+  deliveryTown: "Arani",
+  deliveryRadiusKm: 20,
 
   hours: "Open daily · 9 AM – 9 PM",
   hoursRows: [{ days: "Monday – Sunday", time: "9:00 AM – 9:00 PM" }],

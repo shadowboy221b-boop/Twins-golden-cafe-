@@ -81,12 +81,34 @@ export const restaurantSchema = {
   currenciesAccepted: "INR",
   paymentAccepted: "Cash, UPI",
   openingHoursSpecification: openingHours(),
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: CAFE.geo.lat,
+    longitude: CAFE.geo.lng,
+  },
+  areaServed: [
+    { "@type": "City", name: CAFE.deliveryTown, addressRegion: "Tamil Nadu", addressCountry: "IN" },
+    {
+      // the cafe delivers itself within this circle
+      "@type": "GeoCircle",
+      geoMidpoint: {
+        "@type": "GeoCoordinates",
+        latitude: CAFE.geo.lat,
+        longitude: CAFE.geo.lng,
+      },
+      geoRadius: String(CAFE.deliveryRadiusKm * 1000),
+    },
+  ],
   hasMenu: `${SITE_URL}/menu`,
   hasMap: CAFE.directionsUrl,
   founder: { "@type": "Person", name: CAFE.founder },
   // an order placed on the site starts on the menu and finishes on WhatsApp
   potentialAction: {
     "@type": "OrderAction",
+    deliveryMethod: [
+      "https://schema.org/OnSitePickup",
+      "http://purl.org/goodrelations/v1#DeliveryModeOwnFleet",
+    ],
     target: {
       "@type": "EntryPoint",
       urlTemplate: `${SITE_URL}/menu`,
@@ -97,7 +119,7 @@ export const restaurantSchema = {
       ],
     },
   },
-  sameAs: SOCIAL.map((s) => s.href),
+  sameAs: [...SOCIAL.map((s) => s.href), CAFE.swiggy].filter(Boolean),
 };
 
 /** The board itself: every counter, every dish, with its price. */

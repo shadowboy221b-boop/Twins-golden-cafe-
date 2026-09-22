@@ -64,7 +64,11 @@ const FAQ = [
   },
   {
     q: "Do you take online orders?",
-    a: "TODO — confirm which delivery platforms you're listed on.",
+    a: `Yes. Order from this site and it reaches us on WhatsApp, or order through Swiggy — on Swiggy the kitchen is still listed under its older name, ${CAFE.swiggyName}.`,
+  },
+  {
+    q: "Do you deliver?",
+    a: `Yes — we deliver across ${CAFE.deliveryTown} town and up to about ${CAFE.deliveryRadiusKm} km around it, and Swiggy delivers for us as well (listed there as ${CAFE.swiggyName}). Tell us where you are when you order and we confirm the delivery charge on WhatsApp.`,
   },
   // An answer still marked TODO stays off the page: visitors should never see a
   // note to the owner. It appears as soon as the real answer replaces it.
@@ -562,7 +566,16 @@ function HowOrdering() {
                   combos
                 </Link>
                 , fill in your name and number, and the order opens in WhatsApp ready to send. We
-                confirm it in that same chat.
+                confirm it in that same chat. Prefer an app?{" "}
+                <a
+                  href={CAFE.swiggy}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="font-bold text-orange-ink underline-offset-4 hover:underline"
+                >
+                  Order on Swiggy
+                </a>{" "}
+                — the kitchen is listed there as {CAFE.swiggyName}.
               </>
             ),
           },
@@ -578,10 +591,12 @@ function HowOrdering() {
           },
           {
             step: "03",
-            title: "Collect or call",
+            title: "Collect or delivered",
             body: (
               <>
-                Pick it up at {CAFE.shortAddress}, or call{" "}
+                Collect it at {CAFE.shortAddress}, or ask for delivery — we come to you anywhere in{" "}
+                {CAFE.deliveryTown} town and up to about {CAFE.deliveryRadiusKm} km around it, and
+                confirm the charge in the chat. For a big order, call{" "}
                 <a
                   href={TEL}
                   className="font-bold text-orange-ink underline-offset-4 hover:underline"
