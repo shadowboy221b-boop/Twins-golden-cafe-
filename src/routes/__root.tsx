@@ -14,7 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { CartProvider, useCart } from "../lib/cart";
 import { CAFE } from "@/data/site";
 import { META_PIXEL_ID, PIXEL_READY } from "@/data/analytics";
-import { startPixel, trackPageView } from "@/lib/pixel";
+import { pixelSnippet, trackPageView } from "@/lib/pixel";
 
 // The cart drawer — dialog, checkout form, payment step — is fetched once the
 // page has settled, or at once if something is already in the cart. None of
@@ -133,6 +133,7 @@ export const Route = createRootRoute({
       { rel: "icon", href: "/favicon.ico", sizes: "48x48" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
     ],
+    scripts: PIXEL_READY ? [{ children: pixelSnippet }] : [],
   }),
 
   shellComponent: RootShell,
@@ -191,10 +192,9 @@ function MetaPixel() {
 
   useEffect(() => {
     if (!PIXEL_READY) return;
-    // the first view is already queued by startPixel, so it is not sent twice
+    // the snippet in the head already sent the first view: do not repeat it
     if (first.current) {
       first.current = false;
-      startPixel();
       return;
     }
     trackPageView();

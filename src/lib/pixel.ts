@@ -1,17 +1,16 @@
 import { META_PIXEL_ID, PIXEL_READY } from "@/data/analytics";
 
 /**
- * Talking to the Meta pixel, if there is one.
+ * Talking to the Meta pixel.
  *
- * Two rules hold everywhere in this file. Nothing happens unless a pixel id is
- * set — with no id the script is never fetched and no event is sent. And
- * nothing here is allowed to break the page: the shop must still take an order
- * if Meta is blocked, slow, or down, so every call is wrapped and every failure
- * is silent.
+ * The pixel itself is Meta's own snippet, inline in the head of every page —
+ * see `pixelSnippet` below. It has to run that early because Meta's own checks
+ * (Events Manager, the Pixel Helper extension) look for the pixel the moment
+ * the page loads and call it "not connected" if it arrives later.
  *
- * The queue is Meta's own: the small stub below collects events straight away
- * and fbevents.js replays them when it arrives, which is what lets the script
- * itself wait for an idle moment instead of competing with the food photos.
+ * Everything here is what the site says to it afterwards, and nothing here is
+ * allowed to break the page: the shop must still take an order if Meta is
+ * blocked, slow or down, so every call is wrapped and every failure is silent.
  */
 
 type Fbq = {
@@ -30,62 +29,24 @@ declare global {
   }
 }
 
-const SCRIPT_SRC = "https://connect.facebook.net/en_US/fbevents.js";
-
-let started = false;
-
-/** Meta's stub: queues calls until the real script loads. */
-function stub(): Fbq | null {
-  if (typeof window === "undefined") return null;
-  if (window.fbq) return window.fbq;
-
-  const fbq = ((...args: unknown[]) => {
-    if (fbq.callMethod) fbq.callMethod(...args);
-    else fbq.queue.push(args);
-  }) as Fbq;
-  fbq.queue = [];
-  fbq.push = fbq;
-  fbq.loaded = true;
-  fbq.version = "2.0";
-
-  window.fbq = fbq;
-  window._fbq = fbq;
-  return fbq;
-}
-
 /**
- * Start the pixel: queue the first page view now, fetch the script when the
- * browser has a spare moment. Calling it twice does nothing the second time.
+ * Meta's snippet, exactly as Events Manager gives it, with the cafe's id.
+ *
+ * Kept as one string so it can go in the head of the document itself rather
+ * than being added by React after the page is interactive.
  */
-export function startPixel() {
-  if (started || !PIXEL_READY || typeof window === "undefined") return;
-  started = true;
-
-  const fbq = stub();
-  if (!fbq) return;
-
-  try {
-    fbq("init", META_PIXEL_ID);
-    fbq("track", "PageView");
-  } catch {
-    // a blocked pixel is not a broken page
-  }
-
-  const load = () => {
-    if (document.querySelector(`script[src="${SCRIPT_SRC}"]`)) return;
-    const el = document.createElement("script");
-    el.async = true;
-    el.src = SCRIPT_SRC;
-    document.head.appendChild(el);
-  };
-
-  // the script waits for a gap, so it never delays the first paint
-  if (typeof window.requestIdleCallback === "function") {
-    window.requestIdleCallback(load, { timeout: 4000 });
-  } else {
-    window.setTimeout(load, 2500);
-  }
-}
+export const pixelSnippet = PIXEL_READY
+  ? `!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '${META_PIXEL_ID}');
+fbq('track', 'PageView');`
+  : "";
 
 /** One event, with whatever Meta calls its parameters. Silent when there is no pixel. */
 export function track(event: string, params?: Record<string, unknown>) {
