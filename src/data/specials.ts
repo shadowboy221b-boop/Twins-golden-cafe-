@@ -2,6 +2,7 @@ import drumstick from "@/assets/drumstick.webp";
 import burgerSplash from "@/assets/burger-splash.webp";
 import pizza from "@/assets/pizza.webp";
 import friesExplosion from "@/assets/fries-explosion.webp";
+import loadedFriesTall from "@/assets/loaded-fries-tall.webp";
 import freshJuice from "@/assets/fresh-juice.webp";
 import brownieShake from "@/assets/brownie-shake.webp";
 import kunafa from "@/assets/kunafa.webp";
@@ -80,9 +81,9 @@ export const specialGroups: SpecialGroup[] = [
     id: "signature-fries",
     title: "Loaded Fries",
     tagline: "Tossed hot so it sticks",
-    src: friesExplosion,
-    w: 736,
-    h: 1030,
+    src: loadedFriesTall,
+    w: 745,
+    h: 1024,
     items: [
       "Gochujang Loaded Fries",
       "Teriyaki Loaded Fries",

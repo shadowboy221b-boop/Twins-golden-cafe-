@@ -100,8 +100,8 @@ const CURATED = [
     art: { src: friesArt, w: 320, h: 320 },
     photo: {
       src: loadedFriesPhoto,
-      w: 1024,
-      h: 1024,
+      w: 800,
+      h: 800,
       alt: "Loaded fries with cheese sauce and crispy chicken",
       caption: "Built for the table",
     },
