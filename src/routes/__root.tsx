@@ -3,15 +3,18 @@ import {
   Link,
   createRootRoute,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { Suspense, lazy, useEffect, useState, type ReactNode } from "react";
+import { Suspense, lazy, useEffect, useRef, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { CartProvider, useCart } from "../lib/cart";
 import { CAFE } from "@/data/site";
+import { META_PIXEL_ID, PIXEL_READY } from "@/data/analytics";
+import { startPixel, trackPageView } from "@/lib/pixel";
 
 // The cart drawer — dialog, checkout form, payment step — is fetched once the
 // page has settled, or at once if something is already in the cart. None of
@@ -146,6 +149,17 @@ function RootShell({ children }: { children: ReactNode }) {
       </head>
       <body>
         {children}
+        {PIXEL_READY && (
+          <noscript>
+            <img
+              height="1"
+              width="1"
+              style={{ display: "none" }}
+              alt=""
+              src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
+            />
+          </noscript>
+        )}
         <Scripts />
       </body>
     </html>
@@ -159,8 +173,34 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <LazyCart />
+      <MetaPixel />
     </CartProvider>
   );
+}
+
+/**
+ * The Meta pixel, if the cafe has one.
+ *
+ * Renders nothing. It starts the pixel once and then reports a page view each
+ * time the visitor moves to another route — the site never reloads between
+ * pages, so without this Meta would only ever see the page somebody landed on.
+ */
+function MetaPixel() {
+  const href = useRouterState({ select: (s) => s.location.href });
+  const first = useRef(true);
+
+  useEffect(() => {
+    if (!PIXEL_READY) return;
+    // the first view is already queued by startPixel, so it is not sent twice
+    if (first.current) {
+      first.current = false;
+      startPixel();
+      return;
+    }
+    trackPageView();
+  }, [href]);
+
+  return null;
 }
 
 /** Loads the cart drawer when the browser is idle, or straight away once the cart has something in it. */

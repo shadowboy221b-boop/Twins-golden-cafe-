@@ -1,3 +1,4 @@
+import { track } from "@/lib/pixel";
 import {
   createContext,
   useCallback,
@@ -93,6 +94,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
         : [...prev, { ...item, qty: 1 }],
     );
     setBumps((b) => b + 1);
+    // what an ad is being judged on: somebody wanted this dish enough to tap
+    track("AddToCart", {
+      content_name: item.variant ? `${item.name} (${item.variant})` : item.name,
+      content_type: "product",
+      value: item.price,
+      currency: "INR",
+    });
   }, []);
 
   const setQty = useCallback((key: string, qty: number) => {

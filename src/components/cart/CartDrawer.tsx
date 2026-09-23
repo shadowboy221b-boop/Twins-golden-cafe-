@@ -7,6 +7,7 @@ import { AddButton, BagIcon } from "@/components/cart/AddButton";
 import { CAFE } from "@/data/site";
 import { ORDERING, OTP_READY, UPI_READY } from "@/data/ordering";
 import { confirmOtp, isOtpUnavailable, otpErrorMessage, sendOtp } from "@/lib/otp";
+import { track } from "@/lib/pixel";
 
 type Step = "cart" | "details" | "verify" | "pay" | "done";
 
@@ -463,6 +464,17 @@ export function CartDrawer() {
     const url = `https://wa.me/${CAFE.whatsapp}?text=${encodeURIComponent(text)}`;
 
     const finish = (shared: boolean) => {
+      // An order handed to WhatsApp, not yet confirmed at the counter: the
+      // cafe still has to accept it, so treat this number as orders placed
+      // rather than money in the till.
+      track("Purchase", {
+        value: total,
+        currency: "INR",
+        num_items: count,
+        content_type: "product",
+        order_id: no,
+        payment_method: payment,
+      });
       setSent({ url, orderNo: no, total, paid, shared });
       clear();
       setUtr("");
@@ -791,7 +803,14 @@ export function CartDrawer() {
                     {totalRow}
                     <button
                       type="button"
-                      onClick={() => setStep("details")}
+                      onClick={() => {
+                        track("InitiateCheckout", {
+                          value: total,
+                          currency: "INR",
+                          num_items: count,
+                        });
+                        setStep("details");
+                      }}
                       className="mt-4 w-full rounded-full bg-orange px-6 py-4 text-[0.68rem] font-extrabold uppercase tracking-[0.24em] text-ink transition-transform duration-300 hover:-translate-y-0.5"
                     >
                       Checkout
