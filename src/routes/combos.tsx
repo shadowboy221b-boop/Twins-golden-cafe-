@@ -1,7 +1,8 @@
 import { Fragment } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { combos, happyTreats, wraps } from "@/data/menu";
+import { categories, combos, happyTreats, wraps } from "@/data/menu";
+import { CAFE } from "@/data/site";
 import { Cursor } from "@/components/Cursor";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -13,7 +14,7 @@ import { SidesBuilder } from "@/components/SidesBuilder";
 import wrapPhoto from "@/assets/wrap.webp";
 import friedChickenPhoto from "@/assets/fried-chicken.webp";
 import loadedFriesPhoto from "@/assets/loaded-fries.webp";
-import { PageHero, Section, SectionHead } from "@/components/page";
+import { PageHero, RevealCard, Section, SectionHead } from "@/components/page";
 import { breadcrumbSchema, ld, restaurantSchema } from "@/data/seo";
 import burgerSplash from "@/assets/burger-splash.webp";
 // the faint dishes behind the headings sit at 12% and about a fifth of the
@@ -52,6 +53,10 @@ export const Route = createFileRoute("/combos")({
 });
 
 const by = (...names: string[]) => combos.filter((c) => names.includes(c.name));
+
+/** the whole board, for the line that tells a veg guest where to look instead */
+const ALL_ITEMS = categories.flatMap((c) => c.items);
+const VEG_TOTAL = ALL_ITEMS.filter((i) => i.veg).length;
 
 const CURATED = [
   {
@@ -145,6 +150,123 @@ const sides = SIDE_NAMES.map((n) => happyTreats.find((t) => t.name === n)).filte
 );
 
 const PRICES = combos.map((c) => c.price);
+
+/** A combo by name, for the guidance below — undefined if the kitchen drops it. */
+const one = (name: string) => combos.find((c) => c.name === name);
+
+const SOLO = ["Snack Combo", "Wrap Combo", "Burger Combo"];
+const PAIR = ["Chicken Lover Combo", "Wings Combo", "Premium Burger Combo"];
+const TABLE = ["Family Combo 1", "Family Combo 2"];
+
+const pick = (names: string[]) =>
+  names.map(one).filter((c): c is (typeof combos)[number] => Boolean(c));
+
+/**
+ * Which tray to order, in plain words.
+ *
+ * The tickets above print what is on each combo but not who it is for, which
+ * is the thing somebody standing at the counter actually has to decide. Every
+ * name and price here is read from the same menu the kitchen works off, so it
+ * cannot drift; if a combo is renamed or dropped, it simply stops appearing.
+ */
+function HowToPick() {
+  const groups = [
+    {
+      k: "On your own",
+      d: "One person, one tray. The snack combo is the smallest thing on the page and still comes with a dip.",
+      items: pick(SOLO),
+    },
+    {
+      k: "For two",
+      d: "Enough chicken to share, or one each with something left on the tray.",
+      items: pick(PAIR),
+    },
+    {
+      k: "For a table",
+      d: "Sharing platters. Order one and add fries or a roll from the sides below if the table is hungry.",
+      items: pick(TABLE),
+    },
+  ].filter((g) => g.items.length > 0);
+
+  return (
+    <Section id="how-to-pick" tone="warm">
+      <SectionHead
+        align="center"
+        eyebrow="Not sure which one"
+        title="HOW TO PICK"
+        accent="A COMBO"
+        lede="Every tray above is on the counter today. The only real question is how many people are eating."
+      />
+
+      <div className="mt-14 grid gap-6 md:grid-cols-3">
+        {groups.map((g, i) => (
+          <RevealCard key={g.k} index={i}>
+            <div className="h-full rounded-3xl border border-ink/10 bg-paper p-7">
+              <h3 className="font-display text-lg font-black uppercase tracking-[-0.01em] text-ink">
+                {g.k}
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-ink/65">{g.d}</p>
+
+              <dl className="mt-6 space-y-3 border-t border-ink/10 pt-5">
+                {g.items.map((c) => (
+                  <div key={c.name} className="flex items-baseline justify-between gap-4">
+                    <dt className="text-sm font-bold text-ink">{c.name}</dt>
+                    <dd className="font-display text-sm font-black text-orange-ink">₹{c.price}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </RevealCard>
+        ))}
+      </div>
+
+      {/* the two things people ask at the counter, answered before they ask */}
+      <div className="mt-10 grid gap-6 lg:grid-cols-2">
+        <RevealCard index={3}>
+          <div className="h-full rounded-3xl border border-ink/10 bg-paper p-7">
+            <h3 className="font-display text-base font-black uppercase tracking-[-0.01em] text-ink">
+              What comes with it
+            </h3>
+            <p className="mt-3 text-sm leading-relaxed text-ink/70">
+              A dip is already in every combo — the family trays carry two and three. Another one is
+              ₹25. Fries, popcorn chicken, nuggets and rolls are priced on their own and can be
+              added to any tray; they are listed further down this page. Everything is fried when
+              the order comes in, so a combo takes a few minutes longer than something off the
+              shelf, and reaches you hot.
+            </p>
+          </div>
+        </RevealCard>
+
+        <RevealCard index={4}>
+          <div className="h-full rounded-3xl border border-ink/10 bg-paper p-7">
+            <h3 className="font-display text-base font-black uppercase tracking-[-0.01em] text-ink">
+              Eating veg?
+            </h3>
+            <p className="mt-3 text-sm leading-relaxed text-ink/70">
+              Straight answer: every combo on this page is built on fried chicken. The board itself
+              is mostly vegetarian — {VEG_TOTAL} of the {ALL_ITEMS.length} dishes, including pizzas,
+              veg burgers, steamed and fried momos, pasta, fries, kunafa, falooda, shakes and fresh
+              juices. Build a tray from the{" "}
+              <Link
+                to="/menu"
+                className="font-bold text-orange-ink underline-offset-4 hover:underline"
+              >
+                menu
+              </Link>{" "}
+              instead, and it reaches the counter the same way.
+            </p>
+          </div>
+        </RevealCard>
+      </div>
+
+      <p className="mx-auto mt-10 max-w-3xl text-center text-sm leading-relaxed text-ink/60">
+        Add a combo here and it goes to {CAFE.name} on WhatsApp. Collect it at {CAFE.shortAddress},
+        or ask for delivery — {CAFE.deliveryTown} town and about {CAFE.deliveryRadiusKm} km around
+        it, {CAFE.deliveryPlaces.join(", ")} included. Open every day, 9 AM to 9 PM.
+      </p>
+    </Section>
+  );
+}
 
 function CombosPage() {
   return (
@@ -250,6 +372,8 @@ function CombosPage() {
             )}
           </Fragment>
         ))}
+
+        <HowToPick />
 
         {/* Sides from Happy Treats — priced on their own, not combo-priced */}
         <SidesBuilder id="sides" sides={sides} />

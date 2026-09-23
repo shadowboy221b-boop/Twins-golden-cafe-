@@ -331,8 +331,8 @@ function PriceCol({
   children?: ReactNode;
 }) {
   return (
-    <span className="flex w-16 shrink-0 flex-col items-end">
-      <span className="text-[0.55rem] font-extrabold uppercase tracking-[0.16em] text-ink/70">
+    <span className="flex w-[4.25rem] shrink-0 flex-col items-center">
+      <span className="-me-[0.16em] text-[0.55rem] font-extrabold uppercase tracking-[0.16em] text-ink/70">
         {label}
       </span>
       <span className="font-display text-[0.95rem] font-extrabold tabular-nums text-ink transition-colors duration-300 group-hover:text-orange-ink">
@@ -390,7 +390,7 @@ function Category({
             <li
               key={`${id}-${it.name}`}
               data-cursor="view"
-              className="group border-b border-ink/8 py-2.5 transition-colors duration-300 hover:border-orange/50"
+              className="group border-b border-ink/8 py-3 transition-colors duration-300 hover:border-orange/50"
             >
               <span className="flex items-baseline gap-2.5">
                 {/* wraps rather than truncates: on a phone a two-price row
@@ -421,7 +421,7 @@ function Category({
                 />
 
                 {it.altPrice != null && priceColumns ? (
-                  <span className="flex shrink-0 items-start gap-3">
+                  <span className="flex shrink-0 items-start gap-5">
                     <PriceCol label={priceColumns[0]} value={it.price}>
                       <AddButton
                         item={{
@@ -464,7 +464,7 @@ function Category({
               </span>
 
               {it.note && (
-                <span className="mt-0.5 block pr-16 text-[0.72rem] leading-snug text-ink/70">
+                <span className="mt-0.5 block pr-20 text-[0.72rem] leading-snug text-ink/70">
                   {it.note}
                 </span>
               )}

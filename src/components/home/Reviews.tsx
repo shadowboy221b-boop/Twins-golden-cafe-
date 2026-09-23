@@ -9,7 +9,12 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 
 function Stars({ n, className = "" }: { n: number; className?: string }) {
   return (
-    <span className={`inline-flex gap-0.5 ${className}`} aria-label={`${n} out of 5 stars`}>
+    // a label needs a role to go with it, or a screen reader is told to ignore it
+    <span
+      role="img"
+      className={`inline-flex gap-0.5 ${className}`}
+      aria-label={`${n} out of 5 stars`}
+    >
       {Array.from({ length: 5 }, (_, i) => (
         <svg key={i} viewBox="0 0 20 20" aria-hidden className="size-4 fill-current">
           <path

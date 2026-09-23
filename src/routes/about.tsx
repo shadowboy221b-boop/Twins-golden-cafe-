@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { Cursor } from "@/components/Cursor";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -7,6 +7,7 @@ import { PageHero, RevealCard, Section, SectionHead } from "@/components/page";
 import { breadcrumbSchema, ld, restaurantSchema } from "@/data/seo";
 import { MaskReveal } from "@/components/bits";
 import { CAFE } from "@/data/site";
+import { categories, combos } from "@/data/menu";
 import { FloatingFood } from "@/components/FloatingFood";
 import kunafa from "@/assets/kunafa.webp";
 import chicken from "@/assets/chicken.webp";
@@ -41,6 +42,12 @@ export const Route = createFileRoute("/about")({
   }),
   component: AboutPage,
 });
+
+/** the board, counted once: the facts below must always match the menu page */
+const ALL_ITEMS = categories.flatMap((c) => c.items);
+const VEG_TOTAL = ALL_ITEMS.filter((i) => i.veg).length;
+const PRICE_MIN = Math.min(...ALL_ITEMS.map((i) => i.price));
+const PRICE_MAX = Math.max(...ALL_ITEMS.map((i) => i.price));
 
 const MISSION = [
   { t: "Quality Food", d: "Nothing leaves the pass that we wouldn't eat ourselves." },
@@ -104,6 +111,123 @@ function CardWash({ index = 0 }: { index?: number }) {
         animationDelay: `${index * -2.6}s`,
       }}
     />
+  );
+}
+
+/**
+ * The cafe as a place, not as a philosophy.
+ *
+ * Everything above this is what the cafe believes; somebody reading the page
+ * to decide whether to walk in still needs the plain facts — what is cooked,
+ * how much of it is vegetarian, where the door is, and how to get food out of
+ * it. The counts come from the menu itself, so they cannot go stale.
+ */
+function TheCafeItself() {
+  const facts = [
+    { v: String(categories.length), l: "Counters on the board" },
+    { v: String(ALL_ITEMS.length), l: "Dishes" },
+    { v: String(VEG_TOTAL), l: "Of them vegetarian" },
+    { v: `₹${PRICE_MIN}–₹${PRICE_MAX}`, l: "Price range" },
+  ];
+
+  return (
+    <Section tone="warm">
+      <FloatingFood opacity={0.06} count={4} />
+      <Glow side="right" />
+
+      <div className="relative">
+        <SectionHead
+          align="center"
+          eyebrow="The cafe itself"
+          title="WHAT WE"
+          accent="ACTUALLY COOK"
+          lede={`One kitchen in ${CAFE.deliveryTown}, open every day of the week, cooking to order rather than to a warming shelf.`}
+        />
+      </div>
+
+      <dl className="relative z-10 mx-auto mt-12 grid max-w-4xl grid-cols-2 gap-px overflow-hidden rounded-3xl bg-ink/10 text-center md:grid-cols-4">
+        {facts.map((f) => (
+          <div key={f.l} className="bg-paper px-4 py-7">
+            <dt className="font-display text-2xl font-black tracking-[-0.03em] text-orange-ink md:text-3xl">
+              {f.v}
+            </dt>
+            <dd className="mt-2 text-[0.5rem] font-extrabold uppercase tracking-[0.18em] text-ink/55">
+              {f.l}
+            </dd>
+          </div>
+        ))}
+      </dl>
+
+      <div className="relative z-10 mt-8 grid gap-6 lg:grid-cols-3">
+        {[
+          {
+            t: "The board",
+            b: (
+              <>
+                Stone-baked pizzas, veg and non-veg burgers, popcorn chicken, nuggets and fish
+                fillet, twelve-inch wraps and rolls, steamed and fried momos, pasta, sandwiches,
+                bread omelettes, loaded fries, kunafa, falooda, fruit salad, milkshakes, lassi,
+                mojitos and juices pressed when you order them. It is a long board on purpose: a
+                table of four rarely wants the same thing.{" "}
+                <Link
+                  to="/menu"
+                  className="font-bold text-orange-ink underline-offset-4 hover:underline"
+                >
+                  See every dish and price
+                </Link>
+                .
+              </>
+            ),
+          },
+          {
+            t: "Mostly vegetarian",
+            b: (
+              <>
+                {VEG_TOTAL} of the {ALL_ITEMS.length} dishes are vegetarian, and they are not an
+                afterthought — the veg counters are the ones with the most on them. Anything veg
+                carries the green mark on the menu, and the menu page has a switch that hides
+                everything else. The {combos.length} combo trays are the exception: those are all
+                built on fried chicken.
+              </>
+            ),
+          },
+          {
+            t: "How food leaves here",
+            b: (
+              <>
+                Sit in, collect at the counter, or have it delivered across {CAFE.deliveryTown} town
+                and about {CAFE.deliveryRadiusKm} km around it. Order on this site and it reaches us
+                on WhatsApp; pay by UPI while you order or in cash when you collect. Swiggy carries
+                us too, still listed under the older name, {CAFE.swiggyName}. Parking is the kerb
+                outside on Market Road.
+              </>
+            ),
+          },
+        ].map((c, i) => (
+          <RevealCard key={c.t} index={i}>
+            <div className="relative h-full overflow-hidden rounded-3xl border border-ink/10 bg-paper p-7">
+              <CardWash index={i} />
+              <h3 className="relative font-display text-base font-black uppercase tracking-[-0.01em] text-ink">
+                {c.t}
+              </h3>
+              <p className="relative mt-3 text-sm leading-relaxed text-ink/70">{c.b}</p>
+            </div>
+          </RevealCard>
+        ))}
+      </div>
+
+      <p className="relative z-10 mx-auto mt-10 max-w-3xl text-center text-sm leading-relaxed text-ink/60">
+        You will find us at {CAFE.address}, open {CAFE.hoursRows[0]?.time.toLowerCase()} every day.
+        Call {CAFE.phone}, or{" "}
+        <Link
+          to="/contact"
+          className="font-bold text-orange-ink underline-offset-4 hover:underline"
+        >
+          find the map and the answers to the usual questions
+        </Link>
+        .
+      </p>
+    </Section>
   );
 }
 
@@ -437,6 +561,8 @@ function AboutPage() {
             </div>
           </div>
         </Section>
+
+        <TheCafeItself />
 
         {/* The founder's closing line, given the space it deserves. On a light
             ground, so it doesn't run together with the dark vision section
