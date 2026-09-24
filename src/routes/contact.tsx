@@ -26,6 +26,15 @@ export const Route = createFileRoute("/contact")({
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://twinsgoldencafe.com/contact" },
       { name: "twitter:card", content: "summary_large_image" },
+      // this page's own picture, so a link shared on WhatsApp shows what it is about
+      { property: "og:image", content: "https://twinsgoldencafe.com/share/contact.jpg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      {
+        property: "og:image:alt",
+        content: "The shop front of Twin's Golden Cafe at Old Bus Stand, Arani",
+      },
+      { name: "twitter:image", content: "https://twinsgoldencafe.com/share/contact.jpg" },
     ],
     links: [{ rel: "canonical", href: "https://twinsgoldencafe.com/contact" }],
     // the same place as on the home page, so the two entries are read as one

@@ -28,6 +28,12 @@ export const Route = createFileRoute("/about")({
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://twinsgoldencafe.com/about" },
       { name: "twitter:card", content: "summary_large_image" },
+      // this page's own picture, so a link shared on WhatsApp shows what it is about
+      { property: "og:image", content: "https://twinsgoldencafe.com/share/about.jpg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      { property: "og:image:alt", content: "Inside Twin's Golden Cafe in Arani" },
+      { name: "twitter:image", content: "https://twinsgoldencafe.com/share/about.jpg" },
     ],
     links: [{ rel: "canonical", href: "https://twinsgoldencafe.com/about" }],
     scripts: [

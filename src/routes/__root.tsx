@@ -114,6 +114,10 @@ export const Route = createRootRoute({
       { property: "og:image", content: "https://twinsgoldencafe.com/og-image.jpg" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
+      {
+        property: "og:image:alt",
+        content: "Pizza, burgers and shakes from Twin's Golden Cafe in Arani",
+      },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: "https://twinsgoldencafe.com/og-image.jpg" },
       // where the cafe is, for the directories and crawlers that still read these

@@ -37,6 +37,15 @@ export const Route = createFileRoute("/combos")({
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://twinsgoldencafe.com/combos" },
       { name: "twitter:card", content: "summary_large_image" },
+      // this page's own picture, so a link shared on WhatsApp shows what it is about
+      { property: "og:image", content: "https://twinsgoldencafe.com/share/combos.jpg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      {
+        property: "og:image:alt",
+        content: "Loaded fries under sauce and crispy chicken at Twin's Golden Cafe, Arani",
+      },
+      { name: "twitter:image", content: "https://twinsgoldencafe.com/share/combos.jpg" },
     ],
     links: [{ rel: "canonical", href: "https://twinsgoldencafe.com/combos" }],
     scripts: [

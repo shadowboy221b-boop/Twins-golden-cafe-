@@ -32,6 +32,15 @@ export const Route = createFileRoute("/menu")({
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://twinsgoldencafe.com/menu" },
       { name: "twitter:card", content: "summary_large_image" },
+      // this page's own picture, so a link shared on WhatsApp shows what it is about
+      { property: "og:image", content: "https://twinsgoldencafe.com/share/menu.jpg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      {
+        property: "og:image:alt",
+        content: "A stone-baked pizza from the counter at Twin's Golden Cafe, Arani",
+      },
+      { name: "twitter:image", content: "https://twinsgoldencafe.com/share/menu.jpg" },
     ],
     links: [{ rel: "canonical", href: "https://twinsgoldencafe.com/menu" }],
     // the whole board, counter by counter, with every price
