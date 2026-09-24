@@ -320,7 +320,14 @@ function MustTry() {
   );
 }
 
-/** One price with the way it is served printed above it (steam / fried), and its add button below. */
+/**
+ * One price, with the way it is served printed above it (steam / fried) and its
+ * add button beside it.
+ *
+ * The button used to sit under the price, which read as two separate things —
+ * a price in one place and a way to order it in another. On one line they are
+ * plainly the same control, and the row is shorter for it.
+ */
 function PriceCol({
   label,
   value,
@@ -331,14 +338,16 @@ function PriceCol({
   children?: ReactNode;
 }) {
   return (
-    <span className="flex w-[4.25rem] shrink-0 flex-col items-center">
+    <span className="flex shrink-0 flex-col items-center">
       <span className="-me-[0.16em] text-[0.55rem] font-extrabold uppercase tracking-[0.16em] text-ink/70">
         {label}
       </span>
-      <span className="font-display text-[0.95rem] font-extrabold tabular-nums text-ink transition-colors duration-300 group-hover:text-orange-ink">
-        ₹{value}
+      <span className="mt-0.5 flex items-center gap-1.5">
+        <span className="font-display text-[0.95rem] font-extrabold tabular-nums text-ink transition-colors duration-300 group-hover:text-orange-ink">
+          ₹{value}
+        </span>
+        {children}
       </span>
-      {children && <span className="mt-1.5">{children}</span>}
     </span>
   );
 }
@@ -421,7 +430,7 @@ function Category({
                 />
 
                 {it.altPrice != null && priceColumns ? (
-                  <span className="flex shrink-0 items-start gap-5">
+                  <span className="flex shrink-0 items-start gap-3 sm:gap-5">
                     <PriceCol label={priceColumns[0]} value={it.price}>
                       <AddButton
                         item={{
