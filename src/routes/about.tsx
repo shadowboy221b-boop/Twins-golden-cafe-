@@ -541,6 +541,22 @@ function AboutPage() {
                   </RevealCard>
                 ))}
               </ul>
+
+              {/* the chips above are a list of headings until somebody explains
+                  them: that page does, and it is where an enquiry starts */}
+              <RevealCard index={2}>
+                <p className="mt-8 max-w-xl text-sm leading-relaxed text-paper/65">
+                  Each of those is explained on the{" "}
+                  <Link
+                    to="/food-business-consulting"
+                    className="font-bold text-orange underline-offset-4 hover:underline"
+                  >
+                    food business consulting page
+                  </Link>{" "}
+                  — what it covers, how it starts, and what it costs, for anyone opening a cafe
+                  anywhere in Tamil Nadu.
+                </p>
+              </RevealCard>
             </div>
 
             <div>

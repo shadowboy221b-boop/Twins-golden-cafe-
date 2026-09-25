@@ -79,11 +79,23 @@ function validate(d: Details): Errors {
   return e;
 }
 
-/** A UPI pay link: opens the guest's UPI app with the payee, amount and order filled in. */
+/**
+ * A UPI pay link: opens the guest's UPI app with the payee, amount and order
+ * filled in.
+ *
+ * `mc` and `tr` are what make this a payment to a shop rather than to a person.
+ * The account behind the id is a merchant one, and some banks refuse a
+ * merchant payment that arrives without a category code or a reference of its
+ * own — the app shows "payment failed" with nothing debited. 5812 is the code
+ * for eating places; the reference is the order number, which is unique per
+ * order and is also what the cafe sees in its own app.
+ */
 const upiLink = (amount: number, orderNo: string) =>
   `upi://pay?${[
     ["pa", ORDERING.upiId.trim()],
     ["pn", ORDERING.upiName],
+    ["mc", "5812"],
+    ["tr", orderNo.replace(/[^A-Za-z0-9]/g, "")],
     ["am", amount.toFixed(2)],
     ["cu", "INR"],
     ["tn", `Order ${orderNo}`],

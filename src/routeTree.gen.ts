@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as CombosRouteImport } from './routes/combos'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as FoodBusinessConsultingRouteImport } from './routes/food-business-consulting'
 import { Route as MenuRouteImport } from './routes/menu'
 
 const IndexRoute = IndexRouteImport.update({
@@ -35,6 +36,11 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FoodBusinessConsultingRoute = FoodBusinessConsultingRouteImport.update({
+  id: '/food-business-consulting',
+  path: '/food-business-consulting',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MenuRoute = MenuRouteImport.update({
   id: '/menu',
   path: '/menu',
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/combos': typeof CombosRoute
   '/contact': typeof ContactRoute
+  '/food-business-consulting': typeof FoodBusinessConsultingRoute
   '/menu': typeof MenuRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/combos': typeof CombosRoute
   '/contact': typeof ContactRoute
+  '/food-business-consulting': typeof FoodBusinessConsultingRoute
   '/menu': typeof MenuRoute
 }
 export interface FileRoutesById {
@@ -61,14 +69,34 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/combos': typeof CombosRoute
   '/contact': typeof ContactRoute
+  '/food-business-consulting': typeof FoodBusinessConsultingRoute
   '/menu': typeof MenuRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/combos' | '/contact' | '/menu'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/combos'
+    | '/contact'
+    | '/food-business-consulting'
+    | '/menu'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/combos' | '/contact' | '/menu'
-  id: '__root__' | '/' | '/about' | '/combos' | '/contact' | '/menu'
+  to:
+    | '/'
+    | '/about'
+    | '/combos'
+    | '/contact'
+    | '/food-business-consulting'
+    | '/menu'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/combos'
+    | '/contact'
+    | '/food-business-consulting'
+    | '/menu'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -76,6 +104,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   CombosRoute: typeof CombosRoute
   ContactRoute: typeof ContactRoute
+  FoodBusinessConsultingRoute: typeof FoodBusinessConsultingRoute
   MenuRoute: typeof MenuRoute
 }
 
@@ -109,6 +138,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/food-business-consulting': {
+      id: '/food-business-consulting'
+      path: '/food-business-consulting'
+      fullPath: '/food-business-consulting'
+      preLoaderRoute: typeof FoodBusinessConsultingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/menu': {
       id: '/menu'
       path: '/menu'
@@ -124,6 +160,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   CombosRoute: CombosRoute,
   ContactRoute: ContactRoute,
+  FoodBusinessConsultingRoute: FoodBusinessConsultingRoute,
   MenuRoute: MenuRoute,
 }
 export const routeTree = rootRouteImport

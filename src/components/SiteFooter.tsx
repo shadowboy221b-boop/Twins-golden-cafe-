@@ -13,6 +13,7 @@ const NAV = [
   { to: "/combos", label: "Best Combos" },
   { to: "/about", label: "About Us" },
   { to: "/contact", label: "Contact Us" },
+  { to: "/food-business-consulting", label: "Consulting" },
 ] as const;
 
 /** A handful of counters worth linking straight into. */
