@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { motion, useScroll, useSpring } from "motion/react";
 import { Logo } from "./Logo";
+import { useOpenNow } from "./bits";
+import { CAFE } from "@/data/site";
 
 const NAV = [
   { to: "/", label: "Home" },
@@ -10,6 +12,50 @@ const NAV = [
   { to: "/about", label: "About Us" },
   { to: "/contact", label: "Contact Us" },
 ] as const;
+
+/**
+ * Whether the counter is on, said in the header of every page.
+ *
+ * Somebody landing at eleven at night should not have to find the contact page
+ * to learn that the kitchen is shut, so the answer rides along with the logo.
+ * It shows nothing until the browser has worked out the time, which keeps the
+ * page as built and the page as seen identical.
+ */
+function OpenBadge({
+  onDark,
+  /** the header keeps it off the narrowest screens; the drawer shows it there instead */
+  className = "hidden sm:inline-flex",
+}: {
+  onDark: boolean;
+  className?: string;
+}) {
+  const openNow = useOpenNow(CAFE.openMinutes, CAFE.closeMinutes);
+  if (openNow === null) return null;
+
+  return (
+    <span
+      className={`items-center gap-2 rounded-full border px-3 py-1.5 ${className} ${
+        onDark ? "border-paper/20" : "border-ink/12"
+      }`}
+    >
+      <span className="relative flex size-2">
+        {openNow && (
+          <span className="absolute inline-flex size-full animate-ping rounded-full bg-leaf opacity-70" />
+        )}
+        <span
+          className={`relative inline-flex size-2 rounded-full ${openNow ? "bg-leaf" : "bg-ink/35"}`}
+        />
+      </span>
+      <span
+        className={`whitespace-nowrap text-[0.5rem] font-extrabold uppercase tracking-[0.18em] ${
+          onDark ? "text-paper/75" : "text-ink/70"
+        }`}
+      >
+        {openNow ? `Open · until ${CAFE.closesLabel}` : `Closed · opens ${CAFE.opensLabel}`}
+      </span>
+    </span>
+  );
+}
 
 /**
  * Site-wide navigation. Over a dark hero it rides transparent with light type;
@@ -94,6 +140,8 @@ export function SiteHeader({ overDark = false }: { overDark?: boolean }) {
           </nav>
 
           <div className="flex shrink-0 items-center gap-3">
+            <OpenBadge onDark={onDark} />
+
             <Link
               to="/contact"
               data-cursor="cta"
@@ -143,6 +191,10 @@ export function SiteHeader({ overDark = false }: { overDark?: boolean }) {
           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
           className="overflow-hidden border-t border-ink/10 bg-paper lg:hidden"
         >
+          <div className="mx-auto max-w-7xl px-5 pt-4 sm:hidden md:px-12">
+            <OpenBadge onDark={false} className="inline-flex" />
+          </div>
+
           <ul className="mx-auto max-w-7xl px-5 py-4 md:px-12">
             {NAV.map((n) => (
               <li key={n.to}>

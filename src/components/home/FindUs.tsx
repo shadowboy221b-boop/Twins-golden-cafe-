@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import { categories } from "@/data/menu";
 import { ADDRESS_READY, CAFE, CONTACT_DETAILS_READY } from "@/data/site";
-import { MaskReveal, useLoopInView } from "@/components/bits";
+import { MaskReveal, useLoopInView, useOpenNow } from "@/components/bits";
 import { FloatingFood } from "@/components/FloatingFood";
 import { VegMark } from "@/components/VegMark";
 import shopFront from "@/assets/shop-front.webp";
@@ -18,33 +18,6 @@ const TO = Math.max(...ITEMS.map((i) => i.price));
 
 const TEL = `tel:${CAFE.phone.replace(/\s/g, "")}`;
 
-/** the counter's hours, as whole hours on a 24-hour clock */
-const OPENS = 9;
-const CLOSES = 21;
-
-/**
- * Whether the cafe is open at this moment, worked out in the browser: the page
- * is built ahead of time, so the build machine's clock must never decide it.
- * `null` until the browser has answered, which keeps the first paint identical
- * on the server and here.
- */
-function useOpenNow() {
-  const [open, setOpen] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const check = () => {
-      const hour = new Date().getHours();
-      setOpen(hour >= OPENS && hour < CLOSES);
-    };
-    check();
-    // the sign flips on the hour without anyone reloading the page
-    const id = window.setInterval(check, 60_000);
-    return () => window.clearInterval(id);
-  }, []);
-
-  return open;
-}
-
 /**
  * The plain facts, in words: where the cafe is, when it is open, and what is on
  * the board. The rest of the page is photographs and movement; someone deciding
@@ -57,7 +30,7 @@ function useOpenNow() {
 export function FindUs() {
   const ref = useRef<HTMLElement>(null);
   const looping = useLoopInView(ref);
-  const openNow = useOpenNow();
+  const openNow = useOpenNow(CAFE.openMinutes, CAFE.closeMinutes);
 
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const p = useSpring(scrollYProgress, { stiffness: 100, damping: 30, mass: 0.4 });
@@ -99,9 +72,9 @@ export function FindUs() {
 
           <MaskReveal delay={0.22}>
             <p className="serif-accent mt-7 max-w-md text-lg leading-relaxed text-ink/70">
-              {CAFE.name} is at {CAFE.shortAddress}, open every day from 9 in the morning to 9 at
-              night. Sit in or take it away — pizzas, burgers, fried chicken, momos, kunafa, shakes
-              and juices, all cooked to order.
+              {CAFE.name} is at {CAFE.shortAddress}, open every day, {CAFE.hoursShort}. Sit in or
+              take it away — pizzas, burgers, fried chicken, momos, kunafa, shakes and juices, all
+              cooked to order.
             </p>
           </MaskReveal>
 
@@ -124,7 +97,9 @@ export function FindUs() {
                 />
               </span>
               <span className="text-[0.6rem] font-extrabold uppercase tracking-[0.22em] text-ink/75">
-                {openNow ? "Open now · until 9 PM" : "Closed now · opens 9 AM"}
+                {openNow
+                  ? `Open now · until ${CAFE.closesLabel}`
+                  : `Closed now · opens ${CAFE.opensLabel}`}
               </span>
             </motion.p>
           )}
@@ -197,7 +172,7 @@ export function FindUs() {
               />
               <dt className="relative rule-label text-ink/60">When</dt>
               <dd className="relative mt-4 font-display text-2xl font-black text-ink">
-                9 AM – 9 PM
+                {CAFE.hoursShort}
               </dd>
               <dd className="relative mt-2 text-sm text-ink/70">Every day, Monday to Sunday</dd>
             </motion.div>

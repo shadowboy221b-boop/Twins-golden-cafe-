@@ -17,7 +17,7 @@ import { ld, restaurantSchema } from "@/data/seo";
 
 const title = "Twin's Golden Cafe — Cafe & Restaurant in Arani";
 const description =
-  "Pizza, burgers, fried chicken, momos, kunafa, shakes and juices, cooked to order at Twin's Golden Cafe, Old Bus Stand, Arani. Open daily 9 AM to 9 PM.";
+  "Pizza, burgers, fried chicken, momos, kunafa, shakes and juices, cooked to order at Twin's Golden Cafe, Old Bus Stand, Arani. Open daily 9 AM to 10:30 PM.";
 
 export const Route = createFileRoute("/")({
   head: () => ({

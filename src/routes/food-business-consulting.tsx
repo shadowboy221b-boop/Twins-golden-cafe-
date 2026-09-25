@@ -250,7 +250,7 @@ function WhyThisKitchen() {
             {[
               { v: dishes, l: "Dishes on one board" },
               { v: `${rating}★`, l: `${reviews} Google reviews` },
-              { v: "9–9", l: "Open every day" },
+              { v: CAFE.hoursCompact, l: "Open every day" },
             ].map((s, i) => (
               <motion.div
                 key={s.l}
@@ -449,7 +449,9 @@ function ConsultingPage() {
             >
               Start on WhatsApp
             </a>
-            <p className="text-sm text-ink/60">Or call {CAFE.phone} — 9 AM to 9 PM, any day.</p>
+            <p className="text-sm text-ink/60">
+              Or call {CAFE.phone} — {CAFE.hoursShort}, any day.
+            </p>
           </div>
         </Section>
 

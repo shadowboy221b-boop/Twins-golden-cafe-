@@ -1,4 +1,5 @@
 import { useCart, type CartItem } from "@/lib/cart";
+import { pingAdd } from "@/lib/sound";
 
 export function BagIcon({ className = "size-4" }: { className?: string }) {
   return (
@@ -35,6 +36,7 @@ function Minus() {
  * "Add to cart" bar); once it is, a − count + stepper in its place, so the
  * guest can see and change what they've already added without opening the cart.
  */
+/** Adding is the one action with a sound: taking away is quiet. */
 export function AddButton({
   item,
   wide = false,
@@ -49,6 +51,10 @@ export function AddButton({
 }) {
   const { qtyOf, add, setQty } = useCart();
   const qty = qtyOf(item.key);
+  const addOne = () => {
+    add(item);
+    pingAdd();
+  };
   const what = item.variant ? `${item.name} (${item.variant})` : item.name;
   const fill = tone === "orange" ? "bg-orange text-ink" : "bg-ink text-paper";
 
@@ -56,7 +62,7 @@ export function AddButton({
     return wide ? (
       <button
         type="button"
-        onClick={() => add(item)}
+        onClick={addOne}
         data-cursor="cta"
         className={`inline-flex w-full items-center justify-center gap-3 rounded-full px-5 py-3 text-[0.62rem] font-extrabold uppercase tracking-[0.22em] transition-transform duration-300 hover:-translate-y-0.5 ${fill} ${className}`}
       >
@@ -66,7 +72,7 @@ export function AddButton({
     ) : (
       <button
         type="button"
-        onClick={() => add(item)}
+        onClick={addOne}
         aria-label={`Add ${what} to cart`}
         data-cursor="cta"
         className={`grid size-7 shrink-0 place-items-center rounded-full border border-ink/20 text-ink transition-colors duration-200 hover:border-orange hover:bg-orange ${className}`}
@@ -104,12 +110,7 @@ export function AddButton({
       >
         {wide ? `${qty} in cart` : qty}
       </span>
-      <button
-        type="button"
-        onClick={() => add(item)}
-        aria-label={`One more ${what}`}
-        className={step}
-      >
+      <button type="button" onClick={addOne} aria-label={`One more ${what}`} className={step}>
         <Plus />
       </button>
     </span>

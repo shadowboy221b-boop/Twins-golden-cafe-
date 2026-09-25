@@ -89,19 +89,20 @@ export function useSpinAllowed() {
  * decide it. `null` until the browser has answered, which keeps the first
  * paint identical on the server and here.
  */
-export function useOpenNow(opens = 9, closes = 21) {
+export function useOpenNow(openMinutes: number, closeMinutes: number) {
   const [open, setOpen] = useState<boolean | null>(null);
 
   useEffect(() => {
     const check = () => {
-      const hour = new Date().getHours();
-      setOpen(hour >= opens && hour < closes);
+      const now = new Date();
+      const minutes = now.getHours() * 60 + now.getMinutes();
+      setOpen(minutes >= openMinutes && minutes < closeMinutes);
     };
     check();
     // the sign flips on the hour without anyone reloading the page
     const id = window.setInterval(check, 60_000);
     return () => window.clearInterval(id);
-  }, [opens, closes]);
+  }, [openMinutes, closeMinutes]);
 
   return open;
 }

@@ -271,7 +271,7 @@ function HowToPick() {
       <p className="mx-auto mt-10 max-w-3xl text-center text-sm leading-relaxed text-ink/60">
         Add a combo here and it goes to {CAFE.name} on WhatsApp. Collect it at {CAFE.shortAddress},
         or ask for delivery — {CAFE.deliveryTown} town and about {CAFE.deliveryRadiusKm} km around
-        it, {CAFE.deliveryPlaces.join(", ")} included. Open every day, 9 AM to 9 PM.
+        it, {CAFE.deliveryPlaces.join(", ")} included. Open every day, {CAFE.hoursShort}.
       </p>
     </Section>
   );

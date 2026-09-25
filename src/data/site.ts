@@ -43,8 +43,20 @@ export const CAFE = {
    */
   deliveryPlaces: ["Paiyur", "Sevur", "Kalambur", "Kannamangalam"],
 
-  hours: "Open daily · 9 AM – 9 PM",
-  hoursRows: [{ days: "Monday – Sunday", time: "9:00 AM – 9:00 PM" }],
+  hours: "Open daily · 9 AM – 10:30 PM",
+  hoursRows: [{ days: "Monday – Sunday", time: "9:00 AM – 10:30 PM" }],
+  /**
+   * The same hours in the other shapes the pages need. They were written out
+   * by hand in nine places, so a change of hours used to mean nine edits and
+   * one of them was always missed.
+   */
+  hoursShort: "9 AM – 10:30 PM",
+  hoursCompact: "9–10:30",
+  opensLabel: "9 AM",
+  closesLabel: "10:30 PM",
+  /** minutes past midnight, for the light that says whether the counter is on */
+  openMinutes: 9 * 60,
+  closeMinutes: 22 * 60 + 30,
 
   social: [
     { label: "Instagram", href: "https://www.instagram.com/twins_golden_cafe/" },

@@ -7,6 +7,8 @@ import { AddButton, BagIcon } from "@/components/cart/AddButton";
 import { CAFE } from "@/data/site";
 import { ORDERING, OTP_READY, UPI_READY } from "@/data/ordering";
 import { confirmOtp, isOtpUnavailable, otpErrorMessage, sendOtp } from "@/lib/otp";
+import { useOpenNow } from "@/components/bits";
+import { pingAdd, pingSent, setSoundOn, soundOn } from "@/lib/sound";
 import { track } from "@/lib/pixel";
 
 type Step = "cart" | "details" | "verify" | "pay" | "done";
@@ -300,6 +302,20 @@ function UpiQr({ value, amount }: { value: string; amount: number }) {
  */
 export function CartDrawer() {
   const { lines, count, total, clear, open, setOpen, bumps } = useCart();
+  /**
+   * Whether the kitchen is on. An order that lands after the shutters are down
+   * is nobody's friend: the guest waits for food nobody is cooking, and the
+   * cafe finds it in the morning. The cart still fills up — it survives the
+   * night — but it cannot be sent until the counter opens.
+   *
+   * Unknown counts as open, so a page is never briefly wrong at noon while the
+   * browser is still working out the time.
+   */
+  const openNow = useOpenNow(CAFE.openMinutes, CAFE.closeMinutes);
+  const shut = openNow === false;
+  // read once on the client, so the button shows what this phone already chose
+  const [sound, setSound] = useState(false);
+  useEffect(() => setSound(soundOn()), []);
   const [step, setStep] = useState<Step>("cart");
   const [details, setDetails] = useState<Details>(EMPTY);
   const [errors, setErrors] = useState<Errors>({});
@@ -476,6 +492,7 @@ export function CartDrawer() {
     const url = `https://wa.me/${CAFE.whatsapp}?text=${encodeURIComponent(text)}`;
 
     const finish = (shared: boolean) => {
+      pingSent();
       // An order handed to WhatsApp, not yet confirmed at the counter: the
       // cafe still has to accept it, so treat this number as orders placed
       // rather than money in the till.
@@ -527,6 +544,12 @@ export function CartDrawer() {
 
   /** Past the details (and the number, where codes are on): the pay step, or straight to WhatsApp. */
   const proceed = () => {
+    // the clock can roll past closing with the drawer still open: send them
+    // back to the cart, where the notice explains why nothing went through
+    if (shut) {
+      setStep("cart");
+      return;
+    }
     const no = `TGC-${Date.now().toString(36).slice(-5).toUpperCase()}`;
     setOrderNo(no);
 
@@ -746,19 +769,61 @@ export function CartDrawer() {
                   cafe on WhatsApp.
                 </Dialog.Description>
               </div>
-              <Dialog.Close
-                aria-label="Close"
-                className="grid size-10 place-items-center rounded-full border border-paper/20 transition-colors hover:border-orange hover:text-orange"
-              >
-                <svg aria-hidden viewBox="0 0 24 24" fill="none" className="size-4">
-                  <path
-                    d="M6 6l12 12M18 6 6 18"
-                    stroke="currentColor"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </Dialog.Close>
+              <div className="flex shrink-0 items-center gap-2">
+                {/* the little sounds, and the way to stop them */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = !sound;
+                    setSound(next);
+                    setSoundOn(next);
+                    // a tick, so the choice is audible the moment it is made
+                    if (next) pingAdd();
+                  }}
+                  aria-pressed={sound}
+                  aria-label={sound ? "Turn sounds off" : "Turn sounds on"}
+                  title={sound ? "Sounds on" : "Sounds off"}
+                  className="grid size-10 place-items-center rounded-full border border-paper/20 transition-colors hover:border-orange hover:text-orange"
+                >
+                  <svg aria-hidden viewBox="0 0 24 24" fill="none" className="size-4">
+                    <path
+                      d="M4 9.5h3.2L12 5.5v13l-4.8-4H4v-5Z"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinejoin="round"
+                    />
+                    {sound ? (
+                      <path
+                        d="M16 9.2a4 4 0 0 1 0 5.6M18.6 6.6a7.6 7.6 0 0 1 0 10.8"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
+                    ) : (
+                      <path
+                        d="M16.5 9.5 21 14M21 9.5 16.5 14"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                      />
+                    )}
+                  </svg>
+                </button>
+
+                <Dialog.Close
+                  aria-label="Close"
+                  className="grid size-10 place-items-center rounded-full border border-paper/20 transition-colors hover:border-orange hover:text-orange"
+                >
+                  <svg aria-hidden viewBox="0 0 24 24" fill="none" className="size-4">
+                    <path
+                      d="M6 6l12 12M18 6 6 18"
+                      stroke="currentColor"
+                      strokeWidth="2.4"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </Dialog.Close>
+              </div>
             </div>
 
             {/* ------------------------------------------------ 1. the cart */}
@@ -813,20 +878,33 @@ export function CartDrawer() {
 
                   <div className="border-t border-ink/10 px-6 py-5">
                     {totalRow}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        track("InitiateCheckout", {
-                          value: total,
-                          currency: "INR",
-                          num_items: count,
-                        });
-                        setStep("details");
-                      }}
-                      className="mt-4 w-full rounded-full bg-orange px-6 py-4 text-[0.68rem] font-extrabold uppercase tracking-[0.24em] text-ink transition-transform duration-300 hover:-translate-y-0.5"
-                    >
-                      Checkout
-                    </button>
+                    {shut ? (
+                      <div className="mt-4 rounded-3xl border border-ink/12 bg-paper-warm p-5 text-center">
+                        <p className="font-display text-sm font-black uppercase tracking-[0.02em] text-ink">
+                          Closed now · opens {CAFE.opensLabel}
+                        </p>
+                        <p className="mt-2 text-sm leading-relaxed text-ink/65">
+                          The kitchen is shut for the night, so orders are not going through. What
+                          you have picked stays in the cart — send it when we open. We are on{" "}
+                          {CAFE.hoursShort}, every day.
+                        </p>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          track("InitiateCheckout", {
+                            value: total,
+                            currency: "INR",
+                            num_items: count,
+                          });
+                          setStep("details");
+                        }}
+                        className="mt-4 w-full rounded-full bg-orange px-6 py-4 text-[0.68rem] font-extrabold uppercase tracking-[0.24em] text-ink transition-transform duration-300 hover:-translate-y-0.5"
+                      >
+                        Checkout
+                      </button>
+                    )}
                     <button type="button" onClick={clear} className={quietButton}>
                       Clear cart
                     </button>

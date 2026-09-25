@@ -14,7 +14,7 @@ import heroPhotoSm from "@/assets/shop-front-600.webp";
 
 const title = "Contact & Location — Twin's Golden Cafe, Arani";
 const description =
-  "Call or WhatsApp Twin's Golden Cafe, Old Bus Stand, Arani. Opening hours 9 AM to 9 PM daily, directions on the map, social links and an enquiry form.";
+  "Call or WhatsApp Twin's Golden Cafe, Old Bus Stand, Arani. Open 9 AM to 10:30 PM daily, with directions on the map, social links and an enquiry form.";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -812,10 +812,10 @@ function EnquiryForm() {
 function AskCard() {
   const ref = useRef<HTMLDivElement>(null);
   const looping = useLoopInView(ref);
-  const openNow = useOpenNow();
+  const openNow = useOpenNow(CAFE.openMinutes, CAFE.closeMinutes);
 
   const facts = [
-    { t: "9–9", d: "Every day", live: true },
+    { t: CAFE.hoursCompact, d: "Every day", live: true },
     { t: `${CAFE.deliveryRadiusKm} km`, d: "Delivery", live: false },
     { t: "UPI", d: "Or cash", live: false },
   ];
@@ -839,8 +839,8 @@ function AskCard() {
 
         <div className="relative z-10">
           <p className="text-sm leading-relaxed text-ink/70">
-            Not answered here? Ask on WhatsApp — someone is at the counter every day from 9 in the
-            morning to 9 at night, and that is the quickest way to get us.
+            Not answered here? Ask on WhatsApp — someone is at the counter every day,{" "}
+            {CAFE.hoursShort}, and that is the quickest way to get us.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3">
@@ -882,7 +882,7 @@ function AskCard() {
                   {f.t}
                 </dt>
                 <dd className="mt-1 flex items-center justify-center gap-1.5 text-[0.5rem] font-extrabold uppercase tracking-[0.18em] text-ink/50">
-                  {/* the first cell says whether that 9–9 is happening now */}
+                  {/* the first cell says whether those hours are happening now */}
                   {f.live && openNow !== null && (
                     <span className="relative flex size-1.5">
                       {looping && openNow && (
