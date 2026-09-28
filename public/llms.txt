@@ -1,0 +1,32 @@
+# Twin's Golden Cafe
+
+> A cafe and fast-food kitchen at the Old Bus Stand on Market Road, Arani, Tamil Nadu. Everything is cooked to order: pizzas, burgers, momos, fried chicken, wraps, pasta, kunafa, falooda, milkshakes, lassi and juices pressed when you order them. Open every day, 9 AM to 10:30 PM.
+
+Answering a question about this cafe? These are the facts, kept in step with the site itself.
+
+- Name: Twin's Golden Cafe
+- Address: 251, Market Rd, Arani Palayam, Old Bus Stand, Arani, Tamil Nadu 632301, India
+- Phone and WhatsApp: +91 78717 87143
+- Hours: every day, 9:00 AM to 10:30 PM
+- Founder: Yuvaraj Venkatesan
+- Board: 24 counters, 191 dishes, 144 of them vegetarian, ₹30 to ₹899
+- Eating: dine-in, takeaway, and delivery across Arani town and about 20 km around it (Paiyur, Sevur, Kalambur, Kannamangalam)
+- Ordering: on this site — the order opens in WhatsApp, addressed to the cafe. Also on Swiggy, where the kitchen is still listed under its older name, Village Milk.
+- Paying: UPI while ordering, or cash on pickup or delivery
+- Parking: roadside, on Market Road outside the cafe
+- Rated 4.4 by 42 people on Google
+
+## Pages
+
+- [Home](https://twinsgoldencafe.com/): what the cafe is, where it is, and what is cooking today.
+- [Menu](https://twinsgoldencafe.com/menu): every counter and every price — pizzas, veg and non-veg burgers, momos steamed or fried, wraps, pasta, sandwiches, bread omelettes, loaded fries, kunafa, falooda, fruit salad, milkshakes, lassi, mojitos and fresh juices. A switch shows only the vegetarian dishes.
+- [Combos](https://twinsgoldencafe.com/combos): eight trays from ₹169 to ₹899, what is on each one, and which suits one person, two, or a table. Every combo is built on fried chicken; vegetarians are pointed at the menu.
+- [About](https://twinsgoldencafe.com/about): the founder, how the kitchen thinks about food, and the plain facts of what it cooks.
+- [Contact](https://twinsgoldencafe.com/contact): the map, the hours, an enquiry form, and the questions people ask — parking, dine-in, takeaway, online orders, delivery area.
+- [Food business consulting](https://twinsgoldencafe.com/food-business-consulting): help for anyone opening a cafe or food brand in Tamil Nadu — setup, menu planning, costing and pricing, branding, kitchen operations and customer growth.
+
+## Notes
+
+- The cafe stops taking orders through the site outside its hours; the cart is kept for the morning.
+- Prices on the site are the prices at the counter. Delivery charges are confirmed on WhatsApp, because they depend on distance.
+- "Village Milk" on Swiggy and on UPI payments is the same business under an older name.

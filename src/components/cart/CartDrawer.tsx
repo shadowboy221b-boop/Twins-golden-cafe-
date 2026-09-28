@@ -10,6 +10,7 @@ import { confirmOtp, isOtpUnavailable, otpErrorMessage, sendOtp } from "@/lib/ot
 import { useOpenNow } from "@/components/bits";
 import { pingAdd, pingSent, setSoundOn, soundOn } from "@/lib/sound";
 import { track } from "@/lib/pixel";
+import { gaEvent } from "@/lib/ga";
 
 type Step = "cart" | "details" | "verify" | "pay" | "done";
 
@@ -504,6 +505,17 @@ export function CartDrawer() {
         order_id: no,
         payment_method: payment,
       });
+      gaEvent("purchase", {
+        transaction_id: no,
+        currency: "INR",
+        value: total,
+        payment_type: payment,
+        items: lines.map((l) => ({
+          item_name: l.variant ? `${l.name} (${l.variant})` : l.name,
+          price: l.price,
+          quantity: l.qty,
+        })),
+      });
       setSent({ url, orderNo: no, total, paid, shared });
       clear();
       setUtr("");
@@ -897,6 +909,15 @@ export function CartDrawer() {
                             value: total,
                             currency: "INR",
                             num_items: count,
+                          });
+                          gaEvent("begin_checkout", {
+                            currency: "INR",
+                            value: total,
+                            items: lines.map((l) => ({
+                              item_name: l.variant ? `${l.name} (${l.variant})` : l.name,
+                              price: l.price,
+                              quantity: l.qty,
+                            })),
                           });
                           setStep("details");
                         }}

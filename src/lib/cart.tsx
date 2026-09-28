@@ -1,4 +1,5 @@
 import { track } from "@/lib/pixel";
+import { gaEvent } from "@/lib/ga";
 import {
   createContext,
   useCallback,
@@ -95,11 +96,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
     );
     setBumps((b) => b + 1);
     // what an ad is being judged on: somebody wanted this dish enough to tap
+    const dish = item.variant ? `${item.name} (${item.variant})` : item.name;
     track("AddToCart", {
-      content_name: item.variant ? `${item.name} (${item.variant})` : item.name,
+      content_name: dish,
       content_type: "product",
       value: item.price,
       currency: "INR",
+    });
+    gaEvent("add_to_cart", {
+      currency: "INR",
+      value: item.price,
+      items: [{ item_name: dish, price: item.price, quantity: 1 }],
     });
   }, []);
 

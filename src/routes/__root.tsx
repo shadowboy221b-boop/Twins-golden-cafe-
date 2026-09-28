@@ -13,8 +13,9 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { CartProvider, useCart } from "../lib/cart";
 import { CAFE } from "@/data/site";
-import { META_PIXEL_ID, PIXEL_READY } from "@/data/analytics";
+import { GA4_READY, META_PIXEL_ID, PIXEL_READY } from "@/data/analytics";
 import { pixelSnippet, trackPageView } from "@/lib/pixel";
+import { gaPageView, gaSnippet } from "@/lib/ga";
 
 // The cart drawer — dialog, checkout form, payment step — is fetched once the
 // page has settled, or at once if something is already in the cart. None of
@@ -137,7 +138,10 @@ export const Route = createRootRoute({
       { rel: "icon", href: "/favicon.ico", sizes: "48x48" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
     ],
-    scripts: PIXEL_READY ? [{ children: pixelSnippet }] : [],
+    scripts: [
+      ...(PIXEL_READY ? [{ children: pixelSnippet }] : []),
+      ...(GA4_READY ? [{ children: gaSnippet }] : []),
+    ],
   }),
 
   shellComponent: RootShell,
@@ -192,17 +196,23 @@ function RootComponent() {
  */
 function MetaPixel() {
   const href = useRouterState({ select: (s) => s.location.href });
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
   const first = useRef(true);
 
   useEffect(() => {
-    if (!PIXEL_READY) return;
-    // the snippet in the head already sent the first view: do not repeat it
+    // the snippets in the head already sent the first view: do not repeat it
     if (first.current) {
       first.current = false;
       return;
     }
-    trackPageView();
-  }, [href]);
+    if (PIXEL_READY) trackPageView();
+    // the title is set by the route that just arrived, a tick after this runs
+    if (GA4_READY) {
+      const id = window.setTimeout(() => gaPageView(pathname, document.title), 0);
+      return () => window.clearTimeout(id);
+    }
+    return;
+  }, [href, pathname]);
 
   return null;
 }
