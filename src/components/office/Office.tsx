@@ -21,6 +21,7 @@ import {
   type Staff,
 } from "@/lib/office";
 import { CAFE } from "@/data/site";
+import { OWNER_UID } from "@/data/office";
 
 /**
  * The counter's office, in one page: who is working today, the month's sheet,
@@ -31,8 +32,9 @@ import { CAFE } from "@/data/site";
  * sideways rather than shrinking to nothing.
  */
 
-const TABS = ["Today", "Month", "Customers", "Orders", "Staff"] as const;
-type Tab = (typeof TABS)[number];
+const COUNTER_TABS = ["Today", "Month"] as const;
+const OWNER_TABS = ["Today", "Month", "Customers", "Orders", "Staff"] as const;
+type Tab = (typeof OWNER_TABS)[number];
 
 const MARKS: { id: Mark; label: string; tone: string }[] = [
   { id: "present", label: "Present", tone: "bg-leaf text-paper" },
@@ -50,19 +52,19 @@ const input =
   "w-full rounded-xl border border-paper/15 bg-ink px-4 py-3 text-sm text-paper outline-none transition-colors placeholder:text-paper/35 focus-visible:border-orange";
 
 export function Office() {
-  const [email, setEmail] = useState<string | null | undefined>(undefined);
+  const [who, setWho] = useState<{ uid: string; email: string } | null | undefined>(undefined);
 
   useEffect(() => {
     let stop: (() => void) | undefined;
-    void watchUser((who) => setEmail(who)).then((unsub) => {
+    void watchUser(setWho).then((unsub) => {
       stop = unsub;
     });
     return () => stop?.();
   }, []);
 
-  if (email === undefined) return <Centre>Checking…</Centre>;
-  if (email === null) return <SignIn />;
-  return <Desk email={email} />;
+  if (who === undefined) return <Centre>Checking…</Centre>;
+  if (who === null) return <SignIn />;
+  return <Desk email={who.email} owner={who.uid === OWNER_UID} />;
 }
 
 function Centre({ children }: { children: React.ReactNode }) {
@@ -141,7 +143,8 @@ function SignIn() {
 
 /* ---------------------------------------------------------------- desk */
 
-function Desk({ email }: { email: string }) {
+function Desk({ email, owner }: { email: string; owner: boolean }) {
+  const tabs = owner ? OWNER_TABS : COUNTER_TABS;
   const [tab, setTab] = useState<Tab>("Today");
   const [staff, setStaff] = useState<Staff[]>([]);
   const [month, setMonth] = useState(monthKey());
@@ -173,12 +176,13 @@ function Desk({ email }: { email: string }) {
   // the customer book is only fetched when it is opened: it is the heaviest
   // read, and the counter device is not allowed to make it at all
   useEffect(() => {
+    if (!owner) return;
     if (tab !== "Customers" && tab !== "Orders") return;
     if (orders.length) return;
     void recentOrders()
       .then(setOrders)
       .catch(() => setError("Orders are not readable by this account."));
-  }, [tab, orders.length]);
+  }, [tab, orders.length, owner]);
 
   const todaysMarks = useMemo(() => marks.filter((m) => m.date === today), [marks, today]);
   const customers = useMemo(() => customersFrom(orders), [orders]);
@@ -220,11 +224,15 @@ function Desk({ email }: { email: string }) {
       </header>
 
       <nav className="scrollbar-none mt-5 flex gap-2 overflow-x-auto">
-        {TABS.map((t) => (
+        {tabs.map((t) => (
           <button
             key={t}
             type="button"
-            onClick={() => setTab(t)}
+            onClick={() => {
+              // a message about the last tab must not follow you to the next
+              setError("");
+              setTab(t);
+            }}
             className={`${btn} shrink-0 ${
               tab === t ? "bg-orange text-ink" : "border border-paper/15 text-paper/70"
             }`}
@@ -245,7 +253,13 @@ function Desk({ email }: { email: string }) {
       ) : (
         <div className="mt-6">
           {tab === "Today" && (
-            <TodaySheet staff={staff} marks={todaysMarks} date={today} onMark={mark} />
+            <TodaySheet
+              staff={staff}
+              marks={todaysMarks}
+              date={today}
+              owner={owner}
+              onMark={mark}
+            />
           )}
           {tab === "Month" && (
             <MonthSheet staff={staff} marks={marks} month={month} onMonth={setMonth} />
@@ -265,19 +279,29 @@ function TodaySheet({
   staff,
   marks,
   date,
+  owner,
   onMark,
 }: {
   staff: Staff[];
   marks: Attendance[];
   date: string;
+  /** the owner can correct a mark; the counter can only check in and out */
+  owner: boolean;
   onMark: (entry: Omit<Attendance, "id">) => Promise<void>;
 }) {
   const active = staff.filter((s) => s.active);
   if (active.length === 0) {
     return (
       <p className="text-sm text-paper/60">
-        No staff yet. Add them on the <strong className="text-paper">Staff</strong> tab, then they
-        can check in here.
+        {owner ? (
+          <>
+            No staff yet. Add them on the <strong className="text-paper">Staff</strong> tab, then
+            they can check in here.
+          </>
+        ) : (
+          // the counter cannot add anyone, so it is not told to
+          <>Nobody on the list yet. The owner adds the team, then it appears here.</>
+        )}
       </p>
     );
   }
@@ -354,33 +378,37 @@ function TodaySheet({
                 </div>
               </div>
 
-              {/* the owner's override: a tap fixes a forgotten or wrong mark */}
-              <div className="mt-3 flex flex-wrap gap-2 border-t border-paper/10 pt-3">
-                {MARKS.map((m) => {
-                  const on = entry?.mark === m.id;
-                  return (
-                    <button
-                      key={m.id}
-                      type="button"
-                      onClick={() =>
-                        void onMark({
-                          staffId: person.id,
-                          date,
-                          mark: m.id,
-                          ...(entry?.inAt ? { inAt: entry.inAt } : {}),
-                          ...(entry?.outAt ? { outAt: entry.outAt } : {}),
-                          by: "owner",
-                        })
-                      }
-                      className={`rounded-full px-3 py-1.5 text-[0.55rem] font-extrabold uppercase tracking-[0.16em] transition-colors ${
-                        on ? m.tone : "border border-paper/15 text-paper/55"
-                      }`}
-                    >
-                      {m.label}
-                    </button>
-                  );
-                })}
-              </div>
+              {/* The override, which is the owner's: a tap fixes a forgotten
+                  or wrong mark. The counter is not shown buttons the database
+                  would refuse it. */}
+              {owner && (
+                <div className="mt-3 flex flex-wrap gap-2 border-t border-paper/10 pt-3">
+                  {MARKS.map((m) => {
+                    const on = entry?.mark === m.id;
+                    return (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() =>
+                          void onMark({
+                            staffId: person.id,
+                            date,
+                            mark: m.id,
+                            ...(entry?.inAt ? { inAt: entry.inAt } : {}),
+                            ...(entry?.outAt ? { outAt: entry.outAt } : {}),
+                            by: "owner",
+                          })
+                        }
+                        className={`rounded-full px-3 py-1.5 text-[0.55rem] font-extrabold uppercase tracking-[0.16em] transition-colors ${
+                          on ? m.tone : "border border-paper/15 text-paper/55"
+                        }`}
+                      >
+                        {m.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </li>
           );
         })}

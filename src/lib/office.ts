@@ -105,10 +105,12 @@ export async function signOutOffice() {
   await lib.signOut(auth);
 }
 
-/** Calls back with the signed-in email, or null. Returns the unsubscribe. */
-export async function watchUser(cb: (email: string | null) => void) {
+/** Calls back with who is signed in, or null. Returns the unsubscribe. */
+export async function watchUser(cb: (who: { uid: string; email: string } | null) => void) {
   const { auth, lib } = await firebaseAuth();
-  return lib.onAuthStateChanged(auth, (user) => cb(user?.email ?? null));
+  return lib.onAuthStateChanged(auth, (user) =>
+    cb(user ? { uid: user.uid, email: user.email ?? "" } : null),
+  );
 }
 
 /* ----------------------------------------------------------------- staff */
