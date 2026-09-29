@@ -43,7 +43,7 @@ export function Logo({ className = "", onDark = false }: { className?: string; o
 }
 
 /** The dark disc with a spoon and fork that stands in for the letter O. */
-function CutleryDisc({ onDark }: { onDark: boolean }) {
+export function CutleryDisc({ onDark }: { onDark: boolean }) {
   return (
     <svg
       viewBox="0 0 100 100"

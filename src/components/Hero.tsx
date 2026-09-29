@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, useMotionValue, useScroll, useSpring, useTransform } from "motion/react";
 import { useLoopInView } from "./bits";
+import { CutleryDisc } from "@/components/Logo";
 import burger from "@/assets/burger-hero.webp";
 import burgerSm from "@/assets/burger-hero-600.webp";
 import pizza from "@/assets/pizza.webp";
@@ -32,12 +33,6 @@ const HERO_DISHES = [
 
 /** how long each dish holds before the next fades in */
 const DISH_MS = 2000;
-
-const lines = [
-  { text: "TWIN'S", tone: "text-paper" },
-  { text: "GOLDEN", tone: "text-orange" },
-  { text: "CAFE", tone: "text-hollow-cream" },
-];
 
 export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
@@ -92,17 +87,49 @@ export function Hero() {
         <motion.div style={{ y: copyY, opacity: copyOpacity }} className="relative z-20">
           <p className="rise-in eyebrow !text-orange">Fresh · Hot · Made to love</p>
 
+          {/* The lockup from the header, drawn at hero size: the spoon-and-fork
+              disc standing in for the O of GOLDEN, and CAFE ruled on both
+              sides. The letters are hidden from assistive tech — the heading
+              says the name once, in words. */}
           <h1 className="mt-6">
-            {lines.map((line, i) => (
-              <span key={line.text} className="block overflow-hidden pb-[0.06em]">
+            <span className="sr-only">Twin&apos;s Golden Cafe</span>
+
+            {/* shrink-to-fit, so the ruled CAFE below can stretch to exactly
+                the width of the word above it, the way the logo sets it */}
+            <span aria-hidden className="inline-flex flex-col items-stretch">
+              <span className="block overflow-hidden pb-[0.06em]">
                 <span
-                  className={`line-in block display-xl ${line.tone}`}
-                  style={{ animationDelay: `${0.12 + i * 0.1}s` }}
+                  className="line-in block display-xl text-paper"
+                  style={{ animationDelay: "0.12s" }}
                 >
-                  {line.text}
+                  TWIN&apos;S
                 </span>
               </span>
-            ))}
+
+              <span className="block overflow-hidden pb-[0.06em]">
+                <span
+                  className="line-in flex items-center display-xl text-orange"
+                  style={{ animationDelay: "0.22s" }}
+                >
+                  G
+                  <CutleryDisc onDark />
+                  LDEN
+                </span>
+              </span>
+
+              <span className="block overflow-hidden pb-[0.06em]">
+                {/* sized on its own rather than in em: an em here would be read
+                    against the paragraph size, not the display type above */}
+                <span
+                  className="line-in mt-[0.35em] flex w-full items-center gap-[0.5em] text-[clamp(0.85rem,2.6vw,2rem)] font-extrabold leading-none tracking-[0.42em] text-paper/80"
+                  style={{ animationDelay: "0.32s" }}
+                >
+                  <span className="h-px flex-1 bg-current opacity-70" />
+                  <span className="-me-[0.42em]">CAFE</span>
+                  <span className="h-px flex-1 bg-current opacity-70" />
+                </span>
+              </span>
+            </span>
           </h1>
 
           <p
