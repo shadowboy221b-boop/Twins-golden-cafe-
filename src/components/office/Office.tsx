@@ -25,7 +25,7 @@ import {
   type Staff,
 } from "@/lib/office";
 import { CAFE } from "@/data/site";
-import { shrinkPhoto } from "@/lib/photo";
+import { Camera } from "@/components/office/Camera";
 
 /**
  * The counter's office, in one page: who is working today, the month's sheet,
@@ -382,37 +382,36 @@ function Desk({ email, owner }: { email: string; owner: boolean }) {
  */
 function PhotoButton({
   label,
+  title,
   className,
   onPhoto,
 }: {
   label: string;
+  /** what the camera sheet says it is for: "Karthik · checking in" */
+  title: string;
   className: string;
   onPhoto: (image: string | null) => Promise<void> | void;
 }) {
-  const input = useRef<HTMLInputElement>(null);
+  const [open, setOpen] = useState(false);
 
   return (
     <>
-      <input
-        ref={input}
-        type="file"
-        accept="image/*"
-        capture="user"
-        className="hidden"
-        onChange={async (e) => {
-          const file = e.target.files?.[0];
-          e.target.value = "";
-          if (!file) return;
-          try {
-            await onPhoto(await shrinkPhoto(file));
-          } catch {
-            // a camera that will not give a usable picture must not cost
-            // somebody their shift: the mark goes in without one
-            await onPhoto(null);
-          }
-        }}
-      />
-      <button type="button" onClick={() => input.current?.click()} className={className}>
+      {open && (
+        <Camera
+          title={title}
+          onShot={(image) => {
+            setOpen(false);
+            void onPhoto(image);
+          }}
+          // a camera that will not open must not cost somebody their shift
+          onSkip={() => {
+            setOpen(false);
+            void onPhoto(null);
+          }}
+          onClose={() => setOpen(false)}
+        />
+      )}
+      <button type="button" onClick={() => setOpen(true)} className={className}>
         {label}
       </button>
     </>
@@ -505,6 +504,7 @@ function TodaySheet({
                   {!entry?.inAt ? (
                     <PhotoButton
                       label="Check in"
+                      title={`${person.name} · checking in`}
                       className={`${btn} bg-leaf px-6 text-paper`}
                       onPhoto={(image) =>
                         onShift(
@@ -525,6 +525,7 @@ function TodaySheet({
                   ) : !entry.outAt ? (
                     <PhotoButton
                       label="Check out"
+                      title={`${person.name} · checking out`}
                       className={`${btn} bg-orange px-6 text-ink`}
                       onPhoto={(image) =>
                         onShift(
