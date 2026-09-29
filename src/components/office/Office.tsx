@@ -251,8 +251,15 @@ function Desk({ email, owner }: { email: string; owner: boolean }) {
       if (image) {
         await saveAttendancePhoto(`${entry.date}_${staffId}`, kind, image, staffId, entry.date);
       }
-    } catch {
-      setError("The photograph did not save, but the check-in did.");
+    } catch (err) {
+      // the usual reason is rules that do not know about photographs yet, and
+      // saying so beats "something went wrong"
+      const denied = err instanceof Error && /permission|insufficient/i.test(err.message);
+      setError(
+        denied
+          ? "The check-in saved, but the photograph was refused — the Firestore rules do not allow attendancePhotos yet."
+          : "The check-in saved, but the photograph did not.",
+      );
     } finally {
       setBusy(null);
     }
