@@ -45,16 +45,33 @@ service cloud.firestore {
       allow write: if isOwner();
     }
 
-    // Attendance. The counter may only touch today, so a past shift cannot be
-    // rewritten from the floor; the owner may correct any day.
+    /**
+     * Attendance.
+     *
+     * The counter may write a day within two of now, which covers a shift that
+     * runs past midnight and the fact that this clock is UTC while the cafe is
+     * five and a half hours ahead — but not last month. The owner may correct
+     * any day, and every entry records whether the floor or the owner wrote it.
+     *
+     * (An earlier version compared the date to a string of request.time, which
+     * rules cannot produce: every check-in at the counter was refused.)
+     */
     match /attendance/{id} {
       allow read: if isStaffDevice();
-      allow create, update: if isOwner()
-        || (isCounter()
-            && request.resource.data.date == string(request.time.date())
-            && request.resource.data.keys().hasOnly(
-                 ['staffId', 'date', 'mark', 'inAt', 'outAt', 'note', 'by']));
+      allow create, update: if isOwner() || counterMayMark();
       allow delete: if isOwner();
+    }
+
+    function counterMayMark() {
+      let parts = request.resource.data.date.split('-');
+      let asDate = timestamp.date(int(parts[0]), int(parts[1]), int(parts[2]));
+      return isCounter()
+        && request.resource.data.keys().hasOnly(
+             ['staffId', 'date', 'mark', 'inAt', 'outAt', 'note', 'by'])
+        && request.resource.data.date is string
+        && request.resource.data.date.size() == 10
+        && asDate > request.time - duration.value(2, 'd')
+        && asDate < request.time + duration.value(2, 'd');
     }
 
     // Orders from the website. A guest may file one; only the owner may read

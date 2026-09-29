@@ -211,8 +211,15 @@ function Desk({ email, owner }: { email: string; owner: boolean }) {
     setMarks((prev) => [...prev.filter((m) => m.id !== id), { ...entry, id }]);
     try {
       await setAttendance(entry);
-    } catch {
-      setError("That did not save. Try again.");
+    } catch (err) {
+      // "permission-denied" means the rules refused it, which is worth saying
+      // plainly: it is a setting to fix, not a tap to repeat.
+      const denied = err instanceof Error && /permission|insufficient/i.test(err.message);
+      setError(
+        denied
+          ? "The database refused that. Check the Firestore rules are the current ones."
+          : "That did not save — check the connection and try again.",
+      );
       void loadCore();
     }
   };
