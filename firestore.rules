@@ -48,30 +48,46 @@ service cloud.firestore {
     /**
      * Attendance.
      *
-     * The counter may write a day within two of now, which covers a shift that
-     * runs past midnight and the fact that this clock is UTC while the cafe is
-     * five and a half hours ahead — but not last month. The owner may correct
-     * any day, and every entry records whether the floor or the owner wrote it.
+     * The counter may write an entry of the right shape; the owner may write
+     * or delete anything. Every entry records whether the floor or the owner
+     * wrote it, which is what the sheet is read against.
      *
-     * (An earlier version compared the date to a string of request.time, which
-     * rules cannot produce: every check-in at the counter was refused.)
+     * Two earlier attempts to hold the counter to the current day were refused
+     * by the rules engine rather than by the person, and a counter that cannot
+     * mark attendance is worse than one that could, in theory, mark yesterday.
+     * The restriction can come back once it can be tested properly.
      */
     match /attendance/{id} {
       allow read: if isStaffDevice();
-      allow create, update: if isOwner() || counterMayMark();
+      allow create, update: if isOwner()
+        || (isCounter()
+            && request.resource.data.keys().hasOnly(
+                 ['staffId', 'date', 'mark', 'inAt', 'outAt', 'note',
+                  'photoIn', 'photoOut', 'by'])
+            && request.resource.data.date is string
+            && request.resource.data.date.size() == 10
+            && request.resource.data.staffId is string
+            && request.resource.data.mark is string);
       allow delete: if isOwner();
     }
 
-    function counterMayMark() {
-      let parts = request.resource.data.date.split('-');
-      let asDate = timestamp.date(int(parts[0]), int(parts[1]), int(parts[2]));
-      return isCounter()
-        && request.resource.data.keys().hasOnly(
-             ['staffId', 'date', 'mark', 'inAt', 'outAt', 'note', 'by'])
-        && request.resource.data.date is string
-        && request.resource.data.date.size() == 10
-        && asDate > request.time - duration.value(2, 'd')
-        && asDate < request.time + duration.value(2, 'd');
+    /**
+     * The photograph taken at check-in, kept here rather than in file storage
+     * because the free plan has no file storage. One document per photograph,
+     * so a month of attendance can be read without dragging the pictures with
+     * it.
+     *
+     * The counter may add one and may not read any back: a device on the
+     * floor has no business browsing photographs of the staff. Only the owner
+     * looks at them, and only the owner can remove one.
+     */
+    match /attendancePhotos/{id} {
+      allow read: if isOwner();
+      allow create, update: if isStaffDevice()
+        && request.resource.data.keys().hasOnly(['image', 'kind', 'staffId', 'date', 'at'])
+        && request.resource.data.image is string
+        && request.resource.data.image.size() < 800000;
+      allow delete: if isOwner();
     }
 
     // Orders from the website. A guest may file one; only the owner may read

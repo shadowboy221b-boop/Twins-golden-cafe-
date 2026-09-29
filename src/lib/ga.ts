@@ -31,10 +31,11 @@ export const gaSnippet = GA4_READY
 function gtag(){dataLayer.push(arguments)}
 gtag('js',new Date());
 gtag('config','${GA4_ID}');
-(function(){var d=0,l=function(){if(d)return;d=1;
+(function(){var d=0,g=function(){if(d)return;d=1;
 var s=document.createElement('script');s.async=1;
 s.src='https://www.googletagmanager.com/gtag/js?id=${GA4_ID}';
-document.head.appendChild(s)};
+document.head.appendChild(s)},
+l=function(){window.requestIdleCallback?requestIdleCallback(g,{timeout:2500}):setTimeout(g,300)};
 ['pointerdown','keydown','touchstart','scroll'].forEach(function(e){
 window.addEventListener(e,l,{once:true,passive:true})});setTimeout(l,8000)})();`
   : "";

@@ -11,8 +11,11 @@ import { META_PIXEL_ID, PIXEL_READY } from "@/data/analytics";
  * page cost 16 points of performance and roughly half a second of blocked main
  * thread (66 to 50 on a measured home page), so it waits for the first sign of
  * a real visitor — a tap, a key, a scroll — or eight seconds, whichever comes
- * first. Nothing is lost by waiting: the queue holds every event until the
- * script arrives, and add-to-cart, checkout and purchase all happen long after
+ * first, and then for the first idle moment after that, so 400KB of script is
+ * never parsed in the middle of somebody's scroll.
+ *
+ * Nothing is lost by waiting: the queue holds every event until the script
+ * arrives, and add-to-cart, checkout and purchase all happen long after
  * somebody has touched the page.
  *
  * Everything here is what the site says to it afterwards, and nothing here is
@@ -47,9 +50,10 @@ export const pixelSnippet = PIXEL_READY
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
 n.callMethod.apply(n,arguments):n.queue.push(arguments)};
 if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-n.queue=[];var d=0,l=function(){if(d)return;d=1;
+n.queue=[];var d=0,g=function(){if(d)return;d=1;
 t=b.createElement(e);t.async=!0;t.src=v;
-s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)};
+s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)},
+l=function(){f.requestIdleCallback?f.requestIdleCallback(g,{timeout:2500}):setTimeout(g,300)};
 ['pointerdown','keydown','touchstart','scroll'].forEach(function(x){
 f.addEventListener(x,l,{once:!0,passive:!0})});setTimeout(l,8000)}
 (window, document,'script','https://connect.facebook.net/en_US/fbevents.js');

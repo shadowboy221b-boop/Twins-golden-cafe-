@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   attendanceForMonth,
+  attendancePhoto,
   canSeeTheBooks,
   clockNow,
   customersFrom,
@@ -9,6 +10,7 @@ import {
   monthKey,
   recentOrders,
   removeStaff,
+  saveAttendancePhoto,
   saveStaff,
   setAttendance,
   signIn,
@@ -19,9 +21,11 @@ import {
   type Customer,
   type Mark,
   type Order,
+  type PhotoKind,
   type Staff,
 } from "@/lib/office";
 import { CAFE } from "@/data/site";
+import { shrinkPhoto } from "@/lib/photo";
 
 /**
  * The counter's office, in one page: who is working today, the month's sheet,
@@ -169,6 +173,10 @@ function Desk({ email, owner }: { email: string; owner: boolean }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  /** whose mark is being written right now, so the row can say so */
+  const [busy, setBusy] = useState<string | null>(null);
+  /** the photograph being looked at, if any */
+  const [photo, setPhoto] = useState<{ name: string; kind: PhotoKind; image: string } | null>(null);
 
   const today = todayKey();
 
@@ -224,8 +232,64 @@ function Desk({ email, owner }: { email: string; owner: boolean }) {
     }
   };
 
+  /**
+   * A check-in or check-out, with the photograph that proves it.
+   *
+   * The mark is written first and the picture after: if the photograph fails
+   * to save, the shift is still recorded — the record of who worked matters
+   * more than the proof of it.
+   */
+  const shift = async (
+    staffId: string,
+    entry: Omit<Attendance, "id">,
+    kind: PhotoKind,
+    image: string | null,
+  ) => {
+    setBusy(staffId);
+    try {
+      await mark(entry);
+      if (image) {
+        await saveAttendancePhoto(`${entry.date}_${staffId}`, kind, image, staffId, entry.date);
+      }
+    } catch {
+      setError("The photograph did not save, but the check-in did.");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  /** Fetch a stored photograph and put it on screen. */
+  const seePhoto = (attendanceId: string, kind: PhotoKind, name: string) => {
+    void attendancePhoto(attendanceId, kind)
+      .then((image) => {
+        if (image) setPhoto({ name, kind, image });
+        else setError("That photograph is not there any more.");
+      })
+      .catch(() => setError("Could not open that photograph."));
+  };
+
   return (
     <div className="mx-auto max-w-5xl px-4 pb-24 pt-6 md:px-8">
+      {photo && (
+        <div
+          role="dialog"
+          aria-label={`${photo.name}, checked ${photo.kind}`}
+          className="fixed inset-0 z-50 grid place-items-center bg-black/80 p-6"
+          onClick={() => setPhoto(null)}
+        >
+          <figure className="max-w-sm">
+            <img
+              src={photo.image}
+              alt={`${photo.name} at check ${photo.kind}`}
+              className="w-full rounded-2xl"
+            />
+            <figcaption className="mt-3 text-center text-[0.6rem] font-extrabold uppercase tracking-[0.2em] text-paper/60">
+              {photo.name} · checked {photo.kind} · tap to close
+            </figcaption>
+          </figure>
+        </div>
+      )}
+
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-[0.55rem] font-extrabold uppercase tracking-[0.28em] text-orange">
@@ -282,6 +346,9 @@ function Desk({ email, owner }: { email: string; owner: boolean }) {
               marks={todaysMarks}
               date={today}
               owner={owner}
+              busy={busy}
+              onShift={shift}
+              onSeePhoto={seePhoto}
               onMark={mark}
             />
           )}
@@ -299,11 +366,60 @@ function Desk({ email, owner }: { email: string; owner: boolean }) {
 
 /* --------------------------------------------------------------- today */
 
+/**
+ * A button that opens the camera and hands back the photograph.
+ *
+ * On a phone this is the camera itself, because of `capture`; on a laptop it
+ * is the file picker, which is the honest fallback. Backing out of the camera
+ * is not a check-in: nothing is written until there is a picture.
+ */
+function PhotoButton({
+  label,
+  className,
+  onPhoto,
+}: {
+  label: string;
+  className: string;
+  onPhoto: (image: string | null) => Promise<void> | void;
+}) {
+  const input = useRef<HTMLInputElement>(null);
+
+  return (
+    <>
+      <input
+        ref={input}
+        type="file"
+        accept="image/*"
+        capture="user"
+        className="hidden"
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          e.target.value = "";
+          if (!file) return;
+          try {
+            await onPhoto(await shrinkPhoto(file));
+          } catch {
+            // a camera that will not give a usable picture must not cost
+            // somebody their shift: the mark goes in without one
+            await onPhoto(null);
+          }
+        }}
+      />
+      <button type="button" onClick={() => input.current?.click()} className={className}>
+        {label}
+      </button>
+    </>
+  );
+}
+
 function TodaySheet({
   staff,
   marks,
   date,
   owner,
+  busy,
+  onShift,
+  onSeePhoto,
   onMark,
 }: {
   staff: Staff[];
@@ -311,6 +427,15 @@ function TodaySheet({
   date: string;
   /** the owner can correct a mark; the counter can only check in and out */
   owner: boolean;
+  /** the person whose mark is being written right now */
+  busy: string | null;
+  onShift: (
+    staffId: string,
+    entry: Omit<Attendance, "id">,
+    kind: PhotoKind,
+    image: string | null,
+  ) => Promise<void>;
+  onSeePhoto: (attendanceId: string, kind: PhotoKind, name: string) => void;
   onMark: (entry: Omit<Attendance, "id">) => Promise<void>;
 }) {
   const active = staff.filter((s) => s.active);
@@ -363,37 +488,51 @@ function TodaySheet({
                   </p>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
+                  {busy === person.id && (
+                    <span className="text-[0.55rem] font-extrabold uppercase tracking-[0.18em] text-paper/45">
+                      Saving…
+                    </span>
+                  )}
+
                   {!entry?.inAt ? (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        void onMark({
-                          staffId: person.id,
-                          date,
-                          mark: "present",
-                          inAt: clockNow(),
-                          by: "staff",
-                        })
-                      }
+                    <PhotoButton
+                      label="Check in"
                       className={`${btn} bg-leaf px-6 text-paper`}
-                    >
-                      Check in
-                    </button>
-                  ) : !entry.outAt ? (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        void onMark({
-                          ...entry,
-                          outAt: clockNow(),
-                          by: "staff",
-                        })
+                      onPhoto={(image) =>
+                        onShift(
+                          person.id,
+                          {
+                            staffId: person.id,
+                            date,
+                            mark: "present",
+                            inAt: clockNow(),
+                            photoIn: Boolean(image),
+                            by: "staff",
+                          },
+                          "in",
+                          image,
+                        )
                       }
+                    />
+                  ) : !entry.outAt ? (
+                    <PhotoButton
+                      label="Check out"
                       className={`${btn} bg-orange px-6 text-ink`}
-                    >
-                      Check out
-                    </button>
+                      onPhoto={(image) =>
+                        onShift(
+                          person.id,
+                          {
+                            ...entry,
+                            outAt: clockNow(),
+                            photoOut: Boolean(image),
+                            by: "staff",
+                          },
+                          "out",
+                          image,
+                        )
+                      }
+                    />
                   ) : (
                     <span className="rounded-full border border-leaf/40 px-4 py-2.5 text-[0.6rem] font-extrabold uppercase tracking-[0.18em] text-leaf">
                       Done · {hours} h
@@ -401,6 +540,31 @@ function TodaySheet({
                   )}
                 </div>
               </div>
+
+              {/* the proof, for the owner only: the rules do not let the
+                  counter read back a photograph it just took */}
+              {owner && (entry?.photoIn || entry?.photoOut) && (
+                <div className="mt-3 flex gap-2">
+                  {entry.photoIn && (
+                    <button
+                      type="button"
+                      onClick={() => onSeePhoto(`${date}_${person.id}`, "in", person.name)}
+                      className="rounded-full border border-paper/15 px-3 py-1.5 text-[0.55rem] font-extrabold uppercase tracking-[0.16em] text-paper/60 transition-colors hover:border-orange hover:text-orange"
+                    >
+                      Photo · in
+                    </button>
+                  )}
+                  {entry.photoOut && (
+                    <button
+                      type="button"
+                      onClick={() => onSeePhoto(`${date}_${person.id}`, "out", person.name)}
+                      className="rounded-full border border-paper/15 px-3 py-1.5 text-[0.55rem] font-extrabold uppercase tracking-[0.16em] text-paper/60 transition-colors hover:border-orange hover:text-orange"
+                    >
+                      Photo · out
+                    </button>
+                  )}
+                </div>
+              )}
 
               {/* The override, which is the owner's: a tap fixes a forgotten
                   or wrong mark. The counter is not shown buttons the database

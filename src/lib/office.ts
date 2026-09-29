@@ -35,9 +35,15 @@ export type Attendance = {
   inAt?: string;
   outAt?: string;
   note?: string;
+  /** whether a photograph was taken at each end of the shift */
+  photoIn?: boolean;
+  photoOut?: boolean;
   /** "staff" when the counter device marked it, "owner" when it was edited */
   by: string;
 };
+
+/** Which end of the shift a photograph belongs to. */
+export type PhotoKind = "in" | "out";
 
 export type Order = {
   orderNo: string;
@@ -180,11 +186,49 @@ export async function setAttendance(
       ...(entry.inAt ? { inAt: entry.inAt } : {}),
       ...(entry.outAt ? { outAt: entry.outAt } : {}),
       ...(entry.note ? { note: entry.note } : {}),
+      ...(entry.photoIn ? { photoIn: true } : {}),
+      ...(entry.photoOut ? { photoOut: true } : {}),
       by: entry.by,
     },
     { merge: true },
   );
   return id;
+}
+
+/**
+ * The photograph taken when somebody checked in or out.
+ *
+ * Kept in its own collection, one document per photograph, so that reading a
+ * month of attendance stays a few kilobytes: the sheet only needs to know a
+ * photograph exists, and the owner fetches the picture itself only when they
+ * want to look at it.
+ */
+export async function saveAttendancePhoto(
+  attendanceId: string,
+  kind: PhotoKind,
+  image: string,
+  staffId: string,
+  date: string,
+) {
+  const { store, lib } = await db();
+  await lib.setDoc(lib.doc(store, "attendancePhotos", `${attendanceId}_${kind}`), {
+    image,
+    kind,
+    staffId,
+    date,
+    at: lib.serverTimestamp(),
+  });
+}
+
+/** The picture itself, or null if there is none. Owner only, by the rules. */
+export async function attendancePhoto(
+  attendanceId: string,
+  kind: PhotoKind,
+): Promise<string | null> {
+  const { store, lib } = await db();
+  const snap = await lib.getDoc(lib.doc(store, "attendancePhotos", `${attendanceId}_${kind}`));
+  const image = snap.exists() ? (snap.data() as { image?: unknown }).image : null;
+  return typeof image === "string" ? image : null;
 }
 
 /**
