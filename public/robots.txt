@@ -12,5 +12,7 @@ Allow: /
 
 User-agent: *
 Allow: /
+# the staff office: nothing here is for search engines
+Disallow: /staff
 
 Sitemap: https://twinsgoldencafe.com/sitemap.xml

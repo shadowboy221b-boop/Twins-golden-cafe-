@@ -1,0 +1,85 @@
+rules_version = '2';
+
+/**
+ * Who may read and write the cafe's records.
+ *
+ * Three kinds of visitor reach this database:
+ *
+ *  1. A guest ordering on the website, not signed in at all. They may file
+ *     one order and nothing else — they cannot read a single thing, so no
+ *     stranger can ever list the cafe's customers or their numbers.
+ *  2. The counter device, signed in as the counter account. It may read the
+ *     staff list and mark today's attendance. It cannot read orders or
+ *     customers, and it cannot rewrite an earlier day.
+ *  3. The owner, who may read and write everything.
+ *
+ * The two accounts are named by their Firebase uid below. To hand the cafe to
+ * somebody else, or to add a second counter device, add the uid here and
+ * publish again — Firebase console → Firestore → Rules.
+ *
+ * Paste this whole file into that editor and press Publish.
+ */
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // twingoldeencafeowner@… — the owner's account
+    function isOwner() {
+      return request.auth != null
+        && request.auth.uid == 'JibLn5BbudMZwOfJKmzDVe8Jb3h1';
+    }
+
+    // twincafecounter@… — the phone or tablet on the counter
+    function isCounter() {
+      return request.auth != null
+        && request.auth.uid == '8fB8fqSF88a1zWOhIhZGrdPu1Il2';
+    }
+
+    function isStaffDevice() {
+      return isOwner() || isCounter();
+    }
+
+    // The team. The counter reads it to draw the check-in buttons.
+    match /staff/{id} {
+      allow read: if isStaffDevice();
+      allow write: if isOwner();
+    }
+
+    // Attendance. The counter may only touch today, so a past shift cannot be
+    // rewritten from the floor; the owner may correct any day.
+    match /attendance/{id} {
+      allow read: if isStaffDevice();
+      allow create, update: if isOwner()
+        || (isCounter()
+            && request.resource.data.date == string(request.time.date())
+            && request.resource.data.keys().hasOnly(
+                 ['staffId', 'date', 'mark', 'inAt', 'outAt', 'note', 'by']));
+      allow delete: if isOwner();
+    }
+
+    // Orders from the website. A guest may file one; only the owner may read
+    // them, and nothing may be changed or deleted afterwards.
+    match /orders/{orderNo} {
+      allow read: if isOwner();
+      allow create: if request.resource.data.keys().hasOnly(
+                         ['orderNo', 'name', 'phone', 'type', 'when', 'address', 'landmark',
+                          'notes', 'payment', 'paid', 'total', 'itemCount', 'items',
+                          'createdAt', 'source'])
+                    && request.resource.data.orderNo is string
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() <= 80
+                    && request.resource.data.phone is string
+                    && request.resource.data.phone.size() <= 15
+                    && request.resource.data.total is number
+                    && request.resource.data.total >= 0
+                    && request.resource.data.total <= 100000
+                    && request.resource.data.items.size() <= 60;
+      allow update, delete: if isOwner();
+    }
+
+    // Anything not named above is closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

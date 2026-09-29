@@ -39,11 +39,19 @@ export const ORDERING = {
    */
   otpEnabled: false as boolean,
 
+  /**
+   * The cafe's Firebase project — the one the office pages read and write, and
+   * the one that would send the codes if they were ever switched on. None of
+   * this is secret: it is in the page source of every site that uses Firebase,
+   * and what protects the data is the rules on the database, not this.
+   */
   firebase: {
-    apiKey: "AIzaSyCnl-7cgq_NU8IsXFOP2YT-y3lB4x9uDqE" as string,
-    authDomain: "twins-golden-cafe.firebaseapp.com" as string,
-    projectId: "twins-golden-cafe" as string,
-    appId: "1:538228193697:web:0ff617c9c0b6dfeca633e0" as string,
+    apiKey: "AIzaSyBjwppLJ19PYj-h0tUgDdBHnxJLu8Bd7dw" as string,
+    authDomain: "twins-golden-cafe-4dd04.firebaseapp.com" as string,
+    projectId: "twins-golden-cafe-4dd04" as string,
+    storageBucket: "twins-golden-cafe-4dd04.firebasestorage.app" as string,
+    messagingSenderId: "927922689264" as string,
+    appId: "1:927922689264:web:ae5711f6e179a1441b9e35" as string,
   },
 
   times: ["As soon as possible", "In 30 minutes", "In 1 hour"],

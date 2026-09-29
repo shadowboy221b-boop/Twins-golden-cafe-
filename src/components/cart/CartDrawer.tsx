@@ -11,6 +11,7 @@ import { useOpenNow } from "@/components/bits";
 import { pingAdd, pingSent, setSoundOn, soundOn } from "@/lib/sound";
 import { track } from "@/lib/pixel";
 import { gaEvent } from "@/lib/ga";
+import { logOrder } from "@/lib/orders-log";
 
 type Step = "cart" | "details" | "verify" | "pay" | "done";
 
@@ -494,6 +495,22 @@ export function CartDrawer() {
 
     const finish = (shared: boolean) => {
       pingSent();
+      // a copy for the cafe's own records, started and forgotten: the order is
+      // already on its way to WhatsApp and must not wait for a database
+      logOrder({
+        orderNo: no,
+        name: details.name,
+        phone: phoneDigits(details.phone),
+        type: details.type,
+        when: details.when,
+        ...(details.type === "delivery" ? { address: details.address } : {}),
+        ...(details.landmark.trim() ? { landmark: details.landmark } : {}),
+        ...(details.notes.trim() ? { notes: details.notes } : {}),
+        payment,
+        paid,
+        total,
+        lines,
+      });
       // An order handed to WhatsApp, not yet confirmed at the counter: the
       // cafe still has to accept it, so treat this number as orders placed
       // rather than money in the till.
@@ -1091,6 +1108,12 @@ export function CartDrawer() {
                   <button type="button" onClick={() => setStep("cart")} className={quietButton}>
                     ← Back to the order
                   </button>
+
+                  {/* the cafe keeps a copy of the order now, so it says so */}
+                  <p className="mt-4 text-center text-[0.68rem] leading-relaxed text-ink/45">
+                    Your name, number and order are kept by the cafe to cook, pack and deliver it,
+                    and to recognise you next time. Nothing is shared with anyone else.
+                  </p>
                 </div>
               </>
             )}

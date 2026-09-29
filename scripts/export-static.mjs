@@ -89,7 +89,9 @@ async function main() {
   try {
     await waitForServer();
 
-    const queue = ["/"];
+    // Pages nothing links to still have to exist. The staff office is reached
+    // by typing the address, and is kept out of the navigation on purpose.
+    const queue = ["/", "/staff"];
     const seen = new Set(queue);
     const written = [];
 
