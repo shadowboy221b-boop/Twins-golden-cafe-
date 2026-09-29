@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   attendanceForMonth,
+  canSeeTheBooks,
   clockNow,
   customersFrom,
   hoursBetween,
@@ -21,7 +22,6 @@ import {
   type Staff,
 } from "@/lib/office";
 import { CAFE } from "@/data/site";
-import { OWNER_UID } from "@/data/office";
 
 /**
  * The counter's office, in one page: who is working today, the month's sheet,
@@ -53,6 +53,8 @@ const input =
 
 export function Office() {
   const [who, setWho] = useState<{ uid: string; email: string } | null | undefined>(undefined);
+  /** undefined while the database is being asked what this account may see */
+  const [owner, setOwner] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
     let stop: (() => void) | undefined;
@@ -62,9 +64,24 @@ export function Office() {
     return () => stop?.();
   }, []);
 
+  useEffect(() => {
+    if (!who) {
+      setOwner(undefined);
+      return;
+    }
+    let live = true;
+    void canSeeTheBooks().then((can) => {
+      if (live) setOwner(can);
+    });
+    return () => {
+      live = false;
+    };
+  }, [who]);
+
   if (who === undefined) return <Centre>Checking…</Centre>;
   if (who === null) return <SignIn />;
-  return <Desk email={who.email} owner={who.uid === OWNER_UID} />;
+  if (owner === undefined) return <Centre>Opening the office…</Centre>;
+  return <Desk email={who.email} owner={owner} />;
 }
 
 function Centre({ children }: { children: React.ReactNode }) {

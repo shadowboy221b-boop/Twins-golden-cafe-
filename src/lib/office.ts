@@ -187,6 +187,25 @@ export async function setAttendance(
   return id;
 }
 
+/**
+ * Whether this account is the owner — asked of the database rather than kept
+ * in the page.
+ *
+ * The rules already say only the owner may read an order, so one attempted
+ * read settles it. Keeping a uid in the code as well would mean two places to
+ * change, and the day they disagreed the page would quietly show the wrong
+ * person the customer book.
+ */
+export async function canSeeTheBooks(): Promise<boolean> {
+  try {
+    const { store, lib } = await db();
+    await lib.getDocs(lib.query(lib.collection(store, "orders"), lib.limit(1)));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /* ------------------------------------------------------- orders and people */
 
 /** The most recent orders, newest first. */
