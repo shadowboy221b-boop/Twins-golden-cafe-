@@ -23,16 +23,16 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // twingoldeencafeowner@… — the owner's account
+    // the owner's own account
     function isOwner() {
       return request.auth != null
-        && request.auth.uid == 'JibLn5BbudMZwOfJKmzDVe8Jb3h1';
+        && request.auth.uid == 'pPheDW2srFax8ZcTMPU4P06OUAe2';
     }
 
-    // twincafecounter@… — the phone or tablet on the counter
+    // the phone or tablet that lives on the counter
     function isCounter() {
       return request.auth != null
-        && request.auth.uid == '8fB8fqSF88a1zWOhIhZGrdPu1Il2';
+        && request.auth.uid == 'JTibvTCm6FZNrDlNgb2QS4S8GlU2';
     }
 
     function isStaffDevice() {

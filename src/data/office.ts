@@ -8,4 +8,4 @@
  *
  * Changing the owner means changing it here and in firestore.rules.
  */
-export const OWNER_UID = "JibLn5BbudMZwOfJKmzDVe8Jb3h1";
+export const OWNER_UID = "pPheDW2srFax8ZcTMPU4P06OUAe2";
