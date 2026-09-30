@@ -256,7 +256,9 @@ function MenuPage() {
               </div>
             )}
 
-            <p className="mt-24 rule-label text-ink/65">Extra dip ₹25 · prices in INR</p>
+            {/* the dip is a combo thing: it belongs on that page, not under
+                the whole board */}
+            <p className="mt-24 rule-label text-ink/65">Prices in INR</p>
           </div>
         </div>
 
@@ -398,8 +400,15 @@ function Category({
         </MaskReveal>
       </div>
 
-      {/* two tight columns, the way a printed menu sets a long list */}
-      <ul className="relative z-10 mt-5 grid grid-cols-1 gap-x-14 lg:grid-cols-2">
+      {/* Two tight columns, the way a printed menu sets a long list — but a
+          counter that sells one thing stays in one column, or the dish sits
+          in the left half under a rule that runs the whole width and the page
+          looks like something failed to load. */}
+      <ul
+        className={`relative z-10 mt-5 grid grid-cols-1 gap-x-14 ${
+          items.length > 1 ? "lg:grid-cols-2" : ""
+        }`}
+      >
         {items.map((it) => {
           // 191 rows each with its own scroll animation was most of the
           // menu's lag on a phone; the rows are plain, the section header
@@ -438,7 +447,14 @@ function Category({
                   className="min-w-4 flex-1 translate-y-[-3px] border-b border-dotted border-ink/25 transition-colors duration-300 group-hover:border-orange/60"
                 />
 
-                {it.altPrice != null && priceColumns ? (
+                {it.sizes ? (
+                  // sold by the piece: the sizes go on their own line below,
+                  // because three or five of them will not sit beside a name
+                  // on a phone
+                  <span className="shrink-0 text-[0.6rem] font-extrabold uppercase tracking-[0.16em] text-ink/45">
+                    {it.sizes.length} sizes
+                  </span>
+                ) : it.altPrice != null && priceColumns ? (
                   <span className="flex shrink-0 items-start gap-3 sm:gap-5">
                     <PriceCol label={priceColumns[0]} value={it.price}>
                       <AddButton
@@ -484,6 +500,43 @@ function Category({
               {it.note && (
                 <span className="mt-0.5 block pr-20 text-[0.72rem] leading-snug text-ink/70">
                   {it.note}
+                </span>
+              )}
+
+              {/* Every size the dish comes in, each with its own price and its
+                  own button — laid out as a grid rather than a wrapping row.
+                  Sized to their own words the chips came out every width there
+                  is, and two columns of dishes beside each other read as a
+                  ragged mess. Fixed tracks make every chip the same width, so
+                  they line up down the page and across it. */}
+              {it.sizes && (
+                <span className="mt-2 grid max-w-[26rem] grid-cols-2 gap-2 sm:grid-cols-3">
+                  {it.sizes.map((size) => (
+                    <span
+                      key={size.label}
+                      // tracks inside the chip as well as outside it: spread
+                      // by justify-between, the spare room went wherever the
+                      // price was short, so ₹89 and ₹309 sat at different
+                      // places in chips of the same width
+                      className="grid grid-cols-[1.6rem_1fr_auto] items-center gap-1.5 rounded-full border border-ink/12 bg-paper-warm py-1 pl-3 pr-1"
+                    >
+                      <span className="text-[0.55rem] font-extrabold uppercase tracking-[0.16em] text-ink/60">
+                        {size.label}
+                      </span>
+                      <span className="pr-1 text-right font-display text-[0.85rem] font-extrabold tabular-nums text-ink">
+                        ₹{size.price}
+                      </span>
+                      <AddButton
+                        item={{
+                          key: itemKey(id, it.name, size.label),
+                          name: it.name,
+                          variant: size.label,
+                          price: size.price,
+                          veg: it.veg,
+                        }}
+                      />
+                    </span>
+                  ))}
                 </span>
               )}
             </li>

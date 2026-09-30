@@ -143,6 +143,20 @@
     scroll-margin-top: 5.5rem;
   }
 
+  /* A section the reader cannot see is not drawn, and the drifting glows,
+     tickers and floating food inside it stop with it. Nine sections of
+     animation used to run at once on every page; now only the one on screen
+     does, which is what the page felt slow doing.
+
+     Only sections that already clip their own overflow take this: the
+     containment it brings would otherwise cut off decorations that are meant
+     to spill past a section's edge. The remembered height keeps the scrollbar
+     and anchor links honest. */
+  main > section[class*="overflow-hidden"] {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 1200px;
+  }
+
   /* respect the OS "reduce motion" setting — no parallax, no drifting */
   @media (prefers-reduced-motion: reduce) {
     html {

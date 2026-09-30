@@ -1076,7 +1076,7 @@ export function CartDrawer() {
                     <textarea
                       id="order-notes"
                       rows={2}
-                      placeholder="Less spicy, extra dip…"
+                      placeholder="Less spicy, no onion…"
                       value={details.notes}
                       onChange={(e) => set("notes", e.target.value)}
                       className={INPUT}

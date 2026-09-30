@@ -7,6 +7,8 @@ import freshJuice from "@/assets/fresh-juice.webp";
 import brownieShake from "@/assets/brownie-shake.webp";
 import kunafa from "@/assets/kunafa.webp";
 import falooda from "@/assets/falooda.webp";
+import breadOmelette from "@/assets/bread-omelette.webp";
+import nutellaSandwich from "@/assets/nutella-sandwich.webp";
 
 export type SpecialGroup = {
   id: string;
@@ -45,6 +47,21 @@ export const specialGroups: SpecialGroup[] = [
       "Tandoori Chicken Wrap",
       "Korean Fried Chicken Wrap",
       "Mexican Fried Chicken Wrap",
+    ],
+  },
+  {
+    // the counter's own quick plate — cut four ways, eaten standing up
+    id: "signature-bread-omelette",
+    title: "Bread Omelette",
+    tagline: "Hot off the pan",
+    src: breadOmelette,
+    w: 900,
+    h: 900,
+    items: [
+      "Butter Bread Omelette",
+      "Cheese Bread Omelette",
+      "Paneer Bread Omelette",
+      "Chicken Bread Omelette",
     ],
   },
   {
@@ -153,6 +170,16 @@ export const specialGroups: SpecialGroup[] = [
     ],
   },
   {
+    // the grill's dessert side: chocolate pressed between buttered bread
+    id: "signature-sweet-sandwiches",
+    title: "Sweet Sandwiches",
+    tagline: "Pressed hot, cut in two",
+    src: nutellaSandwich,
+    w: 800,
+    h: 1000,
+    items: ["Chocolate Grill Sandwich", "Nutella Sandwich", "Lotus Biscoff Sandwich"],
+  },
+  {
     id: "signature-kunafa",
     title: "Premium Kunafa",
     tagline: "Crisp outside, creamy inside",
@@ -184,6 +211,7 @@ export const specialGroups: SpecialGroup[] = [
 /** The eight the kitchen leads with. */
 export const heroProducts = [
   "Korean Crispy Fried Chicken",
+  "Cheese Bread Omelette",
   "Signature Burger",
   "SPL BBQ Pizza",
   "Korean Fried Chicken Wrap",

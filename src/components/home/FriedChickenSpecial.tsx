@@ -1,27 +1,50 @@
 import { useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, useScroll, useSpring, useTransform } from "motion/react";
-import { combos, happyTreats } from "@/data/menu";
+import {
+  chickenBurgers,
+  chickenStrips,
+  chickenWings,
+  chickenWraps,
+  hotAndCrispy,
+  loadedFries,
+  popcornChicken,
+} from "@/data/menu";
 import { MaskReveal, useLoopInView } from "@/components/bits";
 import { RevealCard } from "@/components/page";
 import friedChicken from "@/assets/fried-chicken.webp";
 
-/** Every combo built around crispy chicken or wings, priced straight off the board. */
-const CHICKEN_COMBOS = combos.filter((c) =>
-  c.contents.some((item) => /crispy chicken|wings/i.test(item)),
-);
-const PRICES = CHICKEN_COMBOS.map((c) => c.price);
-const FROM = Math.min(...PRICES);
-const TO = Math.max(...PRICES);
+/** The fried chicken board, counter by counter, straight off the menu. */
+const COUNTERS = [
+  { name: "Drumsticks", hash: "hot-and-crispy", items: hotAndCrispy },
+  { name: "Wings", hash: "wings", items: chickenWings },
+  { name: "Strips", hash: "strips", items: chickenStrips },
+  { name: "Popcorn", hash: "popcorn", items: popcornChicken },
+  { name: "Loaded fries", hash: "loaded-fries", items: loadedFries },
+  { name: "Burgers", hash: "chicken-burgers", items: chickenBurgers },
+  { name: "Wraps", hash: "chicken-wraps", items: chickenWraps },
+];
 
-/** The four the counter leads with. */
-const TILES = CHICKEN_COMBOS.slice(0, 4);
+const ALL = COUNTERS.flatMap((c) => c.items);
+const DISHES = ALL.length;
+const FROM = Math.min(...ALL.map((i) => i.price));
+const TO = Math.max(...ALL.flatMap((i) => (i.sizes ? i.sizes.map((s) => s.price) : [i.price])));
 
-/** What runs along the ticker: the fried chicken on the board, combos and snacks. */
+/** The four the counter leads with, each with the price it starts at. */
+const TILES = COUNTERS.slice(0, 4).map((c) => ({
+  name: c.name,
+  hash: c.hash,
+  count: c.items.length,
+  from: Math.min(...c.items.map((i) => i.price)),
+  lead: c.items[0]?.name ?? "",
+}));
+
+/** What runs along the ticker: the dishes themselves. */
 const TICKER = [
-  "Crispy Chicken",
-  "Chicken Wings",
-  ...happyTreats.filter((t) => /chicken/i.test(t.name)).map((t) => t.name),
+  "Crispy Drumstick",
+  ...chickenWings.map((w) => w.name),
+  ...loadedFries.slice(0, 3).map((f) => f.name),
+  ...chickenBurgers.slice(0, 3).map((b) => b.name),
 ];
 
 /**
@@ -139,9 +162,9 @@ export function FriedChickenSpecial() {
             className="mt-10 flex flex-wrap gap-x-12 gap-y-6"
           >
             {[
-              { v: String(CHICKEN_COMBOS.length), l: "Chicken combos" },
+              { v: String(DISHES), l: "Fried chicken dishes" },
               { v: `₹${FROM}–₹${TO}`, l: "Price range" },
-              { v: "Hot", l: "Fried to order" },
+              { v: String(COUNTERS.length), l: "Counters" },
             ].map((s) => (
               <div key={s.l}>
                 <dt className="font-display text-3xl font-extrabold tracking-[-0.03em] text-orange md:text-4xl">
@@ -159,7 +182,7 @@ export function FriedChickenSpecial() {
             {TILES.map((c, i) => (
               <RevealCard
                 as="li"
-                key={c.name}
+                key={c.hash}
                 index={i}
                 className="group relative h-full overflow-hidden rounded-2xl border border-paper/12 px-4 py-3.5 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 hover:border-orange"
               >
@@ -168,11 +191,13 @@ export function FriedChickenSpecial() {
                   className="pointer-events-none absolute inset-x-0 bottom-0 h-0 bg-gradient-to-t from-orange/20 to-transparent transition-all duration-500 group-hover:h-full"
                 />
                 <span className="relative block font-display text-sm font-extrabold uppercase tracking-[-0.01em] text-paper md:text-base">
-                  {c.name.replace(/\s+Combo$/i, "")}
+                  {c.name}
                 </span>
-                <span className="relative mt-0.5 block text-xs text-paper/50">{c.contents[0]}</span>
+                <span className="relative mt-0.5 block text-xs text-paper/50">
+                  {c.count} {c.count === 1 ? "way" : "ways"} · {c.lead}
+                </span>
                 <span className="relative mt-1 block font-display text-lg font-extrabold text-orange">
-                  ₹{c.price}
+                  from ₹{c.from}
                 </span>
               </RevealCard>
             ))}
@@ -187,11 +212,11 @@ export function FriedChickenSpecial() {
           >
             <Link
               to="/menu"
-              hash="combos"
+              hash="hot-and-crispy"
               data-cursor="cta"
               className="group inline-flex items-center gap-4 rounded-full bg-orange px-8 py-4 text-[0.68rem] font-extrabold uppercase tracking-[0.24em] text-ink transition-transform duration-300 hover:-translate-y-0.5"
             >
-              See the chicken combos
+              See the fried chicken board
               <span
                 aria-hidden
                 className="h-px w-6 bg-ink transition-all duration-500 group-hover:w-12"

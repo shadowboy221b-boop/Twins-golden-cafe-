@@ -157,11 +157,20 @@ export const menuSchema = {
       name: item.name,
       ...(item.note ? { description: item.note } : {}),
       ...(item.veg ? { suitableForDiet: "https://schema.org/VegetarianDiet" } : {}),
-      offers: {
-        "@type": "Offer",
-        price: item.price,
-        priceCurrency: "INR",
-      },
+      // a dish sold by the piece has a price for each size, and search
+      // engines read the list as happily as the single number
+      offers: item.sizes
+        ? item.sizes.map((size) => ({
+            "@type": "Offer",
+            name: size.label,
+            price: size.price,
+            priceCurrency: "INR",
+          }))
+        : {
+            "@type": "Offer",
+            price: item.price,
+            priceCurrency: "INR",
+          },
     })),
   })),
 };

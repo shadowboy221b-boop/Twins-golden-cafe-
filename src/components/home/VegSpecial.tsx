@@ -5,11 +5,6 @@ import { categories, type MenuItem } from "@/data/menu";
 import { MaskReveal, useSpinAllowed } from "@/components/bits";
 import { VegMark } from "@/components/VegMark";
 import pizzaVeg from "@/assets/pizza-veg.webp";
-import momos from "@/assets/momos.webp";
-import kunafa from "@/assets/kunafa.webp";
-import oreoShake from "@/assets/oreo-shake.webp";
-import freshJuice from "@/assets/fresh-juice.webp";
-import fruitSalad from "@/assets/fruit-salad.webp";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -41,28 +36,22 @@ const CHIPS = [
   .filter((c) => c.count > 0);
 
 /**
- * The photo tiles. Only dishes that are vegetarian in the photograph too — no
- * shot that shows meat stands in for a veg counter. The first tile is the big
- * one in the bento grid.
+ * One photograph, the way every other section on the page carries one. Six
+ * tiles fought with the chips beside them; the pizza on its own says the same
+ * thing and gives the copy room to breathe. It is vegetarian in the shot too —
+ * no photograph with meat in it stands in for a veg counter.
  */
-const TILES = [
-  { label: "Veg Pizzas", ids: ["pizza"], src: pizzaVeg, w: 700, h: 1050, cutout: false },
-  { label: "Veg Momos", ids: ["momos-veg"], src: momos, w: 700, h: 700, cutout: true },
-  { label: "Kunafa", ids: ["kunafa"], src: kunafa, w: 1200, h: 1008, cutout: true },
-  { label: "Milkshakes", ids: ["milkshakes"], src: oreoShake, w: 675, h: 1200, cutout: false },
-  {
-    label: "Fresh Juices",
-    ids: ["fresh-juices", "special-blends", "detox-juices"],
-    src: freshJuice,
-    w: 675,
-    h: 1200,
-    cutout: false,
-  },
-  { label: "Fruit Salad", ids: ["fruit-salad"], src: fruitSalad, w: 700, h: 700, cutout: false },
-].map((t) => {
-  const items = vegOf(t.ids);
-  return { ...t, count: items.length, from: Math.min(...items.map((i) => i.price)) };
-});
+const PHOTO = (() => {
+  const items = vegOf(["pizza"]);
+  return {
+    label: "Veg Pizzas",
+    src: pizzaVeg,
+    w: 700,
+    h: 1050,
+    count: items.length,
+    from: Math.min(...items.map((i) => i.price)),
+  };
+})();
 
 /**
  * The veg total. The page is built with the real number in it, so it reads
@@ -195,84 +184,58 @@ export function VegSpecial() {
           </Link>
         </div>
 
-        {/* ---------------------------------------------------------- bento */}
-        <ul
-          className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4"
-          style={{ perspective: 1200 }}
+        {/* ---------------------------------------------------------- photo */}
+        <motion.div
+          initial={moving ? { opacity: 0, rotateX: -45, y: 50 } : false}
+          whileInView={{ opacity: 1, rotateX: 0, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.9, ease: EASE }}
+          style={{ perspective: 1200, transformOrigin: "50% 100%" }}
+          className="relative"
         >
-          {TILES.map((t, i) => {
-            const big = i === 0;
-            // On a phone the grid is two columns, so five small tiles would leave
-            // the last one alone in its row; it runs the full width instead.
-            const last = i === TILES.length - 1;
-            return (
-              <motion.li
-                key={t.label}
-                // each plate flips up into place from below, one after another
-                initial={moving ? { opacity: 0, rotateX: -65, y: 50 } : false}
-                whileInView={{ opacity: 1, rotateX: 0, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.9, delay: Math.min(i * 0.1, 0.5), ease: EASE }}
-                style={{ transformOrigin: "50% 100%" }}
-                className={big ? "col-span-2 row-span-2" : last ? "col-span-2 md:col-span-1" : ""}
-              >
-                <Link
-                  to="/menu"
-                  data-cursor="view"
-                  className={`group relative block overflow-hidden rounded-3xl ring-1 ring-paper/10 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 ${
-                    last ? "aspect-[2/1] md:aspect-square" : "aspect-square"
-                  }`}
-                  style={{ background: "oklch(0.3 0.06 155)" }}
-                >
-                  {t.cutout && (
-                    <span
-                      aria-hidden
-                      className="absolute inset-0"
-                      style={{
-                        background: `radial-gradient(circle at 50% 45%, ${GREEN_LIGHT} 0%, transparent 65%)`,
-                        opacity: 0.35,
-                      }}
-                    />
-                  )}
-                  <img
-                    src={t.src}
-                    alt={t.label}
-                    width={t.w}
-                    height={t.h}
-                    loading="lazy"
-                    decoding="async"
-                    className={`absolute inset-0 size-full transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110 ${
-                      t.cutout ? "object-contain p-5 pb-12" : "object-cover"
-                    }`}
-                  />
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/30 to-transparent"
-                  />
+          {/* a ring turning slowly behind it, as the other sections have */}
+          <motion.span
+            aria-hidden
+            animate={moving ? { rotate: 360 } : { rotate: 0 }}
+            transition={
+              moving ? { duration: 60, repeat: Infinity, ease: "linear" } : { duration: 0 }
+            }
+            className="absolute left-1/2 top-1/2 aspect-square w-[92%] -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-dashed"
+            style={{ borderColor: `color-mix(in oklab, ${GREEN_LIGHT} 30%, transparent)` }}
+          />
 
-                  <VegMark className={`absolute left-3 top-3 ${big ? "size-6" : "size-5"}`} />
+          <Link
+            to="/menu"
+            data-cursor="view"
+            className="group relative mx-auto block aspect-[4/5] w-[84vw] max-w-[32rem] overflow-hidden rounded-[2rem] ring-1 ring-paper/15 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 sm:w-[62vw] lg:w-full"
+            style={{ background: "oklch(0.3 0.06 155)" }}
+          >
+            <img
+              src={PHOTO.src}
+              alt={`${PHOTO.label} at Twin's Golden Cafe, Arani`}
+              width={PHOTO.w}
+              height={PHOTO.h}
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 size-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+            />
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 via-black/30 to-transparent"
+            />
 
-                  <span className={`absolute inset-x-0 bottom-0 ${big ? "p-6" : "p-3.5 md:p-4"}`}>
-                    <span
-                      className={`block font-display font-black uppercase leading-tight tracking-[-0.01em] text-paper ${
-                        big ? "text-2xl md:text-4xl" : "text-sm md:text-base"
-                      }`}
-                    >
-                      {t.label}
-                    </span>
-                    <span
-                      className={`mt-1 block font-extrabold uppercase tracking-[0.16em] text-paper/70 ${
-                        big ? "text-[0.65rem]" : "text-[0.52rem]"
-                      }`}
-                    >
-                      {t.count} veg · from ₹{t.from}
-                    </span>
-                  </span>
-                </Link>
-              </motion.li>
-            );
-          })}
-        </ul>
+            <VegMark className="absolute left-4 top-4 size-7" />
+
+            <span className="absolute inset-x-0 bottom-0 p-6 md:p-7">
+              <span className="block font-display text-3xl font-black uppercase leading-tight tracking-[-0.01em] text-paper md:text-4xl">
+                {PHOTO.label}
+              </span>
+              <span className="mt-1.5 block text-[0.62rem] font-extrabold uppercase tracking-[0.18em] text-paper/70">
+                {PHOTO.count} veg · from ₹{PHOTO.from}
+              </span>
+            </span>
+          </Link>
+        </motion.div>
       </div>
     </section>
   );

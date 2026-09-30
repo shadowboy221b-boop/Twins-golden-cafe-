@@ -7,6 +7,7 @@ import { BrandMarquee } from "@/components/BrandMarquee";
 import { BestCombos } from "@/components/home/BestCombos";
 import { GoldenSpecials } from "@/components/home/GoldenSpecials";
 import { FriedChickenSpecial } from "@/components/home/FriedChickenSpecial";
+import { KoreanSpecial } from "@/components/home/KoreanSpecial";
 import { KunafaSpecial } from "@/components/home/KunafaSpecial";
 import { CategoriesPreview } from "@/components/home/HomeSections";
 import { VegSpecial } from "@/components/home/VegSpecial";
@@ -47,8 +48,11 @@ function Index() {
         <Hero />
         <BrandMarquee tone="orange" />
         <BestCombos />
-        <VegSpecial />
+        {/* fried chicken leads, the veg board answers it, then the Korean
+            counter — dark, green, light, so no two run together */}
         <FriedChickenSpecial />
+        <VegSpecial />
+        <KoreanSpecial />
         <GoldenSpecials />
         <KunafaSpecial />
         <JuiceBar />

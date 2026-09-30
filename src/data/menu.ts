@@ -11,6 +11,12 @@ export type MenuItem = {
   price: number;
   /** second price where a dish is sold two ways (momos: steam / fried) */
   altPrice?: number | undefined;
+  /**
+   * Where a dish is sold by the piece — strips, wings, drumsticks — every
+   * size it comes in. `price` stays the smallest of them, so anything that
+   * only wants one number still gets a true one.
+   */
+  sizes?: { label: string; price: number }[] | undefined;
   note?: string | undefined;
   veg?: boolean | undefined;
   hot?: boolean | undefined;
@@ -377,6 +383,160 @@ export const combos: Combo[] = [
 
 /* -------------------------------------------------------------- the board */
 
+/* ------------------------------------------------- the fried chicken board */
+
+/**
+ * The fried chicken counter, straight off its own printed poster.
+ *
+ * It is a board of its own at the shop — drumsticks by the piece, popcorn,
+ * strips, wings, loaded fries, burgers, wraps and the Korean glazes — and
+ * none of it overlapped what the site already listed, so it is added here
+ * rather than folded into the older counters.
+ */
+
+export const hotAndCrispy: MenuItem[] = [
+  {
+    name: "Crispy Drumstick",
+    price: 89,
+    note: "Marinated overnight, fried when you order",
+    sizes: [
+      { label: "1 pc", price: 89 },
+      { label: "2 pc", price: 159 },
+      { label: "4 pc", price: 309 },
+      { label: "6 pc", price: 489 },
+      { label: "8 pc", price: 619 },
+    ],
+  },
+];
+
+export const popcornChicken: MenuItem[] = [
+  { name: "Chicken Popcorn Fries", price: 89 },
+  { name: "Peri Peri Popcorn", price: 99, hot: true },
+  { name: "Cheesy Popcorn", price: 109 },
+];
+
+export const chickenStrips: MenuItem[] = [
+  {
+    name: "Classic Chicken Strips",
+    price: 99,
+    sizes: [
+      { label: "2 pc", price: 99 },
+      { label: "5 pc", price: 179 },
+      { label: "8 pc", price: 259 },
+    ],
+  },
+  {
+    name: "Peri Peri Strips",
+    price: 109,
+    hot: true,
+    sizes: [
+      { label: "2 pc", price: 109 },
+      { label: "5 pc", price: 189 },
+      { label: "8 pc", price: 279 },
+    ],
+  },
+  {
+    name: "Cheesy Strips",
+    price: 119,
+    sizes: [
+      { label: "2 pc", price: 119 },
+      { label: "5 pc", price: 199 },
+      { label: "8 pc", price: 279 },
+    ],
+  },
+  {
+    name: "Schezwan Strips",
+    price: 119,
+    hot: true,
+    sizes: [
+      { label: "2 pc", price: 119 },
+      { label: "4 pc", price: 209 },
+      { label: "8 pc", price: 299 },
+    ],
+  },
+];
+
+export const chickenWings: MenuItem[] = [
+  {
+    name: "Fried Chicken Wings",
+    price: 119,
+    sizes: [
+      { label: "3 pc", price: 119 },
+      { label: "6 pc", price: 199 },
+      { label: "9 pc", price: 279 },
+    ],
+  },
+  {
+    name: "Peri Peri Wings",
+    price: 129,
+    hot: true,
+    sizes: [
+      { label: "3 pc", price: 129 },
+      { label: "6 pc", price: 209 },
+      { label: "9 pc", price: 299 },
+    ],
+  },
+  {
+    name: "Cheesy Wings",
+    price: 139,
+    sizes: [
+      { label: "3 pc", price: 139 },
+      { label: "6 pc", price: 229 },
+      { label: "9 pc", price: 319 },
+    ],
+  },
+  {
+    name: "Schezwan Wings",
+    price: 139,
+    hot: true,
+    sizes: [
+      { label: "3 pc", price: 139 },
+      { label: "6 pc", price: 229 },
+      { label: "9 pc", price: 319 },
+    ],
+  },
+];
+
+export const loadedFries: MenuItem[] = [
+  { name: "Classic Chicken Loaded Fries", price: 129 },
+  { name: "Peri Peri Chicken Loaded Fries", price: 139, hot: true },
+  { name: "Cheesy Chicken Loaded Fries", price: 139 },
+  { name: "Sweet & Chilli Loaded Fries", price: 149 },
+  { name: "Nashville Loaded Fries", price: 149, hot: true },
+  { name: "Gochujang Loaded Fries", price: 159, hot: true },
+  { name: "Teriyaki Loaded Fries", price: 159 },
+];
+
+export const chickenBurgers: MenuItem[] = [
+  { name: "Zinger Chicken Burger", price: 129 },
+  { name: "Boom Burger", price: 129 },
+  { name: "Cheesy Fried Chicken Burger", price: 139 },
+  { name: "Smoky Fried Chicken Burger", price: 139 },
+  { name: "Tandoori Chicken Burger", price: 149 },
+  { name: "Punjabi Chicken Makhni Burger", price: 159 },
+  { name: "Teriyaki Chicken Burger", price: 159 },
+  { name: "Honey Dew Chicken Burger", price: 159 },
+  { name: "Mexican Chipotle Burger", price: 169, hot: true },
+  { name: "Nashville Burger", price: 169, hot: true },
+  { name: "Jumbo Burger", price: 189 },
+  { name: "Signature Burger", price: 199 },
+];
+
+export const chickenWraps: MenuItem[] = [
+  { name: "Punjabi Makhni Wrap", price: 139 },
+  { name: "Tandoori Chicken Wrap", price: 139 },
+  { name: "Korean Fried Chicken Wrap", price: 149, hot: true },
+  { name: "Mexican Fried Chicken Wrap", price: 159, hot: true },
+];
+
+export const koreanItems: MenuItem[] = [
+  { name: "Korean Crispy Fried Chicken", price: 159, hot: true },
+  { name: "Dragon Crispy Fried Chicken", price: 169, hot: true },
+  { name: "Teriyaki Crispy Fried Chicken", price: 179 },
+  { name: "Malai Crispy Fried Chicken", price: 189 },
+  { name: "Smokey BBQ Chicken", price: 189 },
+];
+
 export const categories: MenuCategory[] = [
   {
     id: "pizza",
@@ -403,6 +563,57 @@ export const categories: MenuCategory[] = [
     title: "Wrap & Roll (12 inch)",
     tagline: "Twelve inches, rolled",
     items: wraps,
+  },
+
+  /* the fried chicken board, in the order the poster reads */
+  {
+    id: "hot-and-crispy",
+    title: "Fried Chicken — Hot & Crispy",
+    tagline: "Drumsticks, by the piece",
+    items: hotAndCrispy,
+  },
+  {
+    id: "popcorn",
+    title: "Popcorn",
+    tagline: "Boneless, by the tub",
+    items: popcornChicken,
+  },
+  {
+    id: "strips",
+    title: "Chicken Strips",
+    tagline: "Two, five or eight",
+    items: chickenStrips,
+  },
+  {
+    id: "wings",
+    title: "Chicken Wings",
+    tagline: "Three, six or nine",
+    items: chickenWings,
+  },
+  {
+    id: "loaded-fries",
+    title: "Loaded Fries",
+    tagline: "Tossed hot so it sticks",
+    items: loadedFries,
+  },
+  {
+    id: "chicken-burgers",
+    title: "Chicken Burgers",
+    tagline: "Fried fillet, stacked",
+    items: chickenBurgers,
+    extras: [{ label: "Cheese extra", price: 20 }],
+  },
+  {
+    id: "chicken-wraps",
+    title: "Fried Chicken Wraps",
+    tagline: "Rolled around the fillet",
+    items: chickenWraps,
+  },
+  {
+    id: "korean",
+    title: "Korean Items",
+    tagline: "Gochujang, soy and honey",
+    items: koreanItems,
   },
   {
     id: "sandwiches",
@@ -452,7 +663,7 @@ export const categories: MenuCategory[] = [
   {
     id: "combos",
     title: "Combos & Family Feast",
-    tagline: "Extra dip ₹25",
+    tagline: "One tray, one price",
     items: combos.map((c) => ({
       name: c.name,
       price: c.price,

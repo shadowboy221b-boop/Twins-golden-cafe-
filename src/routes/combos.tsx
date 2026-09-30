@@ -303,7 +303,6 @@ function CombosPage() {
             {[
               { v: String(combos.length), l: "Combos" },
               { v: `₹${Math.min(...PRICES)}–₹${Math.max(...PRICES)}`, l: "Price range" },
-              { v: "₹25", l: "Extra dip" },
             ].map((s) => (
               <div key={s.l}>
                 <dt className="font-display text-3xl font-extrabold tracking-[-0.03em] text-orange md:text-4xl">
@@ -320,8 +319,8 @@ function CombosPage() {
           <p className="mt-9 max-w-2xl text-sm leading-relaxed text-paper/60">
             A combo is one tray at one price, and every ticket below prints exactly what is on it.
             There are {combos.length} of them, from ₹{Math.min(...PRICES)} for a snack on your own
-            to ₹{Math.max(...PRICES)} for a family feast, with extra dip at ₹25. Add one to your
-            order and it reaches the counter on WhatsApp.
+            to ₹{Math.max(...PRICES)} for a family feast. Add one to your order and it reaches the
+            counter on WhatsApp.
           </p>
         </PageHero>
 

@@ -10,29 +10,51 @@ import pizzaSm from "@/assets/pizza-600.webp";
 import momoPlate from "@/assets/momo-plate.webp";
 import chocoShake from "@/assets/choco-shake.webp";
 import pizzaSlice from "@/assets/pizza-slice.webp";
+import chicken from "@/assets/chicken.webp";
+import chickenSm from "@/assets/chicken-sm.webp";
+import drumstick from "@/assets/drumstick.webp";
+import drumstickSm from "@/assets/drumstick-sm.webp";
+import chickenBurger from "@/assets/chicken-burger.webp";
+import chickenBurgerSm from "@/assets/chicken-burger-sm.webp";
+import kunafa from "@/assets/kunafa.webp";
+import kunafaSm from "@/assets/kunafa-sm.webp";
+import koreanPot from "@/assets/korean-pot.webp";
+import koreanPotSm from "@/assets/korean-pot-sm.webp";
+import strawberryShake from "@/assets/shake-strawberry.webp";
+import strawberryShakeSm from "@/assets/shake-strawberry-sm.webp";
+import mojito from "@/assets/mojito.webp";
+import mojitoSm from "@/assets/mojito-sm.webp";
 
 /** What rides the turntable, in order. The burger stays first — it's the shot
- *  the page loads with, so it's the one that has to be there instantly. Only
- *  true cut-outs belong here: a photo with its own background would spin as a
- *  visible square. Kunafa and fried chicken are left off: each has its own
- *  section further down the page. */
+ *  the page loads with, so it's the one that has to be there instantly, and
+ *  the rest run roughly counter by counter after it.
+ *
+ *  Only true cut-outs belong here: a photo carrying its own background would
+ *  spin as a visible square. That rules out the Korean wings, the shop front
+ *  and the loaded fries shot, whatever else they'd add.
+ *
+ *  The small file beside each one is the phone's copy — at 78vw a phone needs
+ *  about 320px, not 900. */
 const HERO_DISHES = [
+  { src: burger, sm: burgerSm, smW: 600, alt: "Twin's Golden Cafe signature burger" },
+  { src: pizza, sm: pizzaSm, smW: 600, alt: "A stone-baked pizza, loaded with toppings" },
+  { src: chicken, sm: chickenSm, alt: "A bucket of golden fried chicken" },
   {
-    src: burger,
-    srcSet: `${burgerSm} 600w, ${burger} 900w`,
-    alt: "Twin's Golden Cafe signature burger",
-  },
-  {
-    src: pizza,
-    srcSet: `${pizzaSm} 600w, ${pizza} 900w`,
-    alt: "A stone-baked pizza, loaded with toppings",
+    src: koreanPot,
+    sm: koreanPotSm,
+    alt: "Korean glazed drumsticks in a pan, sesame and spring onion over the top",
   },
   { src: momoPlate, alt: "A plate of steamed momos with red chutney" },
   { src: chocoShake, alt: "A chocolate milkshake topped with cream" },
+  { src: drumstick, sm: drumstickSm, alt: "A crispy fried chicken drumstick" },
+  { src: kunafa, sm: kunafaSm, alt: "A slice of golden kunafa with pistachio" },
+  { src: chickenBurger, sm: chickenBurgerSm, alt: "A crispy chicken burger" },
+  { src: strawberryShake, sm: strawberryShakeSm, alt: "A strawberry shake topped with cream" },
+  { src: mojito, sm: mojitoSm, alt: "A fresh mint mojito over ice" },
 ];
 
 /** how long each dish holds before the next fades in */
-const DISH_MS = 2000;
+const DISH_MS = 2200;
 
 export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
@@ -50,11 +72,28 @@ export function Hero() {
   // Which dish is on the turntable. Starts at 0 and the first image is opaque
   // by default, so the hero is never blank if this timer never runs.
   const [dish, setDish] = useState(0);
+  // How many plates exist in the page at all. Ten shots downloaded at
+  // once would cost more than the rest of the page put together, so each one
+  // is added a turn before it is needed — by the time it shows, it is decoded,
+  // and a reader who scrolls straight past never pays for the last ten.
+  const [loaded, setLoaded] = useState(2);
   useEffect(() => {
     if (!spin) return; // reduce-motion: hold the first plate
-    const id = window.setInterval(() => setDish((d) => (d + 1) % HERO_DISHES.length), DISH_MS);
+    const id = window.setInterval(() => {
+      setDish((d) => (d + 1) % HERO_DISHES.length);
+      setLoaded((n) => Math.min(n + 1, HERO_DISHES.length));
+    }, DISH_MS);
     return () => window.clearInterval(id);
   }, [spin]);
+
+  // Both counts are wrapped where they are read, never trusted raw. If the
+  // list of plates is ever shortened while a page is already running — an edit
+  // during development, a shot dropped in a later build — an index left over
+  // from the longer list would match no image and the turntable would stand
+  // empty. Wrapped, the worst case is the wrong plate, never no plate.
+  const shown = dish % HERO_DISHES.length;
+  // …and the plate on show is always one of the ones in the page.
+  const upTo = Math.min(Math.max(loaded, shown + 1), HERO_DISHES.length);
 
   // Motion values, not React state: the pointer moves many times a second, and
   // state here re-rendered the whole hero on every one of those events.
@@ -199,24 +238,24 @@ export function Hero() {
               data-cursor="food"
               className="relative mx-auto aspect-square w-[78vw] max-w-none sm:w-[58vw] lg:w-full"
             >
-              {HERO_DISHES.map((d, i) => (
+              {HERO_DISHES.slice(0, upTo).map((d, i) => (
                 <img
                   key={d.src}
                   src={d.src}
-                  srcSet={d.srcSet}
+                  srcSet={d.sm ? `${d.sm} ${d.smW ?? 320}w, ${d.src} 900w` : undefined}
                   sizes="(min-width: 1024px) 45vw, 78vw"
-                  alt={i === dish ? d.alt : ""}
-                  aria-hidden={i === dish ? undefined : true}
+                  alt={i === shown ? d.alt : ""}
+                  aria-hidden={i === shown ? undefined : true}
                   width={1200}
                   height={1200}
-                  // At a 2s cycle there is no time to fetch on demand — the
-                  // next plate has to be decoded before its turn. They all load
-                  // up front, but only the first competes for LCP priority.
+                  // There is no time to fetch on demand once a plate's turn
+                  // comes, so the one after the current plate is already in the
+                  // page; only the first competes for LCP priority.
                   loading="eager"
                   fetchPriority={i === 0 ? "high" : "low"}
                   decoding="async"
                   className={`food-shadow-dark absolute inset-0 size-full object-contain transition-[opacity,transform] duration-[700ms] ease-[cubic-bezier(0.33,1,0.68,1)] ${
-                    i === dish ? "scale-100 opacity-100" : "scale-95 opacity-0"
+                    i === shown ? "scale-100 opacity-100" : "scale-95 opacity-0"
                   }`}
                 />
               ))}

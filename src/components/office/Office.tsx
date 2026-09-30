@@ -5,9 +5,11 @@ import {
   canSeeTheBooks,
   clockNow,
   customersFrom,
+  deletePhotosBefore,
   hoursBetween,
   listStaff,
   monthKey,
+  photoCounts,
   recentOrders,
   removeStaff,
   saveAttendancePhoto,
@@ -781,47 +783,185 @@ function Customers({ rows }: { rows: Customer[] }) {
 
 /* -------------------------------------------------------------- orders */
 
+/**
+ * What the orders add up to, over a window of days.
+ *
+ * Everything is counted from the orders themselves — there is no second place
+ * a total is written down, so a figure here can never disagree with the list
+ * underneath it. An order with no date is left out of the windows rather than
+ * guessed at; it still shows in the list below.
+ */
+function summarise(rows: Order[], days: number) {
+  const since = new Date();
+  since.setHours(0, 0, 0, 0);
+  since.setDate(since.getDate() - (days - 1));
+
+  const inWindow = rows.filter((o) => o.createdAt && o.createdAt >= since);
+  const revenue = inWindow.reduce((n, o) => n + o.total, 0);
+
+  // how many of each dish went out, by name
+  const dishes = new Map<string, { qty: number; value: number }>();
+  for (const o of inWindow) {
+    for (const i of o.items) {
+      const at = dishes.get(i.name) ?? { qty: 0, value: 0 };
+      at.qty += i.qty;
+      at.value += i.qty * i.price;
+      dishes.set(i.name, at);
+    }
+  }
+
+  return {
+    orders: inWindow.length,
+    revenue,
+    average: inWindow.length ? Math.round(revenue / inWindow.length) : 0,
+    delivery: inWindow.filter((o) => o.type === "delivery").length,
+    unpaid: inWindow.filter((o) => !o.paid).length,
+    top: [...dishes.entries()]
+      .map(([name, d]) => ({ name, ...d }))
+      .sort((a, b) => b.qty - a.qty)
+      .slice(0, 10),
+  };
+}
+
+const WINDOWS = [
+  { label: "Today", days: 1 },
+  { label: "7 days", days: 7 },
+  { label: "30 days", days: 30 },
+] as const;
+
 function Orders({ rows }: { rows: Order[] }) {
+  const [days, setDays] = useState<number>(1);
+
   if (rows.length === 0) {
     return <p className="text-sm text-paper/60">No orders yet.</p>;
   }
 
+  const s = summarise(rows, days);
+  const undated = rows.filter((o) => !o.createdAt).length;
+  const busiest = Math.max(1, ...s.top.map((t) => t.qty));
+
   return (
-    <ul className="space-y-3">
-      {rows.map((o) => (
-        <li key={o.orderNo} className={card}>
-          <div className="flex flex-wrap items-baseline justify-between gap-3">
-            <p className="font-display text-base font-black uppercase tracking-[-0.01em]">
-              {o.name || "Guest"} · {money(o.total)}
-            </p>
-            <p className="text-[0.55rem] font-extrabold uppercase tracking-[0.18em] text-paper/45">
-              {o.orderNo} · {o.createdAt ? o.createdAt.toLocaleString("en-IN") : "—"}
-            </p>
+    <>
+      {/* ------------------------------------------------- the numbers */}
+      <div className="flex flex-wrap gap-2">
+        {WINDOWS.map((w) => (
+          <button
+            key={w.days}
+            type="button"
+            onClick={() => setDays(w.days)}
+            className={`rounded-full px-4 py-1.5 text-[0.6rem] font-extrabold uppercase tracking-[0.18em] transition-colors ${
+              days === w.days
+                ? "bg-orange text-ink"
+                : "border border-paper/15 text-paper/70 hover:text-paper"
+            }`}
+          >
+            {w.label}
+          </button>
+        ))}
+      </div>
+
+      <dl className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        {[
+          { v: money(s.revenue), l: "Taken" },
+          { v: String(s.orders), l: "Orders" },
+          { v: s.orders ? money(s.average) : "—", l: "Average bill" },
+          { v: `${s.delivery}/${s.orders}`, l: "Delivery" },
+        ].map((k) => (
+          <div key={k.l} className={card}>
+            <dt className="font-display text-2xl font-black tracking-[-0.02em] text-orange">
+              {k.v}
+            </dt>
+            <dd className="mt-1 text-[0.55rem] font-extrabold uppercase tracking-[0.2em] text-paper/45">
+              {k.l}
+            </dd>
           </div>
-          <p className="mt-1.5 text-[0.6rem] font-extrabold uppercase tracking-[0.18em] text-orange">
-            {o.type === "delivery" ? "Delivery" : "Pickup"} · {o.payment}
-            {o.paid ? " · paid" : ""}
+        ))}
+      </dl>
+
+      {s.unpaid > 0 && (
+        <p className="mt-3 text-xs font-bold text-orange">
+          {s.unpaid} {s.unpaid === 1 ? "order is" : "orders are"} still marked unpaid.
+        </p>
+      )}
+      {undated > 0 && (
+        <p className="mt-1 text-xs text-paper/40">
+          {undated} older {undated === 1 ? "order has" : "orders have"} no date and are counted only
+          in the list below.
+        </p>
+      )}
+
+      {/* ------------------------------------------------ what sold */}
+      {s.top.length > 0 && (
+        <div className="mt-8">
+          <p className="text-[0.55rem] font-extrabold uppercase tracking-[0.24em] text-paper/45">
+            What sold · {WINDOWS.find((w) => w.days === days)?.label.toLowerCase()}
           </p>
-          <ul className="mt-2 space-y-0.5 text-sm text-paper/70">
-            {o.items.map((i, n) => (
-              <li key={`${o.orderNo}-${n}`}>
-                {i.qty} × {i.name} — {money(i.qty * i.price)}
+          <ul className="mt-3 space-y-1.5">
+            {s.top.map((t) => (
+              <li key={t.name} className="flex items-center gap-3">
+                <span className="w-7 shrink-0 text-right font-display text-sm font-extrabold tabular-nums text-orange">
+                  {t.qty}
+                </span>
+                {/* the bar is the count against the day's best seller */}
+                <span className="relative h-5 min-w-0 flex-1 overflow-hidden rounded-md bg-paper/[0.06]">
+                  <span
+                    aria-hidden
+                    className="absolute inset-y-0 left-0 rounded-md bg-orange/25"
+                    style={{ width: `${(t.qty / busiest) * 100}%` }}
+                  />
+                  <span className="relative block truncate px-2 py-0.5 text-xs text-paper/80">
+                    {t.name}
+                  </span>
+                </span>
+                <span className="shrink-0 text-xs tabular-nums text-paper/50">
+                  {money(t.value)}
+                </span>
               </li>
             ))}
           </ul>
-          {o.address && <p className="mt-2 text-xs text-paper/50">{o.address}</p>}
-          {o.notes && <p className="mt-1 text-xs italic text-paper/50">“{o.notes}”</p>}
-          <a
-            href={`https://wa.me/91${o.phone}`}
-            target="_blank"
-            rel="noreferrer noopener"
-            className="mt-3 inline-block text-sm font-bold text-orange underline-offset-4 hover:underline"
-          >
-            WhatsApp {o.phone}
-          </a>
-        </li>
-      ))}
-    </ul>
+        </div>
+      )}
+
+      <p className="mt-9 text-[0.55rem] font-extrabold uppercase tracking-[0.24em] text-paper/45">
+        Every order
+      </p>
+
+      <ul className="mt-3 space-y-3">
+        {rows.map((o) => (
+          <li key={o.orderNo} className={card}>
+            <div className="flex flex-wrap items-baseline justify-between gap-3">
+              <p className="font-display text-base font-black uppercase tracking-[-0.01em]">
+                {o.name || "Guest"} · {money(o.total)}
+              </p>
+              <p className="text-[0.55rem] font-extrabold uppercase tracking-[0.18em] text-paper/45">
+                {o.orderNo} · {o.createdAt ? o.createdAt.toLocaleString("en-IN") : "—"}
+              </p>
+            </div>
+            <p className="mt-1.5 text-[0.6rem] font-extrabold uppercase tracking-[0.18em] text-orange">
+              {o.type === "delivery" ? "Delivery" : "Pickup"} · {o.payment}
+              {o.paid ? " · paid" : ""}
+            </p>
+            <ul className="mt-2 space-y-0.5 text-sm text-paper/70">
+              {o.items.map((i, n) => (
+                <li key={`${o.orderNo}-${n}`}>
+                  {i.qty} × {i.name} — {money(i.qty * i.price)}
+                </li>
+              ))}
+            </ul>
+            {o.address && <p className="mt-2 text-xs text-paper/50">{o.address}</p>}
+            {o.notes && <p className="mt-1 text-xs italic text-paper/50">“{o.notes}”</p>}
+            <a
+              href={`https://wa.me/91${o.phone}`}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="mt-3 inline-block text-sm font-bold text-orange underline-offset-4 hover:underline"
+            >
+              WhatsApp {o.phone}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
 
@@ -917,6 +1057,107 @@ function StaffList({ staff, onChanged }: { staff: Staff[]; onChanged: () => void
           </li>
         ))}
       </ul>
+
+      <PhotoStore />
     </>
+  );
+}
+
+/* --------------------------------------------------------- photo store */
+
+/** A date some months back, as "2026-04-01". */
+function monthsAgo(months: number): string {
+  const d = new Date();
+  d.setMonth(d.getMonth() - months);
+  return todayKey(d);
+}
+
+/**
+ * What the check-in photographs are taking up, and how to be rid of the old
+ * ones.
+ *
+ * Attendance itself is never touched — the hours, the marks and the month's
+ * totals stay whatever they were. This clears out the pictures, which are
+ * proof for the weeks somebody might still argue about and dead weight after
+ * that. About forty kilobytes each, and the free plan holds a gigabyte, so
+ * this is housekeeping rather than an emergency.
+ */
+function PhotoStore() {
+  const [counts, setCounts] = useState<{ total: number; before: (d: string) => number } | null>(
+    null,
+  );
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState("");
+
+  const load = useCallback(() => {
+    void photoCounts()
+      .then(setCounts)
+      .catch(() => setCounts(null));
+  }, []);
+
+  useEffect(load, [load]);
+
+  if (!counts || counts.total === 0) return null;
+
+  const mb = (n: number) => `${Math.round((n * 40) / 102.4) / 10} MB`;
+
+  const clear = async (label: string, cutoff: string) => {
+    const n = counts.before(cutoff);
+    if (n === 0) {
+      setDone(`Nothing older than ${label}.`);
+      return;
+    }
+    if (
+      !window.confirm(
+        `Delete ${n} ${n === 1 ? "photograph" : "photographs"} older than ${label}? The attendance itself stays.`,
+      )
+    )
+      return;
+
+    setBusy(true);
+    setDone("");
+    try {
+      const removed = await deletePhotosBefore(cutoff);
+      setDone(`${removed} ${removed === 1 ? "photograph" : "photographs"} deleted.`);
+      load();
+    } catch {
+      setDone("Could not delete them. Try again.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const options = [
+    { label: "3 months", cutoff: monthsAgo(3) },
+    { label: "6 months", cutoff: monthsAgo(6) },
+    { label: "a year", cutoff: monthsAgo(12) },
+  ];
+
+  return (
+    <div className={`${card} mt-6`}>
+      <p className="font-display text-sm font-black uppercase tracking-[0.02em]">
+        Check-in photographs
+      </p>
+      <p className="mt-2 text-sm text-paper/60">
+        {counts.total} kept · about {mb(counts.total)} of the free gigabyte. Deleting them leaves
+        every hour and every mark exactly where it is.
+      </p>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        {options.map((o) => (
+          <button
+            key={o.label}
+            type="button"
+            disabled={busy}
+            onClick={() => void clear(o.label, o.cutoff)}
+            className={`${btn} border border-paper/20 disabled:opacity-50`}
+          >
+            Delete older than {o.label}
+          </button>
+        ))}
+      </div>
+
+      {(busy || done) && <p className="mt-3 text-xs text-paper/55">{busy ? "Deleting…" : done}</p>}
+    </div>
   );
 }

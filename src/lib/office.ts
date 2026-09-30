@@ -172,6 +172,80 @@ export async function attendanceForMonth(month: string): Promise<Attendance[]> {
   return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Attendance, "id">) }));
 }
 
+/**
+ * How many photographs are being kept, and how old they are.
+ *
+ * Counted from the attendance sheet rather than from the photographs, because
+ * each mark already records whether a picture was taken: counting this way
+ * reads a few kilobytes instead of downloading every photograph in the cafe's
+ * history just to say how many there are.
+ */
+export async function photoCounts(): Promise<{ total: number; before: (date: string) => number }> {
+  const { store, lib } = await db();
+  const snap = await lib.getDocs(lib.collection(store, "attendance"));
+  const rows = snap.docs.map((d) => d.data() as Omit<Attendance, "id">);
+
+  const count = (only: (row: Omit<Attendance, "id">) => boolean) =>
+    rows.reduce((n, r) => n + (only(r) ? (r.photoIn ? 1 : 0) + (r.photoOut ? 1 : 0) : 0), 0);
+
+  return {
+    total: count(() => true),
+    before: (date: string) => count((r) => r.date < date),
+  };
+}
+
+/**
+ * Throw away the photographs taken before a date, keeping the attendance
+ * itself.
+ *
+ * The pictures are proof for the weeks somebody might still argue about; a
+ * shift from last winter is settled, and its photograph is only taking up
+ * room. The marks, hours and totals all stay exactly as they were — this
+ * removes the pictures and the little flags that said there were pictures.
+ */
+export async function deletePhotosBefore(cutoff: string): Promise<number> {
+  const { store, lib } = await db();
+  const snap = await lib.getDocs(
+    lib.query(lib.collection(store, "attendance"), lib.where("date", "<", cutoff)),
+  );
+
+  let removed = 0;
+  let batch = lib.writeBatch(store);
+  let ops = 0;
+
+  const flush = async () => {
+    if (ops === 0) return;
+    await batch.commit();
+    batch = lib.writeBatch(store);
+    ops = 0;
+  };
+
+  for (const doc of snap.docs) {
+    const row = doc.data() as Omit<Attendance, "id">;
+    const kinds: PhotoKind[] = [];
+    if (row.photoIn) kinds.push("in");
+    if (row.photoOut) kinds.push("out");
+    if (kinds.length === 0) continue;
+
+    for (const kind of kinds) {
+      batch.delete(lib.doc(store, "attendancePhotos", `${doc.id}_${kind}`));
+      ops += 1;
+      removed += 1;
+    }
+    batch.update(doc.ref, {
+      ...(row.photoIn ? { photoIn: lib.deleteField() } : {}),
+      ...(row.photoOut ? { photoOut: lib.deleteField() } : {}),
+    });
+    ops += 1;
+
+    // a batch holds five hundred writes; leave room for the pair above
+    if (ops >= 480) await flush();
+  }
+
+  await flush();
+  return removed;
+}
+
 export async function setAttendance(
   entry: Omit<Attendance, "id"> & { id?: string },
 ): Promise<string> {

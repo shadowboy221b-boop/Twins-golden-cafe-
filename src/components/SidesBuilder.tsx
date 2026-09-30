@@ -206,7 +206,7 @@ export function SidesBuilder({ id, sides }: { id: string; sides: MenuItem[] }) {
 
       <MaskReveal className="mt-8">
         <p className="text-[0.58rem] font-extrabold uppercase tracking-[0.34em] text-paper/45">
-          Extra dip ₹25 · prices in INR
+          Prices in INR
         </p>
       </MaskReveal>
     </Section>
