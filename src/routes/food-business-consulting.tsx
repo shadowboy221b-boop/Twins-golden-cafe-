@@ -15,7 +15,7 @@ import founderPortrait from "@/assets/founder-portrait.webp";
 
 const title = "Food Business Consulting, Tamil Nadu — Cafe Setup & Menus";
 const description =
-  "Practical help to open a cafe or food brand in Tamil Nadu: setup, menu planning, costing, branding and kitchen operations — from a kitchen that runs daily in Arani.";
+  "Help to open a cafe or food brand in Tamil Nadu: setup, menu planning, costing, branding and kitchen operations from a kitchen that runs daily in Arani.";
 
 const PATH = "/food-business-consulting";
 

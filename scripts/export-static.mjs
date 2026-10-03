@@ -17,9 +17,18 @@
  *
  *   npm run build && node scripts/export-static.mjs
  */
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { cp, mkdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
+
+/** The day of the commit being deployed, as YYYY-MM-DD; today if git is quiet. */
+function commitDay() {
+  try {
+    return execFileSync("git", ["log", "-1", "--format=%cs"], { encoding: "utf8" }).trim();
+  } catch {
+    return new Date().toISOString().slice(0, 10);
+  }
+}
 
 const ROOT = process.cwd();
 const SERVER_ENTRY = join(ROOT, ".output/server/index.mjs");
@@ -134,6 +143,22 @@ async function main() {
     // dotfile and the site depends on it, so make sure it is there.
     if (!(await exists(join(OUT, ".htaccess")))) {
       await cp(join(ROOT, "public/.htaccess"), join(OUT, ".htaccess"));
+    }
+
+    // The sitemap's dates are stamped here rather than typed into the file:
+    // hand-written, they said September while the pages had changed a dozen
+    // times since, and a crawler reading a date that never moves has no
+    // reason to come back. The date of the commit being deployed is the
+    // honest answer — that is when these pages last changed.
+    const sitemap = join(OUT, "sitemap.xml");
+    if (await exists(sitemap)) {
+      const day = commitDay();
+      const xml = (await readFile(sitemap, "utf8")).replace(
+        /<lastmod>[^<]*<\/lastmod>/g,
+        `<lastmod>${day}</lastmod>`,
+      );
+      await writeFile(sitemap, xml);
+      console.log(`  sitemap    → lastmod ${day}`);
     }
 
     console.log(`\n✔ Exported ${written.length} pages to dist-static/`);
