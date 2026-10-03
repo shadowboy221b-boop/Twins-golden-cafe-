@@ -11,6 +11,13 @@ DirectoryIndex index.html
   RewriteCond %{HTTP:X-Forwarded-Proto} !=https
   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+  # One address for every page. www served the whole site a second time at
+  # its own addresses — the canonical tag told Google which one counted, but
+  # a crawler that has not finished reading the real site should not be
+  # spending its visits reading a copy of it.
+  RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+  RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+
   # /menu and /menu/ both serve menu/index.html, without a visible redirect.
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME}/index.html -f
