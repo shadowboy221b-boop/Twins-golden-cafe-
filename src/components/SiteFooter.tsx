@@ -13,6 +13,7 @@ const NAV = [
   { to: "/combos", label: "Best Combos" },
   { to: "/about", label: "About Us" },
   { to: "/contact", label: "Contact Us" },
+  { to: "/korean-fried-chicken", label: "Korean Chicken" },
   { to: "/food-business-consulting", label: "Consulting" },
 ] as const;
 

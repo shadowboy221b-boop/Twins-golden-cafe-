@@ -14,6 +14,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as CombosRouteImport } from './routes/combos'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as FoodBusinessConsultingRouteImport } from './routes/food-business-consulting'
+import { Route as KoreanFriedChickenRouteImport } from './routes/korean-fried-chicken'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as StaffRouteImport } from './routes/staff'
 
@@ -42,6 +43,11 @@ const FoodBusinessConsultingRoute = FoodBusinessConsultingRouteImport.update({
   path: '/food-business-consulting',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KoreanFriedChickenRoute = KoreanFriedChickenRouteImport.update({
+  id: '/korean-fried-chicken',
+  path: '/korean-fried-chicken',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MenuRoute = MenuRouteImport.update({
   id: '/menu',
   path: '/menu',
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/combos': typeof CombosRoute
   '/contact': typeof ContactRoute
   '/food-business-consulting': typeof FoodBusinessConsultingRoute
+  '/korean-fried-chicken': typeof KoreanFriedChickenRoute
   '/menu': typeof MenuRoute
   '/staff': typeof StaffRoute
 }
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/combos': typeof CombosRoute
   '/contact': typeof ContactRoute
   '/food-business-consulting': typeof FoodBusinessConsultingRoute
+  '/korean-fried-chicken': typeof KoreanFriedChickenRoute
   '/menu': typeof MenuRoute
   '/staff': typeof StaffRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/combos': typeof CombosRoute
   '/contact': typeof ContactRoute
   '/food-business-consulting': typeof FoodBusinessConsultingRoute
+  '/korean-fried-chicken': typeof KoreanFriedChickenRoute
   '/menu': typeof MenuRoute
   '/staff': typeof StaffRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/combos'
     | '/contact'
     | '/food-business-consulting'
+    | '/korean-fried-chicken'
     | '/menu'
     | '/staff'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/combos'
     | '/contact'
     | '/food-business-consulting'
+    | '/korean-fried-chicken'
     | '/menu'
     | '/staff'
   id:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/combos'
     | '/contact'
     | '/food-business-consulting'
+    | '/korean-fried-chicken'
     | '/menu'
     | '/staff'
   fileRoutesById: FileRoutesById
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   CombosRoute: typeof CombosRoute
   ContactRoute: typeof ContactRoute
   FoodBusinessConsultingRoute: typeof FoodBusinessConsultingRoute
+  KoreanFriedChickenRoute: typeof KoreanFriedChickenRoute
   MenuRoute: typeof MenuRoute
   StaffRoute: typeof StaffRoute
 }
@@ -158,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FoodBusinessConsultingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/korean-fried-chicken': {
+      id: '/korean-fried-chicken'
+      path: '/korean-fried-chicken'
+      fullPath: '/korean-fried-chicken'
+      preLoaderRoute: typeof KoreanFriedChickenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/menu': {
       id: '/menu'
       path: '/menu'
@@ -181,6 +201,7 @@ const rootRouteChildren: RootRouteChildren = {
   CombosRoute: CombosRoute,
   ContactRoute: ContactRoute,
   FoodBusinessConsultingRoute: FoodBusinessConsultingRoute,
+  KoreanFriedChickenRoute: KoreanFriedChickenRoute,
   MenuRoute: MenuRoute,
   StaffRoute: StaffRoute,
 }

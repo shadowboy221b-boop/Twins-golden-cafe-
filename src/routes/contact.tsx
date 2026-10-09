@@ -59,6 +59,20 @@ const TEL = `tel:${CAFE.phone.replace(/\s/g, "")}`;
 const WHATSAPP = `https://wa.me/${CAFE.whatsapp}`;
 
 const FAQ = [
+  // The three questions people actually type into a phone before they come:
+  // where, when, and is there anything for the vegetarian in the group.
+  {
+    q: "Where exactly is the cafe in Arani?",
+    a: "251, Market Road, Arani Palayam — right by the Old Bus Stand, so if you are standing at the bus stand you are a minute away. The Fort side and Kilarani are a short ride.",
+  },
+  {
+    q: `What time do you open and close?`,
+    a: `Every day of the week, ${CAFE.hoursShort} — Sundays and festival days included. The kitchen cooks to order until closing, so the last order goes in a few minutes before ${CAFE.closesLabel}.`,
+  },
+  {
+    q: "Is there anything for vegetarians?",
+    a: "Most of the board is vegetarian — pizzas, paneer momos, pastas, sandwiches, kunafa, falooda, shakes and fresh juices. Veg dishes are marked with a green dot on the menu.",
+  },
   {
     q: "Is parking available?",
     a: "Roadside parking, right outside on Market Road by the Old Bus Stand — two-wheelers and cars both park along there.",
@@ -231,10 +245,13 @@ function ContactHero() {
           <MaskReveal>
             <p className="eyebrow !text-orange">Say hello</p>
           </MaskReveal>
+          {/* The heading said "Let's connect", which names neither the page
+              nor the town — and this is the page somebody lands on when they
+              are looking for where the cafe actually is. */}
           <h1 className="mt-5 display-xl text-paper">
-            <MaskReveal delay={0.06}>LET&apos;S</MaskReveal>
+            <MaskReveal delay={0.06}>VISIT US</MaskReveal>
             <MaskReveal delay={0.14}>
-              <span className="block text-orange">CONNECT</span>
+              <span className="block text-orange">IN ARANI</span>
             </MaskReveal>
           </h1>
 

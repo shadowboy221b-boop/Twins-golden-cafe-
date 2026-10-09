@@ -155,7 +155,14 @@ export function KoreanSpecial() {
           </motion.dl>
 
           <p className="mt-9 max-w-md text-sm leading-relaxed text-paper/55">
-            The same glazes turn up elsewhere on the board: {ALSO.map((d) => d.name).join(", ")}.
+            The same glazes turn up elsewhere on the board: {ALSO.map((d) => d.name).join(", ")}.{" "}
+            <Link
+              to="/korean-fried-chicken"
+              className="font-semibold text-orange-bright underline-offset-4 hover:underline"
+            >
+              How it is made
+            </Link>
+            .
           </p>
 
           <motion.div
