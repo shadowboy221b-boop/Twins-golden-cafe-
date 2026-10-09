@@ -261,37 +261,44 @@ function KoreanPage() {
 
         {/* --------------------------------------------------------- the FAQ */}
         <Section tone="ink">
-          <SectionHead eyebrow="Asked at the counter" title="GOOD TO" accent="KNOW" dark />
+          {/* Six answers in one narrow column left half the screen empty. The
+              heading and the two ways out of the page belong in that half,
+              and they stay beside the questions as those scroll past. */}
+          <div className="grid gap-10 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
+            <div className="lg:sticky lg:top-32 lg:self-start">
+              <SectionHead eyebrow="Asked at the counter" title="GOOD TO" accent="KNOW" dark />
 
-          <dl className="mt-10 max-w-3xl space-y-6">
-            {FAQ.map((item) => (
-              <div key={item.q} className="border-b border-paper/12 pb-6">
-                <dt className="font-display text-base font-extrabold uppercase tracking-[-0.01em] text-paper md:text-lg">
-                  {item.q}
-                </dt>
-                <dd className="mt-2.5 text-sm leading-relaxed text-paper/65 md:text-base">
-                  {item.a}
-                </dd>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link
+                  to="/menu"
+                  hash="korean"
+                  data-cursor="cta"
+                  className="inline-flex items-center rounded-full bg-orange px-7 py-3.5 text-[0.64rem] font-extrabold uppercase tracking-[0.22em] text-ink transition-transform duration-300 hover:-translate-y-0.5"
+                >
+                  See it on the menu
+                </Link>
+                <Link
+                  to="/contact"
+                  data-cursor="cta"
+                  className="inline-flex items-center rounded-full border border-paper/25 px-7 py-3.5 text-[0.64rem] font-extrabold uppercase tracking-[0.22em] text-paper transition-colors duration-300 hover:border-orange hover:text-orange"
+                >
+                  Find the cafe
+                </Link>
               </div>
-            ))}
-          </dl>
+            </div>
 
-          <div className="mt-10 flex flex-wrap gap-4">
-            <Link
-              to="/menu"
-              hash="korean"
-              data-cursor="cta"
-              className="inline-flex items-center rounded-full bg-orange px-8 py-4 text-[0.68rem] font-extrabold uppercase tracking-[0.24em] text-ink transition-transform duration-300 hover:-translate-y-0.5"
-            >
-              See it on the menu
-            </Link>
-            <Link
-              to="/contact"
-              data-cursor="cta"
-              className="inline-flex items-center rounded-full border border-paper/25 px-8 py-4 text-[0.68rem] font-extrabold uppercase tracking-[0.24em] text-paper transition-colors duration-300 hover:border-orange hover:text-orange"
-            >
-              Find the cafe
-            </Link>
+            <dl className="space-y-6">
+              {FAQ.map((item) => (
+                <div key={item.q} className="border-b border-paper/12 pb-6">
+                  <dt className="font-display text-base font-extrabold uppercase tracking-[-0.01em] text-paper md:text-lg">
+                    {item.q}
+                  </dt>
+                  <dd className="mt-2.5 text-sm leading-relaxed text-paper/65 md:text-base">
+                    {item.a}
+                  </dd>
+                </div>
+              ))}
+            </dl>
           </div>
         </Section>
       </main>
