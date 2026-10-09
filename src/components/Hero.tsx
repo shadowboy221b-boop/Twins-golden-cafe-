@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, useMotionValue, useScroll, useSpring, useTransform } from "motion/react";
 import { useLoopInView } from "./bits";
@@ -94,6 +94,23 @@ export function Hero() {
   const shown = dish % HERO_DISHES.length;
   // …and the plate on show is always one of the ones in the page.
   const upTo = Math.min(Math.max(loaded, shown + 1), HERO_DISHES.length);
+
+  /**
+   * The three plates that exist in the page at any moment: the one on show,
+   * the one fading out behind it, and the one waiting its turn. Ten stacked
+   * images all turning together was more than a phone could draw smoothly,
+   * and the seven nobody can see were doing none of the work of being seen.
+   *
+   * A plate is only kept once it has had a turn, so nothing is fetched before
+   * it is needed; the files are in the browser's cache by the second lap, so
+   * coming back costs nothing.
+   */
+  const live = useMemo(() => {
+    const n = HERO_DISHES.length;
+    const set = new Set([shown, (shown + 1) % n]);
+    if (shown > 0 || loaded >= n) set.add((shown - 1 + n) % n);
+    return set;
+  }, [shown, loaded]);
 
   // Motion values, not React state: the pointer moves many times a second, and
   // state here re-rendered the whole hero on every one of those events.
@@ -238,27 +255,35 @@ export function Hero() {
               data-cursor="food"
               className="relative mx-auto aspect-square w-[78vw] max-w-none sm:w-[58vw] lg:w-full"
             >
-              {HERO_DISHES.slice(0, upTo).map((d, i) => (
-                <img
-                  key={d.src}
-                  src={d.src}
-                  srcSet={d.sm ? `${d.sm} ${d.smW ?? 320}w, ${d.src} 900w` : undefined}
-                  sizes="(min-width: 1024px) 45vw, 78vw"
-                  alt={i === shown ? d.alt : ""}
-                  aria-hidden={i === shown ? undefined : true}
-                  width={1200}
-                  height={1200}
-                  // There is no time to fetch on demand once a plate's turn
-                  // comes, so the one after the current plate is already in the
-                  // page; only the first competes for LCP priority.
-                  loading="eager"
-                  fetchPriority={i === 0 ? "high" : "low"}
-                  decoding="async"
-                  className={`food-shadow-dark absolute inset-0 size-full object-contain transition-[opacity,transform] duration-[700ms] ease-[cubic-bezier(0.33,1,0.68,1)] ${
-                    i === shown ? "scale-100 opacity-100" : "scale-95 opacity-0"
-                  }`}
-                />
-              ))}
+              {HERO_DISHES.slice(0, upTo).map((d, i) =>
+                live.has(i) ? (
+                  <img
+                    key={d.src}
+                    src={d.src}
+                    srcSet={d.sm ? `${d.sm} ${d.smW ?? 320}w, ${d.src} 900w` : undefined}
+                    sizes="(min-width: 1024px) 45vw, 78vw"
+                    alt={i === shown ? d.alt : ""}
+                    aria-hidden={i === shown ? undefined : true}
+                    width={1200}
+                    height={1200}
+                    // There is no time to fetch on demand once a plate's turn
+                    // comes, so the one after the current plate is already in
+                    // the page; only the first competes for LCP priority.
+                    loading="eager"
+                    fetchPriority={i === 0 ? "high" : "low"}
+                    decoding="async"
+                    // The shadow is a drop-shadow filter and this turntable
+                    // never stops turning, so the browser re-blurs whatever
+                    // carries one on every frame. Only the plate being looked
+                    // at gets it — the one fading out and the one waiting are
+                    // invisible anyway, and ten blurred shadows going round at
+                    // once is what made the page stutter.
+                    className={`absolute inset-0 size-full object-contain transition-[opacity,transform] duration-[700ms] ease-[cubic-bezier(0.33,1,0.68,1)] ${
+                      i === shown ? "food-shadow-dark scale-100 opacity-100" : "scale-95 opacity-0"
+                    }`}
+                  />
+                ) : null,
+              )}
             </motion.div>
           </motion.div>
         </div>
