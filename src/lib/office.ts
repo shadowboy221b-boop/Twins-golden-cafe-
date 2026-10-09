@@ -21,7 +21,23 @@ export type Staff = {
   role: string;
   phone: string;
   active: boolean;
+  /**
+   * The sign-in this person uses on their own phone, if they have been given
+   * one. The uid is what the database checks; the email is only there so the
+   * owner can see whose account it is without opening the Firebase console.
+   */
+  uid?: string;
+  email?: string;
 };
+
+/** What the signed-in person is allowed to do. */
+export type Seat =
+  /** the owner: every tab, and can correct anybody's mark */
+  | { kind: "owner" }
+  /** the counter device: checks the whole team in and out */
+  | { kind: "counter" }
+  /** one member of staff on their own phone: themselves and nobody else */
+  | { kind: "self"; staff: Staff };
 
 export type Mark = "present" | "half" | "leave" | "absent";
 
@@ -137,6 +153,10 @@ export async function saveStaff(person: Omit<Staff, "id"> & { id?: string }) {
       role: person.role.trim(),
       phone: person.phone.trim(),
       active: person.active,
+      // written as empty strings rather than left out, so clearing somebody's
+      // login in the form actually clears it in the database
+      uid: (person.uid ?? "").trim(),
+      email: (person.email ?? "").trim().toLowerCase(),
     },
     { merge: true },
   );
@@ -322,6 +342,51 @@ export async function canSeeTheBooks(): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+/**
+ * Which seat somebody is sitting in, worked out from the database rather than
+ * from a list of ids written into the app.
+ *
+ * The owner is whoever the rules let read the orders. After that, anybody
+ * whose uid is written against a member of staff is that person, and sees
+ * only themselves. Everyone else who can sign in is the counter.
+ *
+ * Asked in that order on purpose: if the owner is ever also on the staff
+ * list, they keep the owner's seat.
+ */
+export async function seatFor(uid: string): Promise<Seat> {
+  if (await canSeeTheBooks()) return { kind: "owner" };
+
+  try {
+    const { store, lib } = await db();
+    const snap = await lib.getDocs(
+      lib.query(lib.collection(store, "staff"), lib.where("uid", "==", uid), lib.limit(1)),
+    );
+    const doc = snap.docs[0];
+    if (doc) {
+      return { kind: "self", staff: { id: doc.id, ...(doc.data() as Omit<Staff, "id">) } };
+    }
+  } catch {
+    // the staff list is unreadable by this account; the counter seat is the
+    // safe answer, and it shows an error of its own if that fails too
+  }
+
+  return { kind: "counter" };
+}
+
+/** One person's marks for a month — what their own phone is allowed to read. */
+export async function attendanceForStaff(staffId: string, month: string): Promise<Attendance[]> {
+  const { store, lib } = await db();
+  const snap = await lib.getDocs(
+    lib.query(
+      lib.collection(store, "attendance"),
+      lib.where("staffId", "==", staffId),
+      lib.where("date", ">=", `${month}-01`),
+      lib.where("date", "<=", `${month}-31`),
+    ),
+  );
+  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Attendance, "id">) }));
 }
 
 /* ------------------------------------------------------- orders and people */

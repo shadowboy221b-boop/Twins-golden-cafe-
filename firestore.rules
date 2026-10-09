@@ -39,9 +39,39 @@ service cloud.firestore {
       return isOwner() || isCounter();
     }
 
+    /**
+     * A member of staff signed in on their own phone.
+     *
+     * Their uid is written against their row in the staff list, so a login
+     * is given and taken away from the office rather than from here. The
+     * lookup costs one document read per request, which is the price of not
+     * keeping a list of people in a file only a developer can edit.
+     */
+    function isSelf(staffId) {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/staff/$(staffId))
+        && get(/databases/$(database)/documents/staff/$(staffId)).data.uid == request.auth.uid;
+    }
+
+    /** the shape every attendance entry has to have, whoever writes it */
+    function wellFormedMark() {
+      return request.resource.data.keys().hasOnly(
+               ['staffId', 'date', 'mark', 'inAt', 'outAt', 'note',
+                'photoIn', 'photoOut', 'by'])
+        && request.resource.data.date is string
+        && request.resource.data.date.size() == 10
+        && request.resource.data.staffId is string
+        && request.resource.data.mark is string;
+    }
+
     // The team. The counter reads it to draw the check-in buttons.
     match /staff/{id} {
-      allow read: if isStaffDevice();
+      // A member of staff may read their own row and nobody else's — the
+      // office looks itself up by uid to know whose phone it is on. Written
+      // against the document rather than as "anyone signed in", so one cook's
+      // phone cannot list the team's numbers.
+      allow read: if isStaffDevice()
+        || (request.auth != null && resource.data.uid == request.auth.uid);
       allow write: if isOwner();
     }
 
@@ -58,16 +88,13 @@ service cloud.firestore {
      * The restriction can come back once it can be tested properly.
      */
     match /attendance/{id} {
-      allow read: if isStaffDevice();
+      allow read: if isStaffDevice()
+        || (request.auth != null && isSelf(resource.data.staffId));
       allow create, update: if isOwner()
-        || (isCounter()
-            && request.resource.data.keys().hasOnly(
-                 ['staffId', 'date', 'mark', 'inAt', 'outAt', 'note',
-                  'photoIn', 'photoOut', 'by'])
-            && request.resource.data.date is string
-            && request.resource.data.date.size() == 10
-            && request.resource.data.staffId is string
-            && request.resource.data.mark is string);
+        || (isCounter() && wellFormedMark())
+        // their own, and only their own: the staffId in what is being written
+        // has to be the row their uid is attached to
+        || (wellFormedMark() && isSelf(request.resource.data.staffId));
       allow delete: if isOwner();
     }
 
@@ -83,7 +110,7 @@ service cloud.firestore {
      */
     match /attendancePhotos/{id} {
       allow read: if isOwner();
-      allow create, update: if isStaffDevice()
+      allow create, update: if (isStaffDevice() || isSelf(request.resource.data.staffId))
         && request.resource.data.keys().hasOnly(['image', 'kind', 'staffId', 'date', 'at'])
         && request.resource.data.image is string
         && request.resource.data.image.size() < 800000;

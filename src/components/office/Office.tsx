@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   attendanceForMonth,
   attendancePhoto,
-  canSeeTheBooks,
+  seatFor,
+  attendanceForStaff,
   clockNow,
   customersFrom,
   deletePhotosBefore,
@@ -23,11 +24,14 @@ import {
   type Customer,
   type Mark,
   type Order,
+  type Seat,
   type PhotoKind,
   type Staff,
 } from "@/lib/office";
 import { CAFE } from "@/data/site";
+import { useOpenNow } from "@/components/bits";
 import { Camera } from "@/components/office/Camera";
+import { Embers } from "@/components/office/Embers";
 
 /**
  * The counter's office, in one page: who is working today, the month's sheet,
@@ -52,6 +56,48 @@ const MARKS: { id: Mark; label: string; tone: string }[] = [
 const money = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
 const card = "rounded-2xl border border-paper/12 bg-paper/[0.04] p-4";
+/** a card that answers to the pointer — rows a hand actually goes for */
+const liveCard =
+  "rounded-2xl border border-paper/12 bg-paper/[0.04] p-4 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:border-paper/25 hover:bg-paper/[0.07]";
+const eyebrow = "text-[0.55rem] font-extrabold uppercase tracking-[0.24em]";
+
+/**
+ * The clock on the wall of the office.
+ *
+ * It ticks because a page that records the minute somebody arrived should be
+ * showing the minute it is now — a frozen time next to a Check in button
+ * invites the wrong one to be written down.
+ */
+function Clock() {
+  const [now, setNow] = useState(() => new Date());
+
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(new Date()), 10_000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  return (
+    <span className="font-display text-sm font-extrabold tabular-nums tracking-[-0.01em] text-paper/80">
+      {now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true })}
+    </span>
+  );
+}
+
+/** Open or closed, said the same way the public header says it. */
+function ShopState() {
+  const open = useOpenNow(CAFE.openMinutes, CAFE.closeMinutes);
+  if (open === null) return null;
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 ${eyebrow} ${
+        open ? "border-leaf/40 text-leaf" : "border-paper/20 text-paper/50"
+      }`}
+    >
+      <span className={`size-1.5 rounded-full ${open ? "bg-leaf" : "bg-paper/40"}`} />
+      {open ? `Open · till ${CAFE.closesLabel}` : `Closed · opens ${CAFE.opensLabel}`}
+    </span>
+  );
+}
 const btn =
   "rounded-full px-4 py-2.5 text-[0.6rem] font-extrabold uppercase tracking-[0.18em] transition-transform duration-200 active:scale-95";
 const input =
@@ -59,8 +105,8 @@ const input =
 
 export function Office() {
   const [who, setWho] = useState<{ uid: string; email: string } | null | undefined>(undefined);
-  /** undefined while the database is being asked what this account may see */
-  const [owner, setOwner] = useState<boolean | undefined>(undefined);
+  /** undefined while the database is being asked which seat this account has */
+  const [seat, setSeat] = useState<Seat | undefined>(undefined);
 
   useEffect(() => {
     let stop: (() => void) | undefined;
@@ -72,12 +118,12 @@ export function Office() {
 
   useEffect(() => {
     if (!who) {
-      setOwner(undefined);
+      setSeat(undefined);
       return;
     }
     let live = true;
-    void canSeeTheBooks().then((can) => {
-      if (live) setOwner(can);
+    void seatFor(who.uid).then((s) => {
+      if (live) setSeat(s);
     });
     return () => {
       live = false;
@@ -86,8 +132,10 @@ export function Office() {
 
   if (who === undefined) return <Centre>Checking…</Centre>;
   if (who === null) return <SignIn />;
-  if (owner === undefined) return <Centre>Opening the office…</Centre>;
-  return <Desk email={who.email} owner={owner} />;
+  if (seat === undefined) return <Centre>Opening the office…</Centre>;
+  // a member of staff on their own phone gets their own sheet and nothing else
+  if (seat.kind === "self") return <MyShift email={who.email} me={seat.staff} />;
+  return <Desk email={who.email} owner={seat.kind === "owner"} />;
 }
 
 function Centre({ children }: { children: React.ReactNode }) {
@@ -121,45 +169,56 @@ function SignIn() {
   };
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center px-6">
-      <p className="text-[0.55rem] font-extrabold uppercase tracking-[0.28em] text-orange">
-        {CAFE.name}
-      </p>
-      <h1 className="mt-3 font-display text-3xl font-black uppercase tracking-[-0.02em]">
-        Staff sign in
-      </h1>
-      <p className="mt-2 text-sm text-paper/55">
-        For the counter and the office. Nothing here is public.
-      </p>
+    // the same room, lit the same way as the office behind it
+    <div className="grain relative grid min-h-dvh place-items-center px-6">
+      <Embers />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-60"
+        style={{
+          background:
+            "radial-gradient(50% 55% at 50% 30%, color-mix(in oklab, var(--orange) 20%, transparent) 0%, transparent 70%)",
+        }}
+      />
 
-      <form onSubmit={submit} className="mt-8 space-y-3">
-        <input
-          type="email"
-          autoComplete="username"
-          required
-          value={who}
-          onChange={(e) => setWho(e.target.value)}
-          placeholder="Email"
-          className={input}
-        />
-        <input
-          type="password"
-          autoComplete="current-password"
-          required
-          value={pass}
-          onChange={(e) => setPass(e.target.value)}
-          placeholder="Password"
-          className={input}
-        />
-        {error && <p className="text-sm font-semibold text-red-400">{error}</p>}
-        <button
-          type="submit"
-          disabled={busy}
-          className={`${btn} w-full bg-orange py-3.5 text-ink disabled:opacity-60`}
-        >
-          {busy ? "Signing in…" : "Sign in"}
-        </button>
-      </form>
+      <div className="relative w-full max-w-sm rounded-3xl border border-paper/12 bg-paper/[0.04] p-8">
+        <p className={`${eyebrow} text-orange`}>{CAFE.name}</p>
+        <h1 className="mt-3 font-display text-3xl font-black uppercase tracking-[-0.02em]">
+          Staff sign in
+        </h1>
+        <p className="mt-2 text-sm text-paper/55">
+          For the counter and the office. Nothing here is public.
+        </p>
+
+        <form onSubmit={submit} className="mt-8 space-y-3">
+          <input
+            type="email"
+            autoComplete="username"
+            required
+            value={who}
+            onChange={(e) => setWho(e.target.value)}
+            placeholder="Email"
+            className={input}
+          />
+          <input
+            type="password"
+            autoComplete="current-password"
+            required
+            value={pass}
+            onChange={(e) => setPass(e.target.value)}
+            placeholder="Password"
+            className={input}
+          />
+          {error && <p className="text-sm font-semibold text-red-400">{error}</p>}
+          <button
+            type="submit"
+            disabled={busy}
+            className={`${btn} w-full bg-orange py-3.5 text-ink disabled:opacity-60`}
+          >
+            {busy ? "Signing in…" : "Sign in"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
@@ -278,38 +337,242 @@ function Desk({ email, owner }: { email: string; owner: boolean }) {
   };
 
   return (
-    <div className="mx-auto max-w-5xl px-4 pb-24 pt-6 md:px-8">
-      {photo && (
-        <div
-          role="dialog"
-          aria-label={`${photo.name}, checked ${photo.kind}`}
-          className="fixed inset-0 z-50 grid place-items-center bg-black/80 p-6"
-          onClick={() => setPhoto(null)}
-        >
-          <figure className="max-w-sm">
-            <img
-              src={photo.image}
-              alt={`${photo.name} at check ${photo.kind}`}
-              className="w-full rounded-2xl"
-            />
-            <figcaption className="mt-3 text-center text-[0.6rem] font-extrabold uppercase tracking-[0.2em] text-paper/60">
-              {photo.name} · checked {photo.kind} · tap to close
-            </figcaption>
-          </figure>
-        </div>
-      )}
+    // The office used to be a flat black page with two grey boxes on it. It is
+    // the same room as the rest of the site, so it is lit the same way: one
+    // warm glow behind the top of it, and the paper grain over everything.
+    <div className="grain relative min-h-screen">
+      <Embers />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-[28rem] opacity-50"
+        style={{
+          background:
+            "radial-gradient(60% 100% at 50% 0%, color-mix(in oklab, var(--orange) 22%, transparent) 0%, transparent 70%)",
+        }}
+      />
 
-      <header className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-[0.55rem] font-extrabold uppercase tracking-[0.28em] text-orange">
-            {CAFE.name} · office
+      <div className="relative mx-auto max-w-5xl px-4 pb-24 pt-6 md:px-8">
+        {photo && (
+          <div
+            role="dialog"
+            aria-label={`${photo.name}, checked ${photo.kind}`}
+            className="fixed inset-0 z-50 grid place-items-center bg-black/80 p-6"
+            onClick={() => setPhoto(null)}
+          >
+            <figure className="max-w-sm">
+              <img
+                src={photo.image}
+                alt={`${photo.name} at check ${photo.kind}`}
+                className="w-full rounded-2xl"
+              />
+              <figcaption className="mt-3 text-center text-[0.6rem] font-extrabold uppercase tracking-[0.2em] text-paper/60">
+                {photo.name} · checked {photo.kind} · tap to close
+              </figcaption>
+            </figure>
+          </div>
+        )}
+
+        <header className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <p className={`${eyebrow} text-orange`}>{CAFE.name} · office</p>
+            <h1 className="mt-1.5 font-display text-3xl font-black uppercase tracking-[-0.03em] md:text-4xl">
+              {tab}
+            </h1>
+            <div className="mt-3 flex flex-wrap items-center gap-2.5">
+              <ShopState />
+              <span className="inline-flex items-center gap-2 rounded-full border border-paper/15 px-2.5 py-1">
+                <Clock />
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            <span className="hidden text-right text-xs leading-tight text-paper/45 sm:block">
+              {/* which seat this is matters: the counter and the owner see
+                  different tabs, and a wrong sign-in should be obvious */}
+              <span className={`block ${eyebrow} text-paper/35`}>
+                {owner ? "Owner" : "Counter"}
+              </span>
+              {email}
+            </span>
+            <button
+              type="button"
+              onClick={() => void signOutOffice()}
+              className={`${btn} border border-paper/20 hover:border-paper/40`}
+            >
+              Sign out
+            </button>
+          </div>
+        </header>
+
+        <nav className="scrollbar-none mt-6 flex gap-2 overflow-x-auto border-b border-paper/10 pb-4">
+          {tabs.map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => {
+                // a message about the last tab must not follow you to the next
+                setError("");
+                setTab(t);
+              }}
+              className={`${btn} shrink-0 ${
+                tab === t
+                  ? "bg-orange text-ink shadow-[0_8px_24px_-10px_var(--orange)]"
+                  : "border border-paper/15 text-paper/60 hover:border-paper/30 hover:text-paper"
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </nav>
+
+        {error && (
+          <p className="mt-5 rounded-2xl border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-300">
+            {error}
           </p>
-          <h1 className="mt-1 font-display text-2xl font-black uppercase tracking-[-0.02em]">
-            {tab}
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="hidden text-xs text-paper/45 sm:inline">{email}</span>
+        )}
+
+        {loading ? (
+          <Centre>Loading…</Centre>
+        ) : (
+          <div className="mt-6">
+            {tab === "Today" && (
+              <TodaySheet
+                staff={staff}
+                marks={todaysMarks}
+                date={today}
+                owner={owner}
+                busy={busy}
+                onShift={shift}
+                onSeePhoto={seePhoto}
+                onMark={mark}
+              />
+            )}
+            {tab === "Month" && (
+              <MonthSheet staff={staff} marks={marks} month={month} onMonth={setMonth} />
+            )}
+            {tab === "Customers" && <Customers rows={customers} />}
+            {tab === "Orders" && <Orders rows={orders} />}
+            {tab === "Staff" && <StaffList staff={staff} onChanged={() => void loadCore()} />}
+          </div>
+        )}
+
+        {/* the page used to simply stop; this closes it the way the site does */}
+        <p className={`mt-16 text-center ${eyebrow} text-paper/25`}>
+          {CAFE.name} · {CAFE.hoursShort} · nothing on this page is public
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------ my shift */
+
+/**
+ * One member of staff, on their own phone.
+ *
+ * They see themselves and nobody else: today's shift with the two buttons
+ * that start and end it, and the month so far so they can check their own
+ * days without asking. There is no override here — a mark they got wrong is
+ * the owner's to fix, which is the point of giving them their own sign-in.
+ */
+function MyShift({ email, me }: { email: string; me: Staff }) {
+  const today = todayKey();
+  const month = monthKey();
+
+  const [marks, setMarks] = useState<Attendance[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      setMarks(await attendanceForStaff(me.id, month));
+      setError("");
+    } catch {
+      setError("Could not reach the database. Check the connection.");
+    } finally {
+      setLoading(false);
+    }
+  }, [me.id, month]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const entry = marks.find((m) => m.date === today);
+  const hours = hoursBetween(entry?.inAt, entry?.outAt);
+
+  /** days worked this month, a half day counting as half */
+  const worked = marks.reduce(
+    (n, m) => n + (m.mark === "present" ? 1 : m.mark === "half" ? 0.5 : 0),
+    0,
+  );
+  const monthHours = marks.reduce((n, m) => n + hoursBetween(m.inAt, m.outAt), 0);
+
+  const punch = async (kind: PhotoKind, image: string | null) => {
+    setBusy(true);
+    setError("");
+    const next: Omit<Attendance, "id"> = {
+      staffId: me.id,
+      date: today,
+      mark: entry?.mark ?? "present",
+      ...(kind === "in" ? { inAt: clockNow() } : { inAt: entry?.inAt ?? clockNow() }),
+      ...(kind === "out" ? { outAt: clockNow() } : entry?.outAt ? { outAt: entry.outAt } : {}),
+      ...(kind === "in" ? { photoIn: Boolean(image) } : { photoOut: Boolean(image) }),
+      by: "staff",
+    };
+
+    try {
+      await setAttendance(next);
+      setMarks((prev) => [
+        ...prev.filter((m) => m.date !== today),
+        { ...next, id: `${today}_${me.id}` },
+      ]);
+      // the shift is recorded; the photograph is the extra, so it is saved
+      // after and its failure is said separately
+      if (image) {
+        try {
+          await saveAttendancePhoto(`${today}_${me.id}`, kind, image, me.id, today);
+        } catch {
+          setError("Your time was saved, but the photograph was not.");
+        }
+      }
+    } catch (err) {
+      const denied = err instanceof Error && /permission|insufficient/i.test(err.message);
+      setError(
+        denied
+          ? "The database refused that. Ask the owner to publish the current Firestore rules."
+          : "That did not save — check the connection and try again.",
+      );
+      void load();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="grain relative min-h-screen">
+      <Embers />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-[26rem] opacity-50"
+        style={{
+          background:
+            "radial-gradient(60% 100% at 50% 0%, color-mix(in oklab, var(--orange) 22%, transparent) 0%, transparent 70%)",
+        }}
+      />
+
+      <div className="relative mx-auto max-w-lg px-5 pb-24 pt-8">
+        <header className="flex items-start justify-between gap-4">
+          <div>
+            <p className={`${eyebrow} text-orange`}>{CAFE.name} · my shift</p>
+            <h1 className="mt-1.5 font-display text-3xl font-black uppercase tracking-[-0.03em]">
+              {me.name}
+            </h1>
+            <p className={`mt-2 ${eyebrow} text-paper/45`}>{me.role || "Staff"}</p>
+          </div>
           <button
             type="button"
             onClick={() => void signOutOffice()}
@@ -317,58 +580,147 @@ function Desk({ email, owner }: { email: string; owner: boolean }) {
           >
             Sign out
           </button>
+        </header>
+
+        <div className="mt-5 flex flex-wrap items-center gap-2.5">
+          <ShopState />
+          <span className="inline-flex items-center rounded-full border border-paper/15 px-2.5 py-1">
+            <Clock />
+          </span>
         </div>
-      </header>
 
-      <nav className="scrollbar-none mt-5 flex gap-2 overflow-x-auto">
-        {tabs.map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => {
-              // a message about the last tab must not follow you to the next
-              setError("");
-              setTab(t);
-            }}
-            className={`${btn} shrink-0 ${
-              tab === t ? "bg-orange text-ink" : "border border-paper/15 text-paper/70"
-            }`}
-          >
-            {t}
-          </button>
-        ))}
-      </nav>
+        {error && (
+          <p className="mt-5 rounded-2xl border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-300">
+            {error}
+          </p>
+        )}
 
-      {error && (
-        <p className="mt-5 rounded-2xl border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-300">
-          {error}
-        </p>
-      )}
+        {loading ? (
+          <Centre>Loading…</Centre>
+        ) : (
+          <>
+            {/* ------------------------------------------------- today */}
+            <section className={`mt-6 ${card} p-5`}>
+              <p className={`${eyebrow} text-paper/45`}>
+                {new Date(today).toLocaleDateString("en-IN", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                })}
+              </p>
 
-      {loading ? (
-        <Centre>Loading…</Centre>
-      ) : (
-        <div className="mt-6">
-          {tab === "Today" && (
-            <TodaySheet
-              staff={staff}
-              marks={todaysMarks}
-              date={today}
-              owner={owner}
-              busy={busy}
-              onShift={shift}
-              onSeePhoto={seePhoto}
-              onMark={mark}
-            />
-          )}
-          {tab === "Month" && (
-            <MonthSheet staff={staff} marks={marks} month={month} onMonth={setMonth} />
-          )}
-          {tab === "Customers" && <Customers rows={customers} />}
-          {tab === "Orders" && <Orders rows={orders} />}
-          {tab === "Staff" && <StaffList staff={staff} onChanged={() => void loadCore()} />}
-        </div>
-      )}
+              <p className="mt-3 font-display text-2xl font-black uppercase tracking-[-0.02em]">
+                {entry?.outAt ? "Shift done" : entry?.inAt ? "You are in" : "Not checked in yet"}
+              </p>
+
+              <dl className="mt-4 flex flex-wrap gap-x-8 gap-y-3">
+                {[
+                  { v: entry?.inAt ?? "—", l: "In", tone: "text-leaf" },
+                  { v: entry?.outAt ?? "—", l: "Out", tone: "text-orange" },
+                  { v: hours > 0 ? `${hours} h` : "—", l: "Today", tone: "text-paper" },
+                ].map((s) => (
+                  <div key={s.l}>
+                    <dt
+                      className={`font-display text-xl font-extrabold tabular-nums ${
+                        s.v === "—" ? "text-paper/25" : s.tone
+                      }`}
+                    >
+                      {s.v}
+                    </dt>
+                    <dd className={`mt-0.5 ${eyebrow} text-paper/40`}>{s.l}</dd>
+                  </div>
+                ))}
+              </dl>
+
+              <div className="mt-5">
+                {busy ? (
+                  <p className={`${eyebrow} text-paper/45`}>Saving…</p>
+                ) : !entry?.inAt ? (
+                  <PhotoButton
+                    label="Check in"
+                    title={`${me.name} · checking in`}
+                    className={`${btn} ready-ring w-full bg-leaf py-4 text-paper`}
+                    onPhoto={(image) => punch("in", image)}
+                  />
+                ) : !entry.outAt ? (
+                  <PhotoButton
+                    label="Check out"
+                    title={`${me.name} · checking out`}
+                    className={`${btn} w-full border border-orange py-4 text-orange`}
+                    onPhoto={(image) => punch("out", image)}
+                  />
+                ) : (
+                  <p className={`${eyebrow} text-paper/40`}>
+                    Both times are in. The owner can change them if something is wrong.
+                  </p>
+                )}
+              </div>
+            </section>
+
+            {/* ------------------------------------------------- month */}
+            <section className="mt-5">
+              <p className={`${eyebrow} text-paper/45`}>
+                This month ·{" "}
+                {new Date(`${month}-01`).toLocaleDateString("en-IN", {
+                  month: "long",
+                  year: "numeric",
+                })}
+              </p>
+
+              <dl className="mt-3 grid grid-cols-2 gap-3">
+                {[
+                  { v: String(worked).replace(/\.0$/, ""), l: "Days worked" },
+                  { v: monthHours > 0 ? `${Math.round(monthHours)} h` : "—", l: "Hours" },
+                ].map((s) => (
+                  <div key={s.l} className={card}>
+                    <dt className="font-display text-2xl font-black text-orange">{s.v}</dt>
+                    <dd className={`mt-1 ${eyebrow} text-paper/40`}>{s.l}</dd>
+                  </div>
+                ))}
+              </dl>
+
+              {marks.length > 0 && (
+                <ul className="mt-3 space-y-1.5">
+                  {[...marks]
+                    .sort((a, b) => b.date.localeCompare(a.date))
+                    .map((m) => (
+                      <li
+                        key={m.id}
+                        className="flex items-center justify-between rounded-xl border border-paper/10 px-4 py-2.5 text-sm"
+                      >
+                        <span className="text-paper/70">
+                          {new Date(m.date).toLocaleDateString("en-IN", {
+                            weekday: "short",
+                            day: "numeric",
+                            month: "short",
+                          })}
+                        </span>
+                        <span className="flex items-center gap-3 text-paper/50">
+                          <span className="tabular-nums">
+                            {m.inAt ?? "—"} – {m.outAt ?? "—"}
+                          </span>
+                          <span
+                            className={`${eyebrow} ${
+                              m.mark === "present"
+                                ? "text-leaf"
+                                : m.mark === "half"
+                                  ? "text-orange"
+                                  : "text-paper/40"
+                            }`}
+                          >
+                            {m.mark}
+                          </span>
+                        </span>
+                      </li>
+                    ))}
+                </ul>
+              )}
+            </section>
+          </>
+        )}
+
+        <p className={`mt-14 text-center ${eyebrow} text-paper/25`}>{email}</p>
+      </div>
     </div>
   );
 }
@@ -467,14 +819,32 @@ function TodaySheet({
 
   return (
     <>
-      <p className="text-sm text-paper/55">
-        {new Date(date).toLocaleDateString("en-IN", {
-          weekday: "long",
-          day: "numeric",
-          month: "long",
-        })}{" "}
-        · {present} of {active.length} in
-      </p>
+      {/* The day, and how much of the team is in it — a count said in words
+          and again as one pip per person, so a glance at the top of the page
+          answers the only question the counter opens it to ask. */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="font-display text-sm font-extrabold uppercase tracking-[0.02em] text-paper/70">
+          {new Date(date).toLocaleDateString("en-IN", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+          })}
+        </p>
+
+        <div className="flex items-center gap-2.5">
+          <span aria-hidden className="flex items-center gap-1">
+            {active.map((p, i) => (
+              <span
+                key={p.id}
+                className={`h-1.5 w-5 rounded-full ${i < present ? "bg-leaf" : "bg-paper/15"}`}
+              />
+            ))}
+          </span>
+          <span className={`${eyebrow} ${present ? "text-leaf" : "text-paper/45"}`}>
+            {present} of {active.length} in
+          </span>
+        </div>
+      </div>
 
       <ul className="mt-5 space-y-3">
         {active.map((person) => {
@@ -482,18 +852,39 @@ function TodaySheet({
           const hours = hoursBetween(entry?.inAt, entry?.outAt);
 
           return (
-            <li key={person.id} className={card}>
+            <li key={person.id} className={liveCard}>
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <p className="font-display text-lg font-black uppercase tracking-[-0.01em]">
-                    {person.name}
-                  </p>
-                  <p className="mt-0.5 text-[0.6rem] font-extrabold uppercase tracking-[0.18em] text-paper/45">
-                    {person.role || "Staff"}
-                    {entry?.inAt && ` · in ${entry.inAt}`}
-                    {entry?.outAt && ` · out ${entry.outAt}`}
-                    {hours > 0 && ` · ${hours} h`}
-                  </p>
+                <div className="flex min-w-0 items-center gap-3.5">
+                  {/* The initial, ringed in the colour of where they stand:
+                      green while they are in, orange once they have gone
+                      home, plain while the shift has not started. */}
+                  <span
+                    aria-hidden
+                    className={`grid size-11 shrink-0 place-items-center rounded-full border-2 font-display text-base font-black ${
+                      entry?.outAt
+                        ? "border-orange/50 text-orange"
+                        : entry?.inAt
+                          ? "border-leaf text-leaf"
+                          : "border-paper/20 text-paper/40"
+                    }`}
+                  >
+                    {person.name.trim().charAt(0).toUpperCase() || "?"}
+                  </span>
+
+                  <div className="min-w-0">
+                    <p className="truncate font-display text-lg font-black uppercase tracking-[-0.01em]">
+                      {person.name}
+                    </p>
+                    <p className={`mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 ${eyebrow}`}>
+                      <span className="rounded-full bg-paper/10 px-2 py-0.5 text-paper/60">
+                        {person.role || "Staff"}
+                      </span>
+                      {entry?.inAt && <span className="text-leaf">in {entry.inAt}</span>}
+                      {entry?.outAt && <span className="text-orange">out {entry.outAt}</span>}
+                      {hours > 0 && <span className="text-paper/45">{hours} h</span>}
+                      {!entry?.inAt && <span className="text-paper/35">not in yet</span>}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -507,7 +898,9 @@ function TodaySheet({
                     <PhotoButton
                       label="Check in"
                       title={`${person.name} · checking in`}
-                      className={`${btn} bg-leaf px-6 text-paper`}
+                      // the one thing the counter opened the page to press,
+                      // breathing a ring so a glance finds it across a kitchen
+                      className={`${btn} ready-ring bg-leaf px-6 text-paper`}
                       onPhoto={(image) =>
                         onShift(
                           person.id,
@@ -967,9 +1360,92 @@ function Orders({ rows }: { rows: Order[] }) {
 
 /* --------------------------------------------------------------- staff */
 
+/**
+ * Attaching somebody's own sign-in to their row.
+ *
+ * The account itself is made in the Firebase console — a browser cannot
+ * create one for somebody else without signing in as them, and the owner
+ * being thrown out of their own session to add a cook would be worse than
+ * one trip to a console. What is pasted here is the user id that console
+ * shows, which is what the database checks when that person signs in.
+ */
+function LoginLink({ person, onDone }: { person: Staff; onDone: () => void }) {
+  const [uid, setUid] = useState(person.uid ?? "");
+  const [email, setEmail] = useState(person.email ?? "");
+  const [busy, setBusy] = useState(false);
+
+  const save = async (next: { uid: string; email: string }) => {
+    setBusy(true);
+    try {
+      await saveStaff({ ...person, ...next });
+      onDone();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="mt-4 w-full border-t border-paper/10 pt-4">
+      <p className={`${eyebrow} text-paper/45`}>{person.name}&rsquo;s own sign-in</p>
+      <p className="mt-2 text-xs leading-relaxed text-paper/50">
+        Make the account in the Firebase console under{" "}
+        <strong className="text-paper/70">Authentication → Users → Add user</strong>, then paste the{" "}
+        <strong className="text-paper/70">User UID</strong> it shows into the second box.
+      </p>
+
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        <input
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          type="email"
+          placeholder="Their email"
+          className={input}
+        />
+        <input
+          value={uid}
+          onChange={(e) => setUid(e.target.value)}
+          placeholder="User UID from Firebase"
+          className={input}
+        />
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={busy || !uid.trim()}
+          onClick={() => void save({ uid: uid.trim(), email: email.trim() })}
+          className={`${btn} bg-orange text-ink disabled:opacity-50`}
+        >
+          {busy ? "Saving…" : "Save login"}
+        </button>
+        {person.uid && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => {
+              // the account stays in Firebase; it simply stops being this
+              // person's, so their phone falls back to the counter's view
+              if (!window.confirm(`Take away ${person.name}'s own sign-in?`)) return;
+              void save({ uid: "", email: "" });
+            }}
+            className={`${btn} border border-red-500/40 text-red-300`}
+          >
+            Remove login
+          </button>
+        )}
+        <button type="button" onClick={onDone} className={`${btn} border border-paper/20`}>
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function StaffList({ staff, onChanged }: { staff: Staff[]; onChanged: () => void }) {
   const [draft, setDraft] = useState({ name: "", role: "", phone: "" });
   const [busy, setBusy] = useState(false);
+  /** whose sign-in is open for editing, if any */
+  const [linking, setLinking] = useState<string | null>(null);
 
   const add = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1029,8 +1505,25 @@ function StaffList({ staff, onChanged }: { staff: Staff[]; onChanged: () => void
                 {person.phone && ` · ${person.phone}`}
                 {!person.active && " · not working"}
               </p>
+              {/* whether this person can sign in on their own phone */}
+              <p className={`mt-1.5 ${eyebrow}`}>
+                {person.uid ? (
+                  <span className="text-leaf">Own login · {person.email || "linked"}</span>
+                ) : (
+                  <span className="text-paper/30">No login · counter checks them in</span>
+                )}
+              </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setLinking(linking === person.id ? null : person.id)}
+                className={`${btn} border ${
+                  person.uid ? "border-leaf/40 text-leaf" : "border-paper/20"
+                }`}
+              >
+                {person.uid ? "Change login" : "Give a login"}
+              </button>
               <button
                 type="button"
                 onClick={async () => {
@@ -1054,6 +1547,16 @@ function StaffList({ staff, onChanged }: { staff: Staff[]; onChanged: () => void
                 Remove
               </button>
             </div>
+
+            {linking === person.id && (
+              <LoginLink
+                person={person}
+                onDone={() => {
+                  setLinking(null);
+                  onChanged();
+                }}
+              />
+            )}
           </li>
         ))}
       </ul>

@@ -651,3 +651,50 @@
 @utility route-march {
   animation: route-march 1.4s linear infinite;
 }
+
+/* ---- the office's own weather ---------------------------------------------
+
+   Sparks off a fryer, drifting up the dark page behind the attendance sheet.
+   Nothing else on the site does this: the public pages have food floating
+   across them, and the office should not look like a page a guest landed on.
+
+   Transform and opacity only, so it stays on the compositor, and the global
+   prefers-reduced-motion rule above stops the lot. */
+@keyframes ember-rise {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.5);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate3d(var(--ember-dx, 0), -105vh, 0) scale(1.15);
+    opacity: 0;
+  }
+}
+
+@utility ember {
+  animation: ember-rise var(--ember-dur, 20s) linear infinite;
+  animation-delay: var(--ember-delay, 0s);
+}
+
+/* The one button the counter came to press, breathing so the eye finds it.
+   A ring that grows and fades — the button itself never moves, so a thumb
+   already on its way down does not land on something that shifted. */
+@keyframes ready-ring {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--leaf) 55%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 10px color-mix(in oklab, var(--leaf) 0%, transparent);
+  }
+}
+
+@utility ready-ring {
+  animation: ready-ring 2.6s ease-out infinite;
+}
