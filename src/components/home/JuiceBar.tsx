@@ -9,7 +9,7 @@ import {
   type MotionValue,
 } from "motion/react";
 import { detoxJuices, freshJuices, kulukkiSarbath, specialBlends } from "@/data/menu";
-import { MaskReveal, useLoopInView } from "@/components/bits";
+import { MaskReveal, useLoopInView, useParallaxAllowed } from "@/components/bits";
 import freshJuice from "@/assets/fresh-juice.webp";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
@@ -119,6 +119,8 @@ export function JuiceBar() {
   const [tab, setTab] = useState(0);
   const active = TABS[tab];
 
+  // phones hold still: see useParallaxAllowed
+  const drift = useParallaxAllowed();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const p = useSpring(scrollYProgress, { stiffness: 100, damping: 30, mass: 0.4 });
   const glassY = useTransform(p, [0, 1], ["8%", "-8%"]);
@@ -139,7 +141,7 @@ export function JuiceBar() {
       {/* the word behind everything, drifting against the scroll */}
       <motion.p
         aria-hidden
-        style={{ y: wordY }}
+        style={drift ? { y: wordY } : {}}
         className="pointer-events-none absolute inset-x-0 top-1/3 select-none text-center font-display text-[24vw] font-black leading-none tracking-[-0.06em] text-white/[0.14]"
       >
         FRESH
@@ -290,7 +292,7 @@ export function JuiceBar() {
           />
 
           <motion.div
-            style={{ y: glassY }}
+            style={drift ? { y: glassY } : {}}
             className="relative z-10 mx-auto aspect-[3/4] w-[80%] overflow-hidden rounded-b-[2.2rem] rounded-t-full border-[6px] border-paper/85 bg-ink shadow-[0_40px_80px_-30px_oklch(0.35_0.12_40/0.7)]"
           >
             <img

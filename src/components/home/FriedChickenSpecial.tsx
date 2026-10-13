@@ -10,7 +10,7 @@ import {
   loadedFries,
   popcornChicken,
 } from "@/data/menu";
-import { MaskReveal, useLoopInView } from "@/components/bits";
+import { MaskReveal, useLoopInView, useParallaxAllowed } from "@/components/bits";
 import { RevealCard } from "@/components/page";
 import friedChicken from "@/assets/fried-chicken.webp";
 
@@ -57,6 +57,8 @@ const TICKER = [
  */
 export function FriedChickenSpecial() {
   const ref = useRef<HTMLElement>(null);
+  // phones hold still: see useParallaxAllowed
+  const drift = useParallaxAllowed();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const p = useSpring(scrollYProgress, { stiffness: 100, damping: 30, mass: 0.4 });
 
@@ -80,7 +82,7 @@ export function FriedChickenSpecial() {
       {/* the word behind everything, drifting against the scroll */}
       <motion.p
         aria-hidden
-        style={{ y: wordY }}
+        style={drift ? { y: wordY } : {}}
         className="pointer-events-none absolute inset-x-0 top-1/2 select-none text-center font-display text-[22vw] font-black leading-none tracking-[-0.06em] text-paper/[0.035]"
       >
         CRISPY
@@ -93,7 +95,7 @@ export function FriedChickenSpecial() {
               uncropped at its own aspect ratio — no zoom, so nothing at the
               edges of the shot is cut away. */}
           <motion.div
-            style={{ y: frameY }}
+            style={drift ? { y: frameY } : {}}
             className="relative mx-auto w-[84vw] max-w-[32rem] sm:w-[64vw] lg:w-full"
           >
             <div

@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import { categories } from "@/data/menu";
 import { ADDRESS_READY, CAFE, CONTACT_DETAILS_READY } from "@/data/site";
-import { MaskReveal, useLoopInView, useOpenNow } from "@/components/bits";
+import { MaskReveal, useLoopInView, useOpenNow, useParallaxAllowed } from "@/components/bits";
 import { FloatingFood } from "@/components/FloatingFood";
 import { VegMark } from "@/components/VegMark";
 import shopFront from "@/assets/shop-front.webp";
@@ -32,6 +32,8 @@ export function FindUs() {
   const looping = useLoopInView(ref);
   const openNow = useOpenNow(CAFE.openMinutes, CAFE.closeMinutes);
 
+  // phones hold still: see useParallaxAllowed
+  const drift = useParallaxAllowed();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const p = useSpring(scrollYProgress, { stiffness: 100, damping: 30, mass: 0.4 });
   const cardsY = useTransform(p, [0, 1], [30, -30]);
@@ -106,7 +108,7 @@ export function FindUs() {
         </div>
 
         {/* the three questions a hungry stranger actually asks */}
-        <motion.div style={{ y: cardsY }} className="flex flex-col gap-4">
+        <motion.div style={drift ? { y: cardsY } : {}} className="flex flex-col gap-4">
           <dl className="grid gap-px overflow-hidden rounded-3xl bg-ink/10 sm:grid-cols-3">
             {ADDRESS_READY && (
               <motion.div

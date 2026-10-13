@@ -147,12 +147,16 @@ export function Hero() {
               disc standing in for the O of GOLDEN, and CAFE ruled on both
               sides. The letters are hidden from assistive tech — the heading
               says the name once, in words. */}
+          {/* The heading used to carry the name twice: once for screen
+              readers and once, hidden from them, for the eye — which left
+              anything reading the page's text with "Twin's Golden Cafe TWIN'S
+              G LDEN CAFE", the O missing because the O is a drawing. The
+              drawing now carries the letter it stands for, so there is one
+              name in here and it is spelled correctly. */}
           <h1 className="mt-6">
-            <span className="sr-only">Twin&apos;s Golden Cafe</span>
-
             {/* shrink-to-fit, so the ruled CAFE below can stretch to exactly
                 the width of the word above it, the way the logo sets it */}
-            <span aria-hidden className="inline-flex flex-col items-stretch">
+            <span className="inline-flex flex-col items-stretch">
               <span className="block overflow-hidden pb-[0.06em]">
                 <span
                   className="line-in block display-xl text-paper"
@@ -162,17 +166,19 @@ export function Hero() {
                 </span>
               </span>
 
+              <span className="sr-only"> </span>
               <span className="block overflow-hidden pb-[0.06em]">
                 <span
                   className="line-in flex items-center display-xl text-orange"
                   style={{ animationDelay: "0.22s" }}
                 >
-                  G
+                  G<span className="sr-only">o</span>
                   <CutleryDisc onDark />
                   LDEN
                 </span>
               </span>
 
+              <span className="sr-only"> </span>
               <span className="block overflow-hidden pb-[0.06em]">
                 {/* sized on its own rather than in em: an em here would be read
                     against the paragraph size, not the display type above */}

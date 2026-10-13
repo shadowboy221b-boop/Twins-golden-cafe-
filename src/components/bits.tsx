@@ -84,6 +84,39 @@ export function useSpinAllowed() {
 }
 
 /**
+ * Whether to run the scroll-linked parallax — the photographs and background
+ * words that drift against the scroll.
+ *
+ * Six sections of the home page each drive two or three of these, and every
+ * one of them writes a transform on every scrolled frame. A laptop does not
+ * notice. A ₹10,000 phone does: it is the difference between scrolling and
+ * dragging. So the drift is for big screens with a mouse, and phones get the
+ * same page holding still — nothing is hidden, nothing moves out of place,
+ * it simply does not slide.
+ *
+ * `false` until the browser has answered, so the first paint is the same one
+ * the build wrote.
+ */
+export function useParallaxAllowed() {
+  const [allowed, setAllowed] = useState(false);
+
+  useEffect(() => {
+    const big = window.matchMedia("(min-width: 1024px) and (pointer: fine)");
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setAllowed(big.matches && !still.matches);
+    sync();
+    big.addEventListener("change", sync);
+    still.addEventListener("change", sync);
+    return () => {
+      big.removeEventListener("change", sync);
+      still.removeEventListener("change", sync);
+    };
+  }, []);
+
+  return allowed;
+}
+
+/**
  * Whether the counter is open at this moment, worked out in the browser: the
  * pages are built ahead of time, so the build machine's clock must never
  * decide it. `null` until the browser has answered, which keeps the first

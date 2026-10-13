@@ -20,7 +20,7 @@ import { ld, restaurantSchema } from "@/data/seo";
 // closes the line, and it is the name they see in the tab
 const title = "Cafe & Restaurant in Arani — Twin's Golden Cafe";
 const description =
-  "Korean fried chicken, pizza, burgers, momos, kunafa, shakes and juices, cooked to order at Twin's Golden Cafe, Old Bus Stand, Arani. Open daily 9 AM–10:30 PM.";
+  "Korean fried chicken, pizza, burgers, momos, kunafa, shakes and juices, cooked to order at Twin's Golden Cafe, Old Bus Stand, Arani. Open 9 AM–10:30 PM.";
 
 export const Route = createFileRoute("/")({
   head: () => ({

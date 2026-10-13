@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import { chickenWraps, koreanItems, loadedFries } from "@/data/menu";
-import { MaskReveal, useLoopInView } from "@/components/bits";
+import { MaskReveal, useLoopInView, useParallaxAllowed } from "@/components/bits";
 import { AddButton } from "@/components/cart/AddButton";
 import { itemKey } from "@/lib/cart";
 import { RevealCard } from "@/components/page";
@@ -45,6 +45,8 @@ const TICKER = [...koreanItems.map((i) => i.name), ...ALSO.map((i) => i.name)];
  */
 export function KoreanSpecial() {
   const ref = useRef<HTMLElement>(null);
+  // phones hold still: see useParallaxAllowed
+  const drift = useParallaxAllowed();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const p = useSpring(scrollYProgress, { stiffness: 100, damping: 30, mass: 0.4 });
 
@@ -76,7 +78,7 @@ export function KoreanSpecial() {
       {/* the word behind everything, drifting against the scroll */}
       <motion.p
         aria-hidden
-        style={{ y: wordY }}
+        style={drift ? { y: wordY } : {}}
         className="pointer-events-none absolute inset-x-0 top-1/2 select-none text-center font-display text-[22vw] font-black leading-none tracking-[-0.06em] text-paper/[0.045]"
       >
         KOREAN
@@ -189,7 +191,7 @@ export function KoreanSpecial() {
 
         {/* --------------------------------------------------------- dish */}
         <div className="relative">
-          <motion.div style={{ y: dishY, scale: dishScale }} className="relative">
+          <motion.div style={drift ? { y: dishY, scale: dishScale } : {}} className="relative">
             {/* two rings turning against each other behind the dish */}
             <motion.span
               aria-hidden

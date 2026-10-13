@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import { kunafas } from "@/data/menu";
-import { MaskReveal, useLoopInView } from "@/components/bits";
+import { MaskReveal, useLoopInView, useParallaxAllowed } from "@/components/bits";
 import { RevealCard } from "@/components/page";
 import kunafa from "@/assets/kunafa.webp";
 
@@ -30,6 +30,8 @@ const HERO = HERO_FLAVOURS.flatMap((n) => {
  */
 export function KunafaSpecial() {
   const ref = useRef<HTMLElement>(null);
+  // phones hold still: see useParallaxAllowed
+  const drift = useParallaxAllowed();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const p = useSpring(scrollYProgress, { stiffness: 100, damping: 30, mass: 0.4 });
 
@@ -60,7 +62,7 @@ export function KunafaSpecial() {
       {/* the word behind everything, drifting against the scroll */}
       <motion.p
         aria-hidden
-        style={{ y: wordY }}
+        style={drift ? { y: wordY } : {}}
         className="pointer-events-none absolute inset-x-0 top-1/2 select-none text-center font-display text-[22vw] font-black leading-none tracking-[-0.06em] text-paper/[0.035]"
       >
         KUNAFA
@@ -134,7 +136,7 @@ export function KunafaSpecial() {
 
         {/* --------------------------------------------------------- dish */}
         <div className="relative">
-          <motion.div style={{ y: dishY, scale: dishScale }} className="relative">
+          <motion.div style={drift ? { y: dishY, scale: dishScale } : {}} className="relative">
             {/* a dashed ring turning slowly behind the dish */}
             <motion.span
               aria-hidden
