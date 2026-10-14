@@ -297,7 +297,7 @@ export function JuiceBar() {
           >
             <img
               src={freshJuice}
-              alt="A tall glass of fresh orange juice"
+              alt="A tall glass of fresh orange juice at Twin's Golden Cafe, Arani"
               width={450}
               height={800}
               loading="lazy"

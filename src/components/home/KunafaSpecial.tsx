@@ -161,7 +161,7 @@ export function KunafaSpecial() {
             <div className="floaty relative">
               <img
                 src={kunafa}
-                alt="The Golden Kunafa at Twin's Golden Cafe"
+                alt="The Golden Kunafa at Twin's Golden Cafe, Arani"
                 width={1200}
                 height={1008}
                 loading="lazy"

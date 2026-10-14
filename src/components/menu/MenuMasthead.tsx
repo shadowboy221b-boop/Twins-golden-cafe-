@@ -162,7 +162,7 @@ function Star({
                 >
                   <motion.img
                     src={star.src}
-                    alt={star.label}
+                    alt={`${star.label} at ${CAFE.name}, ${CAFE.deliveryTown}`}
                     width={star.w}
                     height={star.h}
                     loading="eager"
@@ -176,7 +176,7 @@ function Star({
                   src={star.src}
                   srcSet={star.srcSet}
                   sizes="(min-width: 768px) 200px, 30vw"
-                  alt={star.label}
+                  alt={`${star.label} at ${CAFE.name}, ${CAFE.deliveryTown}`}
                   width={star.w}
                   height={star.h}
                   loading="eager"

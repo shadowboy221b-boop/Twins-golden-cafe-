@@ -36,7 +36,7 @@ export function BestCombos() {
           >
             <img
               src={friesExplosion}
-              alt="Golden fries bursting up in a cloud of spice"
+              alt="Golden fries bursting up in a cloud of spice at Twin's Golden Cafe, Arani"
               width={736}
               height={1030}
               loading="lazy"

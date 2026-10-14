@@ -105,7 +105,7 @@ export function FriedChickenSpecial() {
             >
               <img
                 src={friedChicken}
-                alt="Crispy fried chicken at Twin's Golden Cafe"
+                alt="Crispy fried chicken at Twin's Golden Cafe, Arani"
                 width={1119}
                 height={1405}
                 loading="lazy"

@@ -37,20 +37,45 @@ import mojitoSm from "@/assets/mojito-sm.webp";
  *  about 320px, not 900. */
 const HERO_DISHES = [
   { src: burger, sm: burgerSm, smW: 600, alt: "Twin's Golden Cafe signature burger" },
-  { src: pizza, sm: pizzaSm, smW: 600, alt: "A stone-baked pizza, loaded with toppings" },
-  { src: chicken, sm: chickenSm, alt: "A bucket of golden fried chicken" },
+  {
+    src: pizza,
+    sm: pizzaSm,
+    smW: 600,
+    alt: "A stone-baked pizza, loaded with toppings, at Twin's Golden Cafe, Arani",
+  },
+  {
+    src: chicken,
+    sm: chickenSm,
+    alt: "A bucket of golden fried chicken at Twin's Golden Cafe, Arani",
+  },
   {
     src: koreanPot,
     sm: koreanPotSm,
     alt: "Korean glazed drumsticks in a pan, sesame and spring onion over the top",
   },
-  { src: momoPlate, alt: "A plate of steamed momos with red chutney" },
-  { src: chocoShake, alt: "A chocolate milkshake topped with cream" },
-  { src: drumstick, sm: drumstickSm, alt: "A crispy fried chicken drumstick" },
-  { src: kunafa, sm: kunafaSm, alt: "A slice of golden kunafa with pistachio" },
-  { src: chickenBurger, sm: chickenBurgerSm, alt: "A crispy chicken burger" },
-  { src: strawberryShake, sm: strawberryShakeSm, alt: "A strawberry shake topped with cream" },
-  { src: mojito, sm: mojitoSm, alt: "A fresh mint mojito over ice" },
+  { src: momoPlate, alt: "A plate of steamed momos with red chutney at Twin's Golden Cafe, Arani" },
+  { src: chocoShake, alt: "A chocolate milkshake topped with cream at Twin's Golden Cafe, Arani" },
+  {
+    src: drumstick,
+    sm: drumstickSm,
+    alt: "A crispy fried chicken drumstick at Twin's Golden Cafe, Arani",
+  },
+  {
+    src: kunafa,
+    sm: kunafaSm,
+    alt: "A slice of golden kunafa with pistachio at Twin's Golden Cafe, Arani",
+  },
+  {
+    src: chickenBurger,
+    sm: chickenBurgerSm,
+    alt: "A crispy chicken burger at Twin's Golden Cafe, Arani",
+  },
+  {
+    src: strawberryShake,
+    sm: strawberryShakeSm,
+    alt: "A strawberry shake topped with cream at Twin's Golden Cafe, Arani",
+  },
+  { src: mojito, sm: mojitoSm, alt: "A fresh mint mojito over ice at Twin's Golden Cafe, Arani" },
 ];
 
 /** how long each dish holds before the next fades in */
