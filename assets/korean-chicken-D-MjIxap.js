@@ -1,0 +1,1 @@
+var e=`/assets/korean-chicken-CKZ8TmPS.webp`;export{e as t};
