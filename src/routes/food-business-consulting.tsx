@@ -10,7 +10,7 @@ import { FloatingFood } from "@/components/FloatingFood";
 import { CAFE } from "@/data/site";
 import { categories } from "@/data/menu";
 import { GOOGLE } from "@/data/reviews";
-import { breadcrumbSchema, faqSchema, ld, SITE_URL } from "@/data/seo";
+import { breadcrumbSchema, faqSchema, ld, SITE_URL, pageSchema } from "@/data/seo";
 import founderPortrait from "@/assets/founder-portrait.webp";
 
 const title = "Food Business Consulting, Tamil Nadu — Cafe Setup & Menus";
@@ -113,6 +113,7 @@ export const Route = createFileRoute("/food-business-consulting")({
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}${PATH}` }],
     scripts: [
+      ld(pageSchema({ path: "/food-business-consulting", name: title, description })),
       // a service, offered by the person who runs the cafe, across one state
       ld({
         "@context": "https://schema.org",

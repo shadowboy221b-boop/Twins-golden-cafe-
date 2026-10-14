@@ -8,7 +8,7 @@ import { Breadcrumbs, RevealCard, Section, SectionHead } from "@/components/page
 import { MaskReveal, useLoopInView, useOpenNow } from "@/components/bits";
 import { SocialIcons } from "@/components/SocialIcons";
 import { ADDRESS_READY, CAFE, CONTACT_DETAILS_READY, SOCIAL } from "@/data/site";
-import { breadcrumbSchema, faqSchema, ld, restaurantSchema } from "@/data/seo";
+import { breadcrumbSchema, faqSchema, ld, restaurantSchema, pageSchema } from "@/data/seo";
 import heroPhoto from "@/assets/shop-front.webp";
 import heroPhotoSm from "@/assets/shop-front-600.webp";
 
@@ -39,6 +39,7 @@ export const Route = createFileRoute("/contact")({
     links: [{ rel: "canonical", href: "https://twinsgoldencafe.com/contact" }],
     // the same place as on the home page, so the two entries are read as one
     scripts: [
+      ld(pageSchema({ path: "/contact", name: title, description })),
       ld(restaurantSchema),
       ld(
         breadcrumbSchema([

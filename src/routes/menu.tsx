@@ -16,7 +16,7 @@ import { MaskReveal } from "@/components/bits";
 import { MenuMasthead } from "@/components/menu/MenuMasthead";
 import { AddButton } from "@/components/cart/AddButton";
 import { itemKey } from "@/lib/cart";
-import { breadcrumbSchema, ld, menuSchema, restaurantSchema } from "@/data/seo";
+import { breadcrumbSchema, ld, menuSchema, restaurantSchema, pageSchema } from "@/data/seo";
 
 const title = "Menu & Prices — Twin's Golden Cafe, Arani";
 const description =
@@ -45,6 +45,7 @@ export const Route = createFileRoute("/menu")({
     links: [{ rel: "canonical", href: "https://twinsgoldencafe.com/menu" }],
     // the whole board, counter by counter, with every price
     scripts: [
+      ld(pageSchema({ path: "/menu", name: title, description })),
       ld(restaurantSchema),
       ld(menuSchema),
       ld(

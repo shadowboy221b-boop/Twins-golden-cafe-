@@ -14,7 +14,7 @@ import { VegSpecial } from "@/components/home/VegSpecial";
 import { JuiceBar } from "@/components/home/JuiceBar";
 import { Reviews } from "@/components/home/Reviews";
 import { FindUs } from "@/components/home/FindUs";
-import { ld, restaurantSchema } from "@/data/seo";
+import { ld, restaurantSchema, pageSchema } from "@/data/seo";
 
 // the words somebody in Arani actually types come first; the name still
 // closes the line, and it is the name they see in the tab
@@ -35,7 +35,7 @@ export const Route = createFileRoute("/")({
     ],
     links: [{ rel: "canonical", href: "https://twinsgoldencafe.com/" }],
     // tells Google this is a place in Arani — address, hours, phone, menu
-    scripts: [ld(restaurantSchema)],
+    scripts: [ld(restaurantSchema), ld(pageSchema({ path: "/", name: title, description }))],
   }),
   component: Index,
 });

@@ -210,6 +210,55 @@ export function breadcrumbSchema(trail: { name: string; path: string }[]) {
   };
 }
 
+/**
+ * The page itself, tied to the cafe.
+ *
+ * Each page used to publish its own facts with nothing joining them: seven
+ * pages, and no statement anywhere that they are seven pages of one place.
+ * This says so — the page belongs to the website, the website belongs to the
+ * cafe, and the cafe is the same `@id` the home page describes in full. It
+ * is what lets a search engine treat the lot as one business rather than as
+ * a handful of documents that happen to share a domain.
+ */
+export function pageSchema({
+  path,
+  name,
+  description,
+  image,
+}: {
+  path: string;
+  name: string;
+  description: string;
+  /** the one picture that represents this page, if it has one */
+  image?: string;
+}) {
+  const url = `${SITE_URL}${path}`;
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        url: SITE_URL,
+        name: CAFE.name,
+        inLanguage: "en-IN",
+        publisher: { "@id": `${SITE_URL}/#restaurant` },
+      },
+      {
+        "@type": "WebPage",
+        "@id": `${url}#webpage`,
+        url,
+        name,
+        description,
+        inLanguage: "en-IN",
+        isPartOf: { "@id": `${SITE_URL}/#website` },
+        about: { "@id": `${SITE_URL}/#restaurant` },
+        ...(image ? { primaryImageOfPage: { "@type": "ImageObject", url: image } } : {}),
+      },
+    ],
+  };
+}
+
 /** A page's head entry for one piece of structured data. */
 export const ld = (data: unknown) => ({
   type: "application/ld+json",

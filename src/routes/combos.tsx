@@ -15,7 +15,7 @@ import wrapPhoto from "@/assets/wrap.webp";
 import friedChickenPhoto from "@/assets/fried-chicken.webp";
 import loadedFriesPhoto from "@/assets/loaded-fries.webp";
 import { PageHero, RevealCard, Section, SectionHead } from "@/components/page";
-import { breadcrumbSchema, ld, restaurantSchema } from "@/data/seo";
+import { breadcrumbSchema, ld, restaurantSchema, pageSchema } from "@/data/seo";
 import burgerSplash from "@/assets/burger-splash.webp";
 // the faint dishes behind the headings sit at 12% and about a fifth of the
 // screen wide, so they use the small builds
@@ -49,6 +49,7 @@ export const Route = createFileRoute("/combos")({
     ],
     links: [{ rel: "canonical", href: "https://twinsgoldencafe.com/combos" }],
     scripts: [
+      ld(pageSchema({ path: "/combos", name: title, description })),
       ld(restaurantSchema),
       ld(
         breadcrumbSchema([

@@ -7,7 +7,14 @@ import { AddButton } from "@/components/cart/AddButton";
 import { itemKey } from "@/lib/cart";
 import { CAFE } from "@/data/site";
 import { chickenWraps, koreanItems, loadedFries } from "@/data/menu";
-import { breadcrumbSchema, faqSchema, ld, SITE_URL } from "@/data/seo";
+import {
+  breadcrumbSchema,
+  faqSchema,
+  ld,
+  pageSchema,
+  restaurantSchema,
+  SITE_URL,
+} from "@/data/seo";
 import koreanChicken from "@/assets/korean-chicken.webp";
 
 const title = "Korean Fried Chicken in Arani — Twin's Golden Cafe";
@@ -107,6 +114,8 @@ export const Route = createFileRoute("/korean-fried-chicken")({
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}${PATH}` }],
     scripts: [
+      ld(pageSchema({ path: "/korean-fried-chicken", name: title, description })),
+      ld(restaurantSchema),
       ld(listSchema),
       ld(faqSchema(FAQ)),
       ld(
