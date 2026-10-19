@@ -87,19 +87,27 @@ function validate(d: Details): Errors {
  * A UPI pay link: opens the guest's UPI app with the payee, amount and order
  * filled in.
  *
- * `mc` and `tr` are what make this a payment to a shop rather than to a person.
- * The account behind the id is a merchant one, and some banks refuse a
- * merchant payment that arrives without a category code or a reference of its
- * own — the app shows "payment failed" with nothing debited. 5812 is the code
- * for eating places; the reference is the order number, which is unique per
- * order and is also what the cafe sees in its own app.
+ * Only the five fields every app accepts. This used to also send `mc` (the
+ * merchant category) and `tr` (a reference), on the theory that they made it
+ * a payment to a shop rather than to a person. They did the opposite: an app
+ * that sees `mc` expects a registered merchant id behind it, and refused the
+ * payment when it did not find one — the guest got "payment failed" and the
+ * cafe got nothing. The order number still travels, in the note the payer
+ * and the cafe both see.
  */
 const upiLink = (amount: number, orderNo: string) =>
   `upi://pay?${[
     ["pa", ORDERING.upiId.trim()],
-    ["pn", ORDERING.upiName],
-    ["mc", "5812"],
-    ["tr", orderNo.replace(/[^A-Za-z0-9]/g, "")],
+    // letters, numbers and spaces only: the apostrophe in the cafe's name
+    // is legal in a URL and still upsets some UPI apps, which read the payee
+    // name as far as the first character they did not expect
+    [
+      "pn",
+      ORDERING.upiName
+        .replace(/[^A-Za-z0-9 ]/g, "")
+        .replace(/s+/g, " ")
+        .trim(),
+    ],
     ["am", amount.toFixed(2)],
     ["cu", "INR"],
     ["tn", `Order ${orderNo}`],
