@@ -111,6 +111,14 @@ export const Route = createFileRoute("/korean-fried-chicken")({
       { property: "og:type", content: "website" },
       { property: "og:url", content: `${SITE_URL}${PATH}` },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:image", content: `${SITE_URL}/share/korean-fried-chicken.jpg` },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      {
+        property: "og:image:alt",
+        content: "Korean fried chicken glazed in gochujang at Twin's Golden Cafe, Arani",
+      },
+      { name: "twitter:image", content: `${SITE_URL}/share/korean-fried-chicken.jpg` },
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}${PATH}` }],
     scripts: [

@@ -20,6 +20,8 @@ const IMAGES = [
   { name: "combos", src: "src/assets/loaded-fries.webp", focus: "centre" },
   { name: "about", src: "src/assets/founder-cafe.webp", focus: "attention" },
   { name: "contact", src: "public/shop-front.jpg", focus: "attention" },
+  { name: "korean-fried-chicken", src: "src/assets/korean-chicken.webp", focus: "centre" },
+  { name: "food-business-consulting", src: "src/assets/founder-portrait.webp", focus: "attention" },
 ];
 
 await mkdir(OUT, { recursive: true });

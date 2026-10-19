@@ -102,14 +102,15 @@ export const Route = createFileRoute("/food-business-consulting")({
       { property: "og:type", content: "website" },
       { property: "og:url", content: `${SITE_URL}${PATH}` },
       { name: "twitter:card", content: "summary_large_image" },
-      { property: "og:image", content: `${SITE_URL}/share/about.jpg` },
+      { property: "og:image", content: `${SITE_URL}/share/food-business-consulting.jpg` },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
       {
         property: "og:image:alt",
-        content: "Inside Twin's Golden Cafe in Arani, the kitchen behind the consulting",
+        content:
+          "Yuvaraj Venkatesan of Twin's Golden Cafe, Arani, who runs the kitchen behind the consulting",
       },
-      { name: "twitter:image", content: `${SITE_URL}/share/about.jpg` },
+      { name: "twitter:image", content: `${SITE_URL}/share/food-business-consulting.jpg` },
     ],
     links: [{ rel: "canonical", href: `${SITE_URL}${PATH}` }],
     scripts: [
