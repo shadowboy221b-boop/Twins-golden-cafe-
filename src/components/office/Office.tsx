@@ -8,6 +8,8 @@ import {
   customersFrom,
   deletePhotosBefore,
   hoursBetween,
+  minutesBetween,
+  spanLabel,
   listStaff,
   monthKey,
   photoCounts,
@@ -502,14 +504,14 @@ function MyShift({ email, me }: { email: string; me: Staff }) {
   }, [load]);
 
   const entry = marks.find((m) => m.date === today);
-  const hours = hoursBetween(entry?.inAt, entry?.outAt);
+  const span = spanLabel(minutesBetween(entry?.inAt, entry?.outAt));
 
   /** days worked this month, a half day counting as half */
   const worked = marks.reduce(
     (n, m) => n + (m.mark === "present" ? 1 : m.mark === "half" ? 0.5 : 0),
     0,
   );
-  const monthHours = marks.reduce((n, m) => n + hoursBetween(m.inAt, m.outAt), 0);
+  const monthMinutes = marks.reduce((n, m) => n + minutesBetween(m.inAt, m.outAt), 0);
 
   const punch = async (kind: PhotoKind, image: string | null) => {
     setBusy(true);
@@ -617,7 +619,7 @@ function MyShift({ email, me }: { email: string; me: Staff }) {
                 {[
                   { v: entry?.inAt ?? "—", l: "In", tone: "text-leaf" },
                   { v: entry?.outAt ?? "—", l: "Out", tone: "text-orange" },
-                  { v: hours > 0 ? `${hours} h` : "—", l: "Today", tone: "text-paper" },
+                  { v: span || "—", l: "Today", tone: "text-paper" },
                 ].map((s) => (
                   <div key={s.l}>
                     <dt
@@ -670,7 +672,7 @@ function MyShift({ email, me }: { email: string; me: Staff }) {
               <dl className="mt-3 grid grid-cols-2 gap-3">
                 {[
                   { v: String(worked).replace(/\.0$/, ""), l: "Days worked" },
-                  { v: monthHours > 0 ? `${Math.round(monthHours)} h` : "—", l: "Hours" },
+                  { v: spanLabel(monthMinutes) || "—", l: "Hours" },
                 ].map((s) => (
                   <div key={s.l} className={card}>
                     <dt className="font-display text-2xl font-black text-orange">{s.v}</dt>
@@ -849,7 +851,7 @@ function TodaySheet({
       <ul className="mt-5 space-y-3">
         {active.map((person) => {
           const entry = marks.find((m) => m.staffId === person.id);
-          const hours = hoursBetween(entry?.inAt, entry?.outAt);
+          const span = spanLabel(minutesBetween(entry?.inAt, entry?.outAt));
 
           return (
             <li key={person.id} className={liveCard}>
@@ -881,7 +883,7 @@ function TodaySheet({
                       </span>
                       {entry?.inAt && <span className="text-leaf">in {entry.inAt}</span>}
                       {entry?.outAt && <span className="text-orange">out {entry.outAt}</span>}
-                      {hours > 0 && <span className="text-paper/45">{hours} h</span>}
+                      {span && <span className="text-paper/45">{span}</span>}
                       {!entry?.inAt && <span className="text-paper/35">not in yet</span>}
                     </p>
                   </div>
@@ -938,7 +940,7 @@ function TodaySheet({
                     />
                   ) : (
                     <span className="rounded-full border border-leaf/40 px-4 py-2.5 text-[0.6rem] font-extrabold uppercase tracking-[0.18em] text-leaf">
-                      Done · {hours} h
+                      Done · {span}
                     </span>
                   )}
                 </div>
@@ -1074,7 +1076,7 @@ function MonthSheet({
                 (n, m) => n + (m.mark === "present" ? 1 : m.mark === "half" ? 0.5 : 0),
                 0,
               );
-              const hours = mine.reduce((n, m) => n + hoursBetween(m.inAt, m.outAt), 0);
+              const mins = mine.reduce((n, m) => n + minutesBetween(m.inAt, m.outAt), 0);
 
               return (
                 <tr key={person.id} className="border-t border-paper/10">
@@ -1099,7 +1101,7 @@ function MonthSheet({
                     {worked}
                   </td>
                   <td className="px-3 py-2 text-center font-display font-black text-orange">
-                    {Math.round(hours * 10) / 10}
+                    {spanLabel(mins) || "—"}
                   </td>
                 </tr>
               );

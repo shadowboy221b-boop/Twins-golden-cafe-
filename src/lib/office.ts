@@ -105,6 +105,31 @@ export function clockNow(d = new Date()): string {
 }
 
 /** Hours between two "09:05" times, to one decimal. Returns 0 if either is missing. */
+/** Whole minutes between two clock times; 0 if either is missing. */
+export function minutesBetween(inAt?: string, outAt?: string): number {
+  if (!inAt || !outAt) return 0;
+  const mins = (t: string) => {
+    const [h = "0", m = "0"] = t.split(":");
+    return Number(h) * 60 + Number(m);
+  };
+  const diff = mins(outAt) - mins(inAt);
+  return diff > 0 ? diff : 0;
+}
+
+/**
+ * A length of time said the way somebody would say it.
+ *
+ * Rounded to hours, a shift that ran twenty minutes read "0 h", which looks
+ * like nothing was worked at all. Under an hour it is minutes; after that,
+ * hours, with the half shown only when there is one.
+ */
+export function spanLabel(mins: number): string {
+  if (mins <= 0) return "";
+  if (mins < 60) return `${mins} min`;
+  const hours = Math.round((mins / 60) * 10) / 10;
+  return `${hours} h`;
+}
+
 export function hoursBetween(inAt?: string, outAt?: string): number {
   if (!inAt || !outAt) return 0;
   const mins = (t: string) => {
