@@ -105,7 +105,7 @@ const upiLink = (amount: number, orderNo: string) =>
       "pn",
       ORDERING.upiName
         .replace(/[^A-Za-z0-9 ]/g, "")
-        .replace(/s+/g, " ")
+        .replace(/\s+/g, " ")
         .trim(),
     ],
     ["am", amount.toFixed(2)],
@@ -124,9 +124,12 @@ function orderMessage(
   paid: boolean,
   verified: boolean,
   otpSkipped: boolean,
+  /** a ₹1 check of the payment link, not somebody's dinner */
+  test = false,
 ) {
   const delivery = d.type === "delivery";
   return [
+    ...(test ? ["*TEST ORDER — ₹1 payment check, not a real order. Do not cook this.*", ""] : []),
     `*New order — ${CAFE.name}*`,
     `Order no: ${orderNo}`,
     "",
@@ -350,6 +353,22 @@ export function CartDrawer() {
   /** the guest has been handed to their UPI app and has come back to the page */
   const [backFromApp, setBackFromApp] = useState(false);
   const wentToApp = useRef(false);
+
+  /**
+   * A ₹1 payment, for checking that the UPI link itself works without paying
+   * a real bill to find out. Switched on by opening the site with ?testpay=1.
+   *
+   * It is deliberately loud. Everywhere the amount appears — the screen, the
+   * app, the note the cafe reads, the WhatsApp message — says TEST, so that
+   * somebody who finds the flag cannot use it to collect ₹500 of food for a
+   * rupee: whoever is at the counter sees "TEST" before they see the order.
+   */
+  const [payTest, setPayTest] = useState(false);
+  useEffect(() => {
+    setPayTest(new URLSearchParams(window.location.search).get("testpay") === "1");
+  }, []);
+  /** what the UPI app is actually asked for */
+  const upiAmount = payTest ? 1 : total;
   /** seconds left before the order goes on to WhatsApp by itself */
   const [countdown, setCountdown] = useState<number | null>(null);
   const [sent, setSent] = useState<{
@@ -498,6 +517,7 @@ export function CartDrawer() {
       paid,
       verified,
       OTP_READY && !verified && otpSkipped.current,
+      payTest,
     );
     const url = `https://wa.me/${CAFE.whatsapp}?text=${encodeURIComponent(text)}`;
 
@@ -1202,8 +1222,15 @@ export function CartDrawer() {
                     Order {orderNo} · pay to {ORDERING.upiName}
                   </p>
                   <p className="mt-2 font-display text-5xl font-black tabular-nums">
-                    {money(total)}
+                    {money(upiAmount)}
                   </p>
+
+                  {payTest && (
+                    <p className="mx-auto mt-3 max-w-xs rounded-xl border-2 border-orange bg-orange/10 px-4 py-2.5 text-xs font-bold leading-relaxed text-orange-ink">
+                      TEST MODE — this asks for ₹1, not the {money(total)} order. Open the site
+                      without <span className="font-mono">?testpay=1</span> to take a real payment.
+                    </p>
+                  )}
 
                   {/* The UPI app shows the name the account is registered under,
                       which isn't the cafe's — better said here than wondered at. */}
@@ -1217,13 +1244,13 @@ export function CartDrawer() {
 
                   {/* on a phone, straight into the guest's UPI app */}
                   <a
-                    href={upiLink(total, orderNo)}
+                    href={upiLink(upiAmount, payTest ? `TEST ${orderNo}` : orderNo)}
                     onClick={() => {
                       wentToApp.current = true;
                     }}
                     className="mt-6 hidden w-full items-center justify-center gap-3 rounded-full bg-ink px-6 py-4 text-[0.68rem] font-extrabold uppercase tracking-[0.22em] text-paper pointer-coarse:flex"
                   >
-                    Pay {money(total)} with a UPI app
+                    Pay {money(upiAmount)} with a UPI app
                   </a>
 
                   <p className={`mt-6 ${LABEL}`}>
@@ -1231,7 +1258,10 @@ export function CartDrawer() {
                     <span className="hidden pointer-coarse:inline">Or scan from another phone</span>
                   </p>
                   <div className="mt-3">
-                    <UpiQr value={upiLink(total, orderNo)} amount={total} />
+                    <UpiQr
+                      value={upiLink(upiAmount, payTest ? `TEST ${orderNo}` : orderNo)}
+                      amount={upiAmount}
+                    />
                   </div>
                   <p className="mt-3 text-xs text-ink/55">GPay · PhonePe · Paytm · BHIM</p>
 
