@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import { desserts, waffles } from "@/data/menu";
@@ -6,7 +6,9 @@ import { MaskReveal, useLoopInView, useParallaxAllowed } from "@/components/bits
 import { AddButton } from "@/components/cart/AddButton";
 import { itemKey } from "@/lib/cart";
 import { RevealCard } from "@/components/page";
-import waffle from "@/assets/waffle-hero.webp";
+import waffleFilled from "@/assets/waffle-hero.webp";
+import waffleStack from "@/assets/waffle-stack.webp";
+import waffleChips from "@/assets/waffle-chips.webp";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -17,6 +19,26 @@ const EASE = [0.16, 1, 0.3, 1] as const;
  */
 const CREAM = "oklch(0.963 0.022 145)";
 const LEAF_DEEP = "oklch(0.45 0.11 150)";
+
+/**
+ * What sits in the ring. One photograph could only show one waffle, and the
+ * counter sells nineteen — so it changes, the way the plate on the hero's
+ * turntable does. Only while the section is on screen: a picture nobody is
+ * looking at has no reason to be cross-fading.
+ */
+const SHOTS = [
+  {
+    src: waffleFilled,
+    w: 800,
+    h: 800,
+    alt: "A chocolate waffle filled with cream and chocolate sauce",
+  },
+  { src: waffleStack, w: 800, h: 800, alt: "A stack of golden waffles, crisp at the edges" },
+  { src: waffleChips, w: 480, h: 480, alt: "A chocolate waffle under a heap of chocolate chips" },
+];
+
+/** how long each waffle holds before the next fades in */
+const SHOT_MS = 3400;
 
 const PRICES = waffles.map((w) => w.price);
 const FROM = Math.min(...PRICES);
@@ -59,6 +81,13 @@ export function WaffleSpecial() {
   const wordY = useTransform(p, [0, 1], ["30%", "-30%"]);
 
   const spin = useLoopInView(ref);
+
+  const [shot, setShot] = useState(0);
+  useEffect(() => {
+    if (!spin) return; // off screen, or reduce-motion: hold the first one
+    const id = window.setInterval(() => setShot((n) => (n + 1) % SHOTS.length), SHOT_MS);
+    return () => window.clearInterval(id);
+  }, [spin]);
 
   return (
     <section
@@ -208,17 +237,23 @@ export function WaffleSpecial() {
             <div className="floaty relative mx-auto w-[80vw] max-w-[30rem] sm:w-[58vw] lg:w-full">
               <figure
                 data-cursor="food"
-                className="relative overflow-hidden rounded-full border-2 border-orange/30 shadow-[0_40px_80px_-40px_rgba(0,0,0,0.5)]"
+                className="relative aspect-square overflow-hidden rounded-full border-2 border-orange/30 shadow-[0_40px_80px_-40px_rgba(0,0,0,0.5)]"
               >
-                <img
-                  src={waffle}
-                  alt="A chocolate waffle filled with cream and chocolate sauce at Twin's Golden Cafe, Arani"
-                  width={800}
-                  height={800}
-                  loading="lazy"
-                  decoding="async"
-                  className="aspect-square size-full object-cover"
-                />
+                {SHOTS.map((s, i) => (
+                  <img
+                    key={s.src}
+                    src={s.src}
+                    alt={i === shot ? `${s.alt} at Twin's Golden Cafe, Arani` : ""}
+                    aria-hidden={i === shot ? undefined : true}
+                    width={s.w}
+                    height={s.h}
+                    loading="lazy"
+                    decoding="async"
+                    className={`absolute inset-0 size-full object-cover transition-opacity duration-700 ease-[cubic-bezier(0.33,1,0.68,1)] ${
+                      i === shot ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
+                ))}
               </figure>
 
               {/* the stamp, clear of the photograph's edge */}
