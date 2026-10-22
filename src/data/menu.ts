@@ -169,6 +169,45 @@ export const breadOmelettes: MenuItem[] = [
   { name: "Chicken Bread Omelette", price: 129 },
 ];
 
+/* ---------------------------------------------------------------- waffles */
+
+export const waffles = [
+  { name: "Butter Honey", price: 89, veg: true },
+  { name: "Milk Choco Waffles", price: 99, veg: true },
+  { name: "Red Velvet Waffle", price: 99, veg: true },
+  { name: "Double Chocolate", price: 99, veg: true },
+  { name: "Triple Chocolate", price: 119, veg: true },
+  { name: "Brownie Overloaded", price: 119, veg: true },
+  { name: "Kitkat Magic", price: 119, veg: true },
+  { name: "Oreo Blast", price: 129, veg: true },
+  { name: "Nutella Hazelnut", price: 129, veg: true },
+  { name: "Belgium Chocolate Waffle", price: 129, veg: true },
+  { name: "Lotus Bissoff Waffle", price: 139, veg: true },
+  { name: "Nutella Oreo", price: 139, veg: true },
+  { name: "Dry Fruit", price: 149, veg: true },
+  { name: "Nutella Kitkat", price: 149, veg: true },
+  { name: "Bissoff and White Chocolate", price: 149, veg: true },
+  // the four ice-wiches: a scoop pressed between two waffles
+  { name: "Choco Ice-Wich", price: 149, veg: true },
+  { name: "Butterscotch Ice-Wich", price: 149, veg: true },
+  { name: "Vanilla Ice-Wich", price: 149, veg: true },
+  { name: "Coffee Ice-Wich", price: 149, veg: true },
+] satisfies MenuItem[];
+
+/* --------------------------------------------------------------- desserts */
+
+export const desserts = [
+  { name: "Bun with Palkhova", price: 30, veg: true },
+  { name: "Butter Bun with Palkhova", price: 40, veg: true },
+  { name: "Basundi", price: 50, veg: true },
+  { name: "Basundi with Icecream", price: 60, veg: true },
+  { name: "Rabdi", price: 60, veg: true },
+  { name: "Brownie (Fudge)", price: 70, veg: true },
+  { name: "Rabdi with Icecream", price: 80, veg: true },
+  { name: "Brownie with Icecream", price: 119, veg: true },
+  { name: "Hot Sizzling Brownie", price: 149, veg: true },
+] satisfies MenuItem[];
+
 /* ----------------------------------------------------------------- kunafa */
 
 export const kunafas: MenuItem[] = [
@@ -669,6 +708,18 @@ export const categories: MenuCategory[] = [
       price: c.price,
       note: c.contents.join(" · "),
     })),
+  },
+  {
+    id: "waffles",
+    title: "Waffles",
+    tagline: "Pressed hot, piled high",
+    items: waffles,
+  },
+  {
+    id: "desserts",
+    title: "Desserts",
+    tagline: "Basundi, rabdi & brownies",
+    items: desserts,
   },
   {
     id: "kunafa",

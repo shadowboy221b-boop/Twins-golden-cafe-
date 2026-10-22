@@ -9,6 +9,8 @@ import kunafa from "@/assets/kunafa.webp";
 import falooda from "@/assets/falooda.webp";
 import breadOmelette from "@/assets/bread-omelette.webp";
 import nutellaSandwich from "@/assets/nutella-sandwich.webp";
+import waffle from "@/assets/waffle.webp";
+import iceCream from "@/assets/ice-cream.webp";
 
 export type SpecialGroup = {
   id: string;
@@ -180,6 +182,47 @@ export const specialGroups: SpecialGroup[] = [
     items: ["Chocolate Grill Sandwich", "Nutella Sandwich", "Lotus Biscoff Sandwich"],
   },
   {
+    // nineteen of them, and the four ice-wiches are a scoop pressed between
+    // two waffles rather than a topping on one
+    id: "signature-waffles",
+    title: "Waffles",
+    tagline: "Pressed hot, piled high",
+    src: waffle,
+    w: 512,
+    h: 512,
+    items: [
+      "Butter Honey",
+      "Red Velvet Waffle",
+      "Triple Chocolate",
+      "Brownie Overloaded",
+      "Oreo Blast",
+      "Nutella Hazelnut",
+      "Belgium Chocolate Waffle",
+      "Lotus Bissoff Waffle",
+      "Nutella Kitkat",
+      "Choco Ice-Wich",
+      "Butterscotch Ice-Wich",
+      "Vanilla Ice-Wich",
+      "Coffee Ice-Wich",
+    ],
+  },
+  {
+    id: "signature-desserts",
+    title: "Desserts",
+    tagline: "Basundi, rabdi & brownies",
+    src: iceCream,
+    w: 675,
+    h: 1200,
+    items: [
+      "Hot Sizzling Brownie",
+      "Brownie with Icecream",
+      "Brownie (Fudge)",
+      "Rabdi with Icecream",
+      "Basundi with Icecream",
+      "Butter Bun with Palkhova",
+    ],
+  },
+  {
     id: "signature-kunafa",
     title: "Premium Kunafa",
     tagline: "Crisp outside, creamy inside",
@@ -212,6 +255,8 @@ export const specialGroups: SpecialGroup[] = [
 export const heroProducts = [
   "Korean Crispy Fried Chicken",
   "Cheese Bread Omelette",
+  "Hot Sizzling Brownie",
+  "Oreo Blast",
   "Signature Burger",
   "SPL BBQ Pizza",
   "Korean Fried Chicken Wrap",
