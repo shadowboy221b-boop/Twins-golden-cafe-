@@ -9,6 +9,7 @@ import { GoldenSpecials } from "@/components/home/GoldenSpecials";
 import { FriedChickenSpecial } from "@/components/home/FriedChickenSpecial";
 import { KoreanSpecial } from "@/components/home/KoreanSpecial";
 import { KunafaSpecial } from "@/components/home/KunafaSpecial";
+import { WaffleSpecial } from "@/components/home/WaffleSpecial";
 import { CategoriesPreview } from "@/components/home/HomeSections";
 import { VegSpecial } from "@/components/home/VegSpecial";
 import { JuiceBar } from "@/components/home/JuiceBar";
@@ -57,6 +58,8 @@ function Index() {
         <KoreanSpecial />
         <GoldenSpecials />
         <KunafaSpecial />
+        {/* the light between them: the kunafa and the juice bar are both dark */}
+        <WaffleSpecial />
         <JuiceBar />
         <CategoriesPreview />
         <Reviews />

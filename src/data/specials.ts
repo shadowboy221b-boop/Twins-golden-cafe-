@@ -9,7 +9,7 @@ import kunafa from "@/assets/kunafa.webp";
 import falooda from "@/assets/falooda.webp";
 import breadOmelette from "@/assets/bread-omelette.webp";
 import nutellaSandwich from "@/assets/nutella-sandwich.webp";
-import waffle from "@/assets/waffle.webp";
+import waffle from "@/assets/waffle-tall.webp";
 import iceCream from "@/assets/ice-cream.webp";
 
 export type SpecialGroup = {
@@ -188,8 +188,8 @@ export const specialGroups: SpecialGroup[] = [
     title: "Waffles",
     tagline: "Pressed hot, piled high",
     src: waffle,
-    w: 512,
-    h: 512,
+    w: 800,
+    h: 1200,
     items: [
       "Butter Honey",
       "Red Velvet Waffle",
