@@ -26,7 +26,31 @@ type Details = {
   notes: string;
 };
 
-type Errors = Partial<Record<keyof Details, string>>;
+type Errors = Partial<Record<keyof Details, string>> & { pin?: string };
+
+/** Where the guest is standing, as their phone reported it. */
+type Pin = { lat: number; lng: number; accuracy: number };
+
+/** A pin the rider can tap and follow. */
+const mapLink = (pin: Pin) => `https://maps.google.com/?q=${pin.lat},${pin.lng}`;
+
+/**
+ * Kilometres between the cafe and a pin, as the crow flies.
+ *
+ * Not the distance the rider will ride, but near enough to tell somebody
+ * twenty-five kilometres away that this is not going to arrive — which is
+ * better learnt now than after they have paid.
+ */
+function kmFromCafe(pin: Pin): number {
+  const R = 6371;
+  const rad = (n: number) => (n * Math.PI) / 180;
+  const dLat = rad(pin.lat - CAFE.geo.lat);
+  const dLng = rad(pin.lng - CAFE.geo.lng);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(rad(CAFE.geo.lat)) * Math.cos(rad(pin.lat)) * Math.sin(dLng / 2) ** 2;
+  return Math.round(2 * R * Math.asin(Math.sqrt(a)) * 10) / 10;
+}
 
 const DETAILS_KEY = "tgc-details-v1";
 /** the number this phone has already proved, and when — asked again after 30 days */
@@ -74,12 +98,22 @@ const money = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 /** 10 digits, with a +91 or leading 0 taken off */
 const phoneDigits = (phone: string) => phone.replace(/\D/g, "").replace(/^(91|0)(?=\d{10}$)/, "");
 
-function validate(d: Details): Errors {
+function validate(d: Details, pin: Pin | null, locationRefused: boolean): Errors {
   const e: Errors = {};
   if (d.name.trim().length < 2) e.name = "Please enter your name";
   if (!/^[6-9]\d{9}$/.test(phoneDigits(d.phone))) e.phone = "Enter a 10-digit mobile number";
-  if (d.type === "delivery" && d.address.trim().length < 8)
-    e.address = "Please enter the full delivery address";
+  if (d.type === "delivery") {
+    if (d.address.trim().length < 8) e.address = "Please enter the full delivery address";
+    // A delivery needs the pin as well as the address. An address typed in
+    // Arani is often a landmark and a street name: enough for somebody who
+    // already knows the town, no help at all to somebody who does not, and
+    // the rider ends up on the phone. The exception is a handset that will
+    // not give its location — refusing that person's order would be the
+    // wrong answer, so they are asked for a landmark instead.
+    if (!pin && !locationRefused) e.pin = "Share your location so the rider can find you";
+    if (!pin && locationRefused && d.landmark.trim().length < 3)
+      e.landmark = "Your phone did not share its location — please give a landmark";
+  }
   return e;
 }
 
@@ -126,6 +160,8 @@ function orderMessage(
   otpSkipped: boolean,
   /** a ₹1 check of the payment link, not somebody's dinner */
   test = false,
+  /** where the guest is standing, if their phone said */
+  pin: Pin | null = null,
 ) {
   const delivery = d.type === "delivery";
   return [
@@ -150,6 +186,9 @@ function orderMessage(
     }`,
     delivery ? `*Address:* ${d.address.trim()}` : null,
     delivery && d.landmark.trim() ? `*Landmark:* ${d.landmark.trim()}` : null,
+    // the line the rider actually uses: one tap and the map opens
+    delivery && pin ? `*Location:* ${mapLink(pin)}` : null,
+    delivery && pin ? `_About ${kmFromCafe(pin)} km from the cafe_` : null,
     `*Payment:* ${payment}`,
     // The guest reads this in WhatsApp before sending, so it is written to
     // them: the screenshot is what the cafe checks the payment against.
@@ -332,6 +371,42 @@ export function CartDrawer() {
   const [step, setStep] = useState<Step>("cart");
   const [details, setDetails] = useState<Details>(EMPTY);
   const [errors, setErrors] = useState<Errors>({});
+
+  /**
+   * The guest's own pin, for delivery. Never remembered between orders: the
+   * address somebody typed last week is probably still right, and where they
+   * were standing last week probably is not.
+   */
+  const [pin, setPin] = useState<Pin | null>(null);
+  const [pinBusy, setPinBusy] = useState(false);
+  /** the handset said no, or has no fix — the order falls back to a landmark */
+  const [pinRefused, setPinRefused] = useState(false);
+
+  const askForLocation = () => {
+    if (!("geolocation" in navigator)) {
+      setPinRefused(true);
+      return;
+    }
+    setPinBusy(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setPin({
+          lat: Math.round(pos.coords.latitude * 1e6) / 1e6,
+          lng: Math.round(pos.coords.longitude * 1e6) / 1e6,
+          accuracy: Math.round(pos.coords.accuracy),
+        });
+        setPinRefused(false);
+        setPinBusy(false);
+        // the complaint about a missing pin goes the moment one arrives
+        setErrors(({ pin: _gone, ...rest }) => rest);
+      },
+      () => {
+        setPinRefused(true);
+        setPinBusy(false);
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 },
+    );
+  };
   const [orderNo, setOrderNo] = useState("");
   const [utr, setUtr] = useState("");
   const [utrError, setUtrError] = useState("");
@@ -518,6 +593,7 @@ export function CartDrawer() {
       verified,
       OTP_READY && !verified && otpSkipped.current,
       payTest,
+      pin,
     );
     const url = `https://wa.me/${CAFE.whatsapp}?text=${encodeURIComponent(text)}`;
 
@@ -531,7 +607,14 @@ export function CartDrawer() {
         phone: phoneDigits(details.phone),
         type: details.type,
         when: details.when,
-        ...(details.type === "delivery" ? { address: details.address } : {}),
+        ...(details.type === "delivery"
+          ? {
+              address: pin
+                ? `${details.address}
+${mapLink(pin)}`
+                : details.address,
+            }
+          : {}),
         ...(details.landmark.trim() ? { landmark: details.landmark } : {}),
         ...(details.notes.trim() ? { notes: details.notes } : {}),
         payment,
@@ -680,7 +763,7 @@ export function CartDrawer() {
 
   const submitDetails = (e: FormEvent) => {
     e.preventDefault();
-    const found = validate(details);
+    const found = validate(details, pin, pinRefused);
     setErrors(found);
     const first = Object.keys(found)[0];
     if (first) {
@@ -1059,11 +1142,80 @@ export function CartDrawer() {
                           className={INPUT}
                         />
                       </Field>
-                      <Field id="order-landmark" label="Landmark" optional>
+                      {/* The pin. An address gets the rider to the street; this gets
+                          them to the gate. */}
+                      <div>
+                        <p className="text-[0.6rem] font-extrabold uppercase tracking-[0.2em] text-ink/55">
+                          Your location{" "}
+                          <span className="text-orange-ink">{pin ? "· shared" : "· required"}</span>
+                        </p>
+
+                        {pin ? (
+                          <div className="mt-2 rounded-xl border border-leaf/40 bg-leaf/10 px-4 py-3">
+                            <p className="text-sm font-semibold text-ink">
+                              Pin shared · about {kmFromCafe(pin)} km from the cafe
+                            </p>
+                            {kmFromCafe(pin) > CAFE.deliveryRadiusKm && (
+                              <p className="mt-1.5 text-xs font-bold leading-relaxed text-orange-ink">
+                                That is further than the {CAFE.deliveryRadiusKm} km the cafe usually
+                                delivers. Send the order and the counter will tell you on WhatsApp
+                                whether they can reach you.
+                              </p>
+                            )}
+                            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                              <a
+                                href={mapLink(pin)}
+                                target="_blank"
+                                rel="noreferrer noopener"
+                                className="font-semibold text-orange-ink underline-offset-4 hover:underline"
+                              >
+                                See the pin
+                              </a>
+                              <button
+                                type="button"
+                                onClick={askForLocation}
+                                className="font-semibold text-ink/55 underline-offset-4 hover:underline"
+                              >
+                                Share again
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <button
+                              id="order-pin"
+                              type="button"
+                              onClick={askForLocation}
+                              disabled={pinBusy}
+                              className="mt-2 w-full rounded-xl border-2 border-orange bg-orange/10 px-4 py-3 text-sm font-bold text-orange-ink transition-colors hover:bg-orange/20 disabled:opacity-60"
+                            >
+                              {pinBusy ? "Finding you…" : "Share my location"}
+                            </button>
+                            <p className="mt-1.5 text-xs leading-relaxed text-ink/55">
+                              {pinRefused
+                                ? "Your phone did not share it. Give a landmark below and the counter will call if the rider cannot find you."
+                                : "Your phone will ask you to allow it. The cafe sees a map pin, nothing else, and only for this order."}
+                            </p>
+                            {errors.pin && (
+                              <p className="mt-1.5 text-xs font-bold text-red-600">{errors.pin}</p>
+                            )}
+                          </>
+                        )}
+                      </div>
+
+                      {/* Optional while there is a pin; the only thing the
+                          rider has to go on when there is not. */}
+                      <Field
+                        id="order-landmark"
+                        label="Landmark"
+                        optional={!pinRefused || Boolean(pin)}
+                        {...(errors.landmark ? { error: errors.landmark } : {})}
+                      >
                         <input
                           id="order-landmark"
                           value={details.landmark}
                           onChange={(e) => set("landmark", e.target.value)}
+                          aria-invalid={Boolean(errors.landmark)}
                           className={INPUT}
                         />
                       </Field>

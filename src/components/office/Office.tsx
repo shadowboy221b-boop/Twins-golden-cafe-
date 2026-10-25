@@ -1343,7 +1343,28 @@ function Orders({ rows }: { rows: Order[] }) {
                 </li>
               ))}
             </ul>
-            {o.address && <p className="mt-2 text-xs text-paper/50">{o.address}</p>}
+            {/* The address arrives with the guest's map pin on its own line
+                when their phone gave one. It is the line the rider needs, so
+                it is a link rather than a string to copy out by hand. */}
+            {o.address && (
+              <p className="mt-2 whitespace-pre-line text-xs text-paper/50">
+                {o.address.split(/\s+/).map((word, i) =>
+                  /^https?:\/\//.test(word) ? (
+                    <a
+                      key={i}
+                      href={word}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="font-bold text-orange underline-offset-4 hover:underline"
+                    >
+                      Open the map pin
+                    </a>
+                  ) : (
+                    <span key={i}>{word} </span>
+                  ),
+                )}
+              </p>
+            )}
             {o.notes && <p className="mt-1 text-xs italic text-paper/50">“{o.notes}”</p>}
             <a
               href={`https://wa.me/91${o.phone}`}
