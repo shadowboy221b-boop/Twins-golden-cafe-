@@ -182,7 +182,7 @@ function orderMessage(
     `*Time:* ${d.when}`,
     `*Name:* ${d.name.trim()}`,
     `*Phone:* ${phoneDigits(d.phone)}${
-      verified ? " ✅ OTP verified" : otpSkipped ? " ⚠️ not OTP verified" : ""
+      verified ? " (number verified)" : otpSkipped ? " (number not verified)" : ""
     }`,
     delivery ? `*Address:* ${d.address.trim()}` : null,
     delivery && d.landmark.trim() ? `*Landmark:* ${d.landmark.trim()}` : null,
@@ -192,11 +192,11 @@ function orderMessage(
     `*Payment:* ${payment}`,
     // The guest reads this in WhatsApp before sending, so it is written to
     // them: the screenshot is what the cafe checks the payment against.
-    paid ? "📎 *Payment screenshot* — please attach it in this chat." : null,
+    paid ? "*Payment screenshot* — please attach it in this chat." : null,
     // The cafe reads this in its own chat. A screenshot proves nothing on its
     // own, so the money has to be seen in Paytm before the order is accepted.
     paid
-      ? "⚠️ _Cafe: check this payment in Paytm before confirming — a screenshot can be edited._"
+      ? "_Cafe: check this payment in Paytm before confirming — a screenshot can be edited._"
       : null,
     d.notes.trim() ? `*Notes:* ${d.notes.trim()}` : null,
   ]
