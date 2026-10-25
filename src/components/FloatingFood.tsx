@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useParallaxAllowed } from "@/components/bits";
 import chicken from "@/assets/chicken-sm.webp";
 import chickenBurger from "@/assets/chicken-burger-sm.webp";
 import drumstick from "@/assets/drumstick-sm.webp";
@@ -48,6 +49,10 @@ export function FloatingFood({ opacity = 0.14, count = 6 }: { opacity?: number; 
   // observer never runs, the worst case is the old behaviour rather than a
   // background that never appears.
   const [near, setNear] = useState(true);
+  // And not on a phone at all. At 5–9vw these are thirty-pixel smudges at a
+  // tenth of full opacity — nobody has ever seen one on a handset — and nine
+  // of them per section is nine more layers for the weakest device to carry.
+  const big = useParallaxAllowed();
 
   useEffect(() => {
     const el = ref.current;
@@ -68,6 +73,7 @@ export function FloatingFood({ opacity = 0.14, count = 6 }: { opacity?: number; 
   return (
     <div ref={ref} aria-hidden className="pointer-events-none absolute inset-0">
       {near &&
+        big &&
         FLOATERS.slice(0, count).map((f, i) => (
           <img
             key={i}

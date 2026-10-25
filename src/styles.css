@@ -387,12 +387,21 @@
   }
 }
 
+/* The glow stays on every screen; only the drift is for big ones.
+   Eleven of these were crawling about the page at once, each a radial
+   gradient half a screen wide, and a phone has to re-composite every one of
+   them on every frame to move something nobody can see moving. Held still
+   they cost nothing and look very nearly the same. */
 @utility blob-a {
-  animation: drift-a 26s ease-in-out infinite;
+  @media (min-width: 1024px) and (pointer: fine) {
+    animation: drift-a 26s ease-in-out infinite;
+  }
 }
 
 @utility blob-b {
-  animation: drift-b 34s ease-in-out infinite;
+  @media (min-width: 1024px) and (pointer: fine) {
+    animation: drift-b 34s ease-in-out infinite;
+  }
 }
 
 /* faint moving rule grid, the paper the menu is printed on */
