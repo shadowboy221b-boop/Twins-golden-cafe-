@@ -932,7 +932,10 @@ ${mapLink(pin)}`
 
   const totalRow = (
     <>
-      <FreeDeliveryStrip total={total} pin={pin} />
+      {/* In the cart it is a nudge and the order type is not settled yet; once
+          somebody has said they are collecting it themselves, a line about
+          free delivery is just noise in their way. */}
+      {(step === "cart" || delivery) && <FreeDeliveryStrip total={total} pin={pin} />}
       <div className="flex items-baseline justify-between">
         <span className="text-[0.6rem] font-extrabold uppercase tracking-[0.24em] text-ink/65">
           Total · {count} {count === 1 ? "item" : "items"}
