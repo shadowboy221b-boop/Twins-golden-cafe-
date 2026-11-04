@@ -102,6 +102,10 @@ function validate(d: Details, pin: Pin | null, locationRefused: boolean): Errors
   const e: Errors = {};
   if (d.name.trim().length < 2) e.name = "Please enter your name";
   if (!/^[6-9]\d{9}$/.test(phoneDigits(d.phone))) e.phone = "Enter a 10-digit mobile number";
+  // Every order asks for the pin before it can be paid for. On a delivery it
+  // is what gets the rider to the gate; on a pickup it is how the cafe learns
+  // which parts of town its counter serves.
+  if (!pin && !locationRefused) e.pin = "Share your location to go on";
   if (d.type === "delivery") {
     if (d.address.trim().length < 8) e.address = "Please enter the full delivery address";
     // A delivery needs the pin as well as the address. An address typed in
@@ -187,8 +191,8 @@ function orderMessage(
     delivery ? `*Address:* ${d.address.trim()}` : null,
     delivery && d.landmark.trim() ? `*Landmark:* ${d.landmark.trim()}` : null,
     // the line the rider actually uses: one tap and the map opens
-    delivery && pin ? `*Location:* ${mapLink(pin)}` : null,
-    delivery && pin ? `_About ${kmFromCafe(pin)} km from the cafe_` : null,
+    pin ? `*Location:* ${mapLink(pin)}` : null,
+    pin ? `_About ${kmFromCafe(pin)} km from the cafe_` : null,
     `*Payment:* ${payment}`,
     // The guest reads this in WhatsApp before sending, so it is written to
     // them: the screenshot is what the cafe checks the payment against.
@@ -1142,66 +1146,6 @@ ${mapLink(pin)}`
                           className={INPUT}
                         />
                       </Field>
-                      {/* The pin. An address gets the rider to the street; this gets
-                          them to the gate. */}
-                      <div>
-                        <p className="text-[0.6rem] font-extrabold uppercase tracking-[0.2em] text-ink/55">
-                          Your location{" "}
-                          <span className="text-orange-ink">{pin ? "· shared" : "· required"}</span>
-                        </p>
-
-                        {pin ? (
-                          <div className="mt-2 rounded-xl border border-leaf/40 bg-leaf/10 px-4 py-3">
-                            <p className="text-sm font-semibold text-ink">
-                              Pin shared · about {kmFromCafe(pin)} km from the cafe
-                            </p>
-                            {kmFromCafe(pin) > CAFE.deliveryRadiusKm && (
-                              <p className="mt-1.5 text-xs font-bold leading-relaxed text-orange-ink">
-                                That is further than the {CAFE.deliveryRadiusKm} km the cafe usually
-                                delivers. Send the order and the counter will tell you on WhatsApp
-                                whether they can reach you.
-                              </p>
-                            )}
-                            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
-                              <a
-                                href={mapLink(pin)}
-                                target="_blank"
-                                rel="noreferrer noopener"
-                                className="font-semibold text-orange-ink underline-offset-4 hover:underline"
-                              >
-                                See the pin
-                              </a>
-                              <button
-                                type="button"
-                                onClick={askForLocation}
-                                className="font-semibold text-ink/55 underline-offset-4 hover:underline"
-                              >
-                                Share again
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          <>
-                            <button
-                              id="order-pin"
-                              type="button"
-                              onClick={askForLocation}
-                              disabled={pinBusy}
-                              className="mt-2 w-full rounded-xl border-2 border-orange bg-orange/10 px-4 py-3 text-sm font-bold text-orange-ink transition-colors hover:bg-orange/20 disabled:opacity-60"
-                            >
-                              {pinBusy ? "Finding you…" : "Share my location"}
-                            </button>
-                            <p className="mt-1.5 text-xs leading-relaxed text-ink/55">
-                              {pinRefused
-                                ? "Your phone did not share it. Give a landmark below and the counter will call if the rider cannot find you."
-                                : "Your phone will ask you to allow it. The cafe sees a map pin, nothing else, and only for this order."}
-                            </p>
-                            {errors.pin && (
-                              <p className="mt-1.5 text-xs font-bold text-red-600">{errors.pin}</p>
-                            )}
-                          </>
-                        )}
-                      </div>
 
                       {/* Optional while there is a pin; the only thing the
                           rider has to go on when there is not. */}
@@ -1221,6 +1165,71 @@ ${mapLink(pin)}`
                       </Field>
                     </>
                   )}
+
+                  {/* Where the guest is. On a delivery it is what gets the rider to
+                      the gate rather than to the street; on a pickup it is how
+                      the cafe learns which parts of town its counter serves.
+                      Either way the order does not go on without it. */}
+                  <div>
+                    <p className="text-[0.6rem] font-extrabold uppercase tracking-[0.2em] text-ink/55">
+                      Your location{" "}
+                      <span className="text-orange-ink">{pin ? "· shared" : "· required"}</span>
+                    </p>
+
+                    {pin ? (
+                      <div className="mt-2 rounded-xl border border-leaf/40 bg-leaf/10 px-4 py-3">
+                        <p className="text-sm font-semibold text-ink">
+                          Pin shared · about {kmFromCafe(pin)} km from the cafe
+                        </p>
+                        {kmFromCafe(pin) > CAFE.deliveryRadiusKm && (
+                          <p className="mt-1.5 text-xs font-bold leading-relaxed text-orange-ink">
+                            That is further than the {CAFE.deliveryRadiusKm} km the cafe usually
+                            delivers. Send the order and the counter will tell you on WhatsApp
+                            whether they can reach you.
+                          </p>
+                        )}
+                        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+                          <a
+                            href={mapLink(pin)}
+                            target="_blank"
+                            rel="noreferrer noopener"
+                            className="font-semibold text-orange-ink underline-offset-4 hover:underline"
+                          >
+                            See the pin
+                          </a>
+                          <button
+                            type="button"
+                            onClick={askForLocation}
+                            className="font-semibold text-ink/55 underline-offset-4 hover:underline"
+                          >
+                            Share again
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          id="order-pin"
+                          type="button"
+                          onClick={askForLocation}
+                          disabled={pinBusy}
+                          className="mt-2 w-full rounded-xl border-2 border-orange bg-orange/10 px-4 py-3 text-sm font-bold text-orange-ink transition-colors hover:bg-orange/20 disabled:opacity-60"
+                        >
+                          {pinBusy ? "Finding you…" : "Share my location"}
+                        </button>
+                        <p className="mt-1.5 text-xs leading-relaxed text-ink/55">
+                          {pinRefused
+                            ? delivery
+                              ? "Your phone did not share it. Give a landmark below and the counter will call if the rider cannot find you."
+                              : "Your phone did not share it. The order can still go through."
+                            : "Your phone will ask you to allow it. The cafe sees a map pin, nothing else, and only for this order."}
+                        </p>
+                        {errors.pin && (
+                          <p className="mt-1.5 text-xs font-bold text-red-600">{errors.pin}</p>
+                        )}
+                      </>
+                    )}
+                  </div>
 
                   <Field id="order-when" label={delivery ? "Delivery time" : "Pickup time"}>
                     <select
