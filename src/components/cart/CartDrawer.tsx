@@ -95,6 +95,80 @@ const WHATSAPP_GREEN = "#1faa53";
 
 const money = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
+/**
+ * Whether the delivery costs the guest nothing: near enough that the ride is
+ * short, or big enough that the order pays for it. Either answer on its own
+ * is enough.
+ */
+function freeDelivery(total: number, pin: Pin | null) {
+  const bySize = total >= CAFE.freeDeliveryOver;
+  const byDistance = pin ? kmFromCafe(pin) <= CAFE.freeDeliveryKm : false;
+  return { free: bySize || byDistance, bySize, byDistance };
+}
+
+/**
+ * The line that says so, and counts down to it.
+ *
+ * It earns its place in the cart rather than in the small print: somebody
+ * ₹60 short of free delivery will usually add something, and nobody reads
+ * the small print. The bar fills as the basket does; crossing the line turns
+ * the strip green and the figure becomes the saving rather than the target.
+ */
+function FreeDeliveryStrip({ total, pin }: { total: number; pin: Pin | null }) {
+  const { free, byDistance } = freeDelivery(total, pin);
+  const left = Math.max(0, CAFE.freeDeliveryOver - total);
+  const pct = Math.min(100, Math.round((total / CAFE.freeDeliveryOver) * 100));
+
+  return (
+    <div
+      className={`mb-3 overflow-hidden rounded-xl border px-4 py-3 transition-colors duration-500 ${
+        free ? "border-leaf/50 bg-leaf/10" : "border-ink/12 bg-ink/[0.03]"
+      }`}
+    >
+      <p className="flex items-center gap-2 text-[0.62rem] font-extrabold uppercase tracking-[0.16em]">
+        {free ? (
+          <>
+            <motion.span
+              aria-hidden
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 500, damping: 18 }}
+              className="grid size-4 place-items-center rounded-full bg-leaf text-[0.6rem] text-paper"
+            >
+              ✓
+            </motion.span>
+            <span className="text-leaf">
+              Free delivery{byDistance ? ` · under ${CAFE.freeDeliveryKm} km` : ""}
+            </span>
+          </>
+        ) : (
+          <span className="text-ink/60">
+            <span className="text-orange-ink">{money(left)}</span> more for free delivery
+          </span>
+        )}
+      </p>
+
+      {/* the bar only means anything while there is still a way to go */}
+      {!free && (
+        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-ink/10">
+          <motion.div
+            className="h-full rounded-full bg-orange"
+            initial={false}
+            animate={{ width: `${pct}%` }}
+            transition={{ type: "spring", stiffness: 140, damping: 24 }}
+          />
+        </div>
+      )}
+
+      {!free && (
+        <p className="mt-1.5 text-[0.62rem] leading-relaxed text-ink/45">
+          Or free anywhere inside {CAFE.freeDeliveryKm} km of the cafe.
+        </p>
+      )}
+    </div>
+  );
+}
+
 /** 10 digits, with a +91 or leading 0 taken off */
 const phoneDigits = (phone: string) => phone.replace(/\D/g, "").replace(/^(91|0)(?=\d{10}$)/, "");
 
@@ -180,7 +254,15 @@ function orderMessage(
     ),
     "",
     `*Total: ${money(total)}*`,
-    delivery ? "_Delivery charge, if any, to be confirmed_" : null,
+    delivery
+      ? freeDelivery(total, pin).free
+        ? `_Free delivery — ${
+            freeDelivery(total, pin).byDistance
+              ? `inside ${CAFE.freeDeliveryKm} km`
+              : `order over ₹${CAFE.freeDeliveryOver}`
+          }_`
+        : "_Delivery charge, if any, to be confirmed_"
+      : null,
     "",
     `*Order type:* ${delivery ? "Delivery" : "Pickup at the cafe"}`,
     `*Time:* ${d.when}`,
@@ -849,12 +931,15 @@ ${mapLink(pin)}`
   };
 
   const totalRow = (
-    <div className="flex items-baseline justify-between">
-      <span className="text-[0.6rem] font-extrabold uppercase tracking-[0.24em] text-ink/65">
-        Total · {count} {count === 1 ? "item" : "items"}
-      </span>
-      <span className="font-display text-2xl font-black tabular-nums">{money(total)}</span>
-    </div>
+    <>
+      <FreeDeliveryStrip total={total} pin={pin} />
+      <div className="flex items-baseline justify-between">
+        <span className="text-[0.6rem] font-extrabold uppercase tracking-[0.24em] text-ink/65">
+          Total · {count} {count === 1 ? "item" : "items"}
+        </span>
+        <span className="font-display text-2xl font-black tabular-nums">{money(total)}</span>
+      </div>
+    </>
   );
 
   const quietButton =
@@ -1126,7 +1211,7 @@ ${mapLink(pin)}`
                           checked={delivery}
                           onChange={() => set("type", "delivery")}
                           title="Delivery"
-                          hint={`${CAFE.deliveryTown} and ${CAFE.deliveryRadiusKm} km around · charge confirmed on WhatsApp`}
+                          hint={`Free inside ${CAFE.freeDeliveryKm} km, or over ₹${CAFE.freeDeliveryOver} · ${CAFE.deliveryTown} and ${CAFE.deliveryRadiusKm} km around`}
                         />
                       </div>
                     </fieldset>

@@ -37,6 +37,13 @@ export const CAFE = {
   deliveryTown: "Arani",
   deliveryRadiusKm: 20,
   /**
+   * When the delivery costs the guest nothing: close enough that the ride is
+   * short, or large enough that the order pays for it. Either one is enough
+   * — they are not both required.
+   */
+  freeDeliveryKm: 3,
+  freeDeliveryOver: 500,
+  /**
    * Places inside that radius, named because an address here is usually given
    * as one of them. Distances checked against the map — everything listed is
    * within the 20 km, and nothing outside it is listed.
