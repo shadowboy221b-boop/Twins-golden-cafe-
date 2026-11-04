@@ -107,6 +107,128 @@ function freeDelivery(total: number, pin: Pin | null) {
 }
 
 /**
+ * Pickup or delivery, asked in the cart rather than three screens later.
+ *
+ * It belongs with the food: knowing which it is decides whether the delivery
+ * is free, and a guest who is told that while they are still choosing can do
+ * something about it.
+ */
+function OrderTypeChoice({
+  delivery,
+  onPick,
+}: {
+  delivery: boolean;
+  onPick: (t: Details["type"]) => void;
+}) {
+  return (
+    <fieldset>
+      <legend className={`mb-1.5 ${LABEL}`}>Pickup or delivery</legend>
+      <div className="grid grid-cols-2 gap-2">
+        <Choice
+          name="order-type"
+          value="pickup"
+          checked={!delivery}
+          onChange={() => onPick("pickup")}
+          title="Pickup"
+          hint={CAFE.shortAddress}
+        />
+        <Choice
+          name="order-type"
+          value="delivery"
+          checked={delivery}
+          onChange={() => onPick("delivery")}
+          title="Delivery"
+          hint={`Free inside ${CAFE.freeDeliveryKm} km, or over ₹${CAFE.freeDeliveryOver}`}
+        />
+      </div>
+    </fieldset>
+  );
+}
+
+/**
+ * Where the guest is.
+ *
+ * On a delivery it is what gets the rider to the gate rather than to the
+ * street. Asked in the cart, beside the order type, because the answer also
+ * decides whether the delivery is free — and that is worth knowing before
+ * the basket is closed rather than after.
+ */
+function LocationAsk({
+  pin,
+  busy,
+  refused,
+  delivery,
+  error,
+  onAsk,
+}: {
+  pin: Pin | null;
+  busy: boolean;
+  refused: boolean;
+  delivery: boolean;
+  error?: string | undefined;
+  onAsk: () => void;
+}) {
+  return (
+    <div>
+      <p className="text-[0.6rem] font-extrabold uppercase tracking-[0.2em] text-ink/55">
+        Your location <span className="text-orange-ink">{pin ? "· shared" : "· required"}</span>
+      </p>
+
+      {pin ? (
+        <div className="mt-2 rounded-xl border border-leaf/40 bg-leaf/10 px-4 py-3">
+          <p className="text-sm font-semibold text-ink">
+            Pin shared · about {kmFromCafe(pin)} km from the cafe
+          </p>
+          {kmFromCafe(pin) > CAFE.deliveryRadiusKm && (
+            <p className="mt-1.5 text-xs font-bold leading-relaxed text-orange-ink">
+              That is further than the {CAFE.deliveryRadiusKm} km the cafe usually delivers. Send
+              the order and the counter will tell you on WhatsApp whether they can reach you.
+            </p>
+          )}
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+            <a
+              href={mapLink(pin)}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="font-semibold text-orange-ink underline-offset-4 hover:underline"
+            >
+              See the pin
+            </a>
+            <button
+              type="button"
+              onClick={onAsk}
+              className="font-semibold text-ink/55 underline-offset-4 hover:underline"
+            >
+              Share again
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <button
+            id="order-pin"
+            type="button"
+            onClick={onAsk}
+            disabled={busy}
+            className="mt-2 w-full rounded-xl border-2 border-orange bg-orange/10 px-4 py-3 text-sm font-bold text-orange-ink transition-colors hover:bg-orange/20 disabled:opacity-60"
+          >
+            {busy ? "Finding you…" : "Share my location"}
+          </button>
+          <p className="mt-1.5 text-xs leading-relaxed text-ink/55">
+            {refused
+              ? delivery
+                ? "Your phone did not share it. Give a landmark with the address on the next screen and the counter will call if the rider cannot find you."
+                : "Your phone did not share it. The order can still go through."
+              : "Your phone will ask you to allow it. The cafe sees a map pin, nothing else, and only for this order."}
+          </p>
+          {error && <p className="mt-1.5 text-xs font-bold text-red-600">{error}</p>}
+        </>
+      )}
+    </div>
+  );
+}
+
+/**
  * The line that says so, and counts down to it.
  *
  * It earns its place in the cart rather than in the small print: somebody
@@ -1108,7 +1230,23 @@ ${mapLink(pin)}`
                     ))}
                   </ul>
 
-                  <div className="border-t border-ink/10 px-6 py-5">
+                  <div className="space-y-4 border-t border-ink/10 px-6 py-5">
+                    {/* Asked here rather than three screens on: which it is
+                        decides whether the delivery is free, and somebody
+                        still choosing can do something about that. */}
+                    {ORDERING.delivery && (
+                      <OrderTypeChoice delivery={delivery} onPick={(t) => set("type", t)} />
+                    )}
+
+                    <LocationAsk
+                      pin={pin}
+                      busy={pinBusy}
+                      refused={pinRefused}
+                      delivery={delivery}
+                      onAsk={askForLocation}
+                      {...(errors.pin ? { error: errors.pin } : {})}
+                    />
+
                     {totalRow}
                     {shut ? (
                       <div className="mt-4 rounded-3xl border border-ink/12 bg-paper-warm p-5 text-center">
@@ -1197,27 +1335,19 @@ ${mapLink(pin)}`
                   </Field>
 
                   {ORDERING.delivery && (
-                    <fieldset>
-                      <legend className={`mb-1.5 ${LABEL}`}>Pickup or delivery</legend>
-                      <div className="grid grid-cols-2 gap-2">
-                        <Choice
-                          name="order-type"
-                          value="pickup"
-                          checked={!delivery}
-                          onChange={() => set("type", "pickup")}
-                          title="Pickup"
-                          hint={CAFE.shortAddress}
-                        />
-                        <Choice
-                          name="order-type"
-                          value="delivery"
-                          checked={delivery}
-                          onChange={() => set("type", "delivery")}
-                          title="Delivery"
-                          hint={`Free inside ${CAFE.freeDeliveryKm} km, or over ₹${CAFE.freeDeliveryOver} · ${CAFE.deliveryTown} and ${CAFE.deliveryRadiusKm} km around`}
-                        />
-                      </div>
-                    </fieldset>
+                    <p className="flex flex-wrap items-center gap-x-2 rounded-xl bg-ink/[0.04] px-4 py-2.5 text-xs text-ink/65">
+                      <span className="font-bold text-ink">
+                        {delivery ? "Delivery" : "Pickup at the cafe"}
+                      </span>
+                      {delivery && pin && <span>· pin shared, {kmFromCafe(pin)} km away</span>}
+                      <button
+                        type="button"
+                        onClick={() => setStep("cart")}
+                        className="ml-auto font-bold text-orange-ink underline-offset-4 hover:underline"
+                      >
+                        Change
+                      </button>
+                    </p>
                   )}
 
                   {delivery && (
@@ -1253,71 +1383,6 @@ ${mapLink(pin)}`
                       </Field>
                     </>
                   )}
-
-                  {/* Where the guest is. On a delivery it is what gets the rider to
-                      the gate rather than to the street; on a pickup it is how
-                      the cafe learns which parts of town its counter serves.
-                      Either way the order does not go on without it. */}
-                  <div>
-                    <p className="text-[0.6rem] font-extrabold uppercase tracking-[0.2em] text-ink/55">
-                      Your location{" "}
-                      <span className="text-orange-ink">{pin ? "· shared" : "· required"}</span>
-                    </p>
-
-                    {pin ? (
-                      <div className="mt-2 rounded-xl border border-leaf/40 bg-leaf/10 px-4 py-3">
-                        <p className="text-sm font-semibold text-ink">
-                          Pin shared · about {kmFromCafe(pin)} km from the cafe
-                        </p>
-                        {kmFromCafe(pin) > CAFE.deliveryRadiusKm && (
-                          <p className="mt-1.5 text-xs font-bold leading-relaxed text-orange-ink">
-                            That is further than the {CAFE.deliveryRadiusKm} km the cafe usually
-                            delivers. Send the order and the counter will tell you on WhatsApp
-                            whether they can reach you.
-                          </p>
-                        )}
-                        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
-                          <a
-                            href={mapLink(pin)}
-                            target="_blank"
-                            rel="noreferrer noopener"
-                            className="font-semibold text-orange-ink underline-offset-4 hover:underline"
-                          >
-                            See the pin
-                          </a>
-                          <button
-                            type="button"
-                            onClick={askForLocation}
-                            className="font-semibold text-ink/55 underline-offset-4 hover:underline"
-                          >
-                            Share again
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <button
-                          id="order-pin"
-                          type="button"
-                          onClick={askForLocation}
-                          disabled={pinBusy}
-                          className="mt-2 w-full rounded-xl border-2 border-orange bg-orange/10 px-4 py-3 text-sm font-bold text-orange-ink transition-colors hover:bg-orange/20 disabled:opacity-60"
-                        >
-                          {pinBusy ? "Finding you…" : "Share my location"}
-                        </button>
-                        <p className="mt-1.5 text-xs leading-relaxed text-ink/55">
-                          {pinRefused
-                            ? delivery
-                              ? "Your phone did not share it. Give a landmark below and the counter will call if the rider cannot find you."
-                              : "Your phone did not share it. The order can still go through."
-                            : "Your phone will ask you to allow it. The cafe sees a map pin, nothing else, and only for this order."}
-                        </p>
-                        {errors.pin && (
-                          <p className="mt-1.5 text-xs font-bold text-red-600">{errors.pin}</p>
-                        )}
-                      </>
-                    )}
-                  </div>
 
                   <Field id="order-when" label={delivery ? "Delivery time" : "Pickup time"}>
                     <select
