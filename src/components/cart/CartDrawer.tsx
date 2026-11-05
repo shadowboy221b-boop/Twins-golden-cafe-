@@ -149,10 +149,12 @@ function AddOns({ lines }: { lines: CartLine[] }) {
  * the stickers in its window — to say which app will open this code, not to
  * claim anything about who runs the cafe.
  */
+// A round mark and a wordmark set to the same height do not look the same
+// size, so each is given the height that makes the row read evenly.
 const UPI_APPS = [
-  { name: "Google Pay", src: gpayMark, w: 191, h: 140 },
-  { name: "PhonePe", src: phonepeMark, w: 140, h: 140 },
-  { name: "Paytm", src: paytmMark, w: 265, h: 140 },
+  { name: "Google Pay", src: gpayMark, w: 160, h: 160, cls: "h-6" },
+  { name: "PhonePe", src: phonepeMark, w: 140, h: 140, cls: "h-6" },
+  { name: "Paytm", src: paytmMark, w: 265, h: 140, cls: "h-[0.95rem]" },
 ];
 
 function UpiApps() {
@@ -177,7 +179,7 @@ function UpiApps() {
               height={a.h}
               loading="lazy"
               decoding="async"
-              className="h-5 w-auto"
+              className={`${a.cls} w-auto`}
             />
           </li>
         ))}
