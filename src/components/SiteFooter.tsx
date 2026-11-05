@@ -14,6 +14,7 @@ const NAV = [
   { to: "/about", label: "About Us" },
   { to: "/contact", label: "Contact Us" },
   { to: "/korean-fried-chicken", label: "Korean Chicken" },
+  { to: "/blog", label: "From the Kitchen" },
   { to: "/food-business-consulting", label: "Consulting" },
 ] as const;
 
