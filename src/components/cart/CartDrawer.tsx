@@ -1015,6 +1015,20 @@ ${mapLink(pin)}`
     e.preventDefault();
     const found = validate(details, pin, pinRefused);
     setErrors(found);
+
+    // The location is asked for in the cart, so a missing pin has nothing to
+    // complain to on this screen: the button looked broken because the only
+    // thing wrong with the order was a screen back. Go to it.
+    if (found.pin) {
+      setStep("cart");
+      window.setTimeout(() => {
+        const el = document.getElementById("order-pin");
+        el?.scrollIntoView({ block: "center", behavior: "smooth" });
+        el?.focus();
+      }, 60);
+      return;
+    }
+
     const first = Object.keys(found)[0];
     if (first) {
       document.getElementById(`order-${first}`)?.focus();
