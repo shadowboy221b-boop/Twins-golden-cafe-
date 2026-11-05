@@ -15,6 +15,12 @@ export const ORDERING = {
    * their UPI app. A business UPI ID works best — some apps refuse pay links
    * to a personal ID.
    */
+  /**
+   * What the boxes, the bags and the foil cost, added once to an order
+   * rather than once to each dish. Set it to 0 and the line disappears from
+   * the cart, the message and the bill on its own.
+   */
+  packing: 10,
   upiId: "paytm.s1r5ob1@pty" as string,
   /** the name we ask the guest's UPI app to show */
   upiName: "Twin's Golden Cafe",

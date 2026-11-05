@@ -1,3 +1,4 @@
+import { ORDERING } from "@/data/ordering";
 import { track } from "@/lib/pixel";
 import { gaEvent } from "@/lib/ga";
 import {
@@ -24,6 +25,11 @@ export type CartLine = CartItem & { qty: number };
 type Cart = {
   lines: CartLine[];
   count: number;
+  /** the food, before anything is added to it */
+  subtotal: number;
+  /** boxes, bags and the foil — one charge an order, not one a dish */
+  packing: number;
+  /** what the guest pays */
   total: number;
   qtyOf: (key: string) => number;
   add: (item: CartItem) => void;
@@ -124,7 +130,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     () => ({
       lines,
       count: lines.reduce((n, l) => n + l.qty, 0),
-      total: lines.reduce((n, l) => n + l.qty * l.price, 0),
+      ...(() => {
+        const subtotal = lines.reduce((n, l) => n + l.qty * l.price, 0);
+        // nothing ordered, nothing to pack
+        const packing = lines.length ? ORDERING.packing : 0;
+        return { subtotal, packing, total: subtotal + packing };
+      })(),
       qtyOf: (key) => lines.find((l) => l.key === key)?.qty ?? 0,
       add,
       setQty,

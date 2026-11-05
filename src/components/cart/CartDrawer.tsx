@@ -100,10 +100,46 @@ const money = (n: number) => `₹${n.toLocaleString("en-IN")}`;
  * short, or big enough that the order pays for it. Either answer on its own
  * is enough.
  */
-function freeDelivery(total: number, pin: Pin | null) {
-  const bySize = total >= CAFE.freeDeliveryOver;
+function freeDelivery(subtotal: number, pin: Pin | null) {
+  const bySize = subtotal >= CAFE.freeDeliveryOver;
   const byDistance = pin ? kmFromCafe(pin) <= CAFE.freeDeliveryKm : false;
   return { free: bySize || byDistance, bySize, byDistance };
+}
+
+/**
+ * The apps this code works with, each in its own colour.
+ *
+ * Their actual logos are trademarks and the files are theirs to hand out, so
+ * these are name plates rather than marks — a guest recognises the colour
+ * and the word, and nothing here pretends to be artwork it is not. Drop the
+ * official images in here when the cafe has them.
+ */
+const UPI_APPS = [
+  { name: "Google Pay", bg: "#1a73e8" },
+  { name: "PhonePe", bg: "#5f259f" },
+  { name: "Paytm", bg: "#012970" },
+  { name: "BHIM", bg: "#e8622c" },
+];
+
+function UpiApps() {
+  return (
+    <div className="mt-4">
+      <p className="text-[0.55rem] font-extrabold uppercase tracking-[0.2em] text-ink/40">
+        Works with
+      </p>
+      <ul className="mt-2 flex flex-wrap justify-center gap-1.5">
+        {UPI_APPS.map((a) => (
+          <li
+            key={a.name}
+            className="rounded-md px-2.5 py-1 text-[0.62rem] font-bold tracking-[0.01em] text-white"
+            style={{ background: a.bg }}
+          >
+            {a.name}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 /**
@@ -236,10 +272,10 @@ function LocationAsk({
  * the small print. The bar fills as the basket does; crossing the line turns
  * the strip green and the figure becomes the saving rather than the target.
  */
-function FreeDeliveryStrip({ total, pin }: { total: number; pin: Pin | null }) {
-  const { free, byDistance } = freeDelivery(total, pin);
-  const left = Math.max(0, CAFE.freeDeliveryOver - total);
-  const pct = Math.min(100, Math.round((total / CAFE.freeDeliveryOver) * 100));
+function FreeDeliveryStrip({ subtotal, pin }: { subtotal: number; pin: Pin | null }) {
+  const { free, byDistance } = freeDelivery(subtotal, pin);
+  const left = Math.max(0, CAFE.freeDeliveryOver - subtotal);
+  const pct = Math.min(100, Math.round((subtotal / CAFE.freeDeliveryOver) * 100));
 
   return (
     <div
@@ -351,6 +387,8 @@ const upiLink = (amount: number, orderNo: string) =>
 
 function orderMessage(
   lines: CartLine[],
+  subtotal: number,
+  packing: number,
   total: number,
   d: Details,
   orderNo: string,
@@ -375,11 +413,13 @@ function orderMessage(
         `• ${l.qty} × ${l.name}${l.variant ? ` (${l.variant})` : ""} — ${money(l.qty * l.price)}`,
     ),
     "",
+    packing > 0 ? `Items: ${money(subtotal)}` : null,
+    packing > 0 ? `Packing: ${money(packing)}` : null,
     `*Total: ${money(total)}*`,
     delivery
-      ? freeDelivery(total, pin).free
+      ? freeDelivery(subtotal, pin).free
         ? `_Free delivery — ${
-            freeDelivery(total, pin).byDistance
+            freeDelivery(subtotal, pin).byDistance
               ? `inside ${CAFE.freeDeliveryKm} km`
               : `order over ₹${CAFE.freeDeliveryOver}`
           }_`
@@ -561,7 +601,7 @@ function UpiQr({ value, amount }: { value: string; amount: number }) {
  * check in its UPI app before confirming.
  */
 export function CartDrawer() {
-  const { lines, count, total, clear, open, setOpen, bumps } = useCart();
+  const { lines, count, subtotal, packing, total, clear, open, setOpen, bumps } = useCart();
   /**
    * Whether the kitchen is on. An order that lands after the shutters are down
    * is nobody's friend: the guest waits for food nobody is cooking, and the
@@ -793,6 +833,8 @@ export function CartDrawer() {
     const verified = OTP_READY && verifiedPhone.current === phoneDigits(details.phone);
     const text = orderMessage(
       lines,
+      subtotal,
+      packing,
       total,
       details,
       no,
@@ -1057,10 +1099,24 @@ ${mapLink(pin)}`
       {/* In the cart it is a nudge and the order type is not settled yet; once
           somebody has said they are collecting it themselves, a line about
           free delivery is just noise in their way. */}
-      {(step === "cart" || delivery) && <FreeDeliveryStrip total={total} pin={pin} />}
+      {(step === "cart" || delivery) && <FreeDeliveryStrip subtotal={subtotal} pin={pin} />}
+      {packing > 0 && (
+        <div className="mb-2 space-y-1 text-xs text-ink/60">
+          <p className="flex items-baseline justify-between">
+            <span>
+              {count} {count === 1 ? "item" : "items"}
+            </span>
+            <span className="tabular-nums">{money(subtotal)}</span>
+          </p>
+          <p className="flex items-baseline justify-between">
+            <span>Packing</span>
+            <span className="tabular-nums">{money(packing)}</span>
+          </p>
+        </div>
+      )}
       <div className="flex items-baseline justify-between">
         <span className="text-[0.6rem] font-extrabold uppercase tracking-[0.24em] text-ink/65">
-          Total · {count} {count === 1 ? "item" : "items"}
+          {packing > 0 ? "To pay" : `Total · ${count} ${count === 1 ? "item" : "items"}`}
         </span>
         <span className="font-display text-2xl font-black tabular-nums">{money(total)}</span>
       </div>
@@ -1577,7 +1633,7 @@ ${mapLink(pin)}`
                       amount={upiAmount}
                     />
                   </div>
-                  <p className="mt-3 text-xs text-ink/55">GPay · PhonePe · Paytm · BHIM</p>
+                  <UpiApps />
 
                   {/* the screenshot is what the cafe checks the payment against */}
                   <p className="mx-auto mt-5 max-w-xs rounded-xl bg-ink/5 px-4 py-2.5 text-xs leading-relaxed text-ink/70">
