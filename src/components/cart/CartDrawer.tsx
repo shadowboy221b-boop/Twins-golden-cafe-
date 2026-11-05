@@ -13,6 +13,10 @@ import { pingAdd, pingSent, setSoundOn, soundOn } from "@/lib/sound";
 import { track } from "@/lib/pixel";
 import { gaEvent } from "@/lib/ga";
 import { logOrder } from "@/lib/orders-log";
+import upiMark from "@/assets/pay/upi.webp";
+import gpayMark from "@/assets/pay/gpay.webp";
+import phonepeMark from "@/assets/pay/phonepe.webp";
+import paytmMark from "@/assets/pay/paytm.webp";
 
 type Step = "cart" | "details" | "verify" | "pay" | "done";
 
@@ -139,34 +143,42 @@ function AddOns({ lines }: { lines: CartLine[] }) {
 }
 
 /**
- * The apps this code works with, each in its own colour.
+ * The marks under the code: UPI, and the three apps most of Arani pays with.
  *
- * Their actual logos are trademarks and the files are theirs to hand out, so
- * these are name plates rather than marks — a guest recognises the colour
- * and the word, and nothing here pretends to be artwork it is not. Drop the
- * official images in here when the cafe has them.
+ * They are the network's and the companies' own, shown the way a shop shows
+ * the stickers in its window — to say which app will open this code, not to
+ * claim anything about who runs the cafe.
  */
 const UPI_APPS = [
-  { name: "Google Pay", bg: "#1a73e8" },
-  { name: "PhonePe", bg: "#5f259f" },
-  { name: "Paytm", bg: "#012970" },
-  { name: "BHIM", bg: "#e8622c" },
+  { name: "Google Pay", src: gpayMark, w: 191, h: 140 },
+  { name: "PhonePe", src: phonepeMark, w: 140, h: 140 },
+  { name: "Paytm", src: paytmMark, w: 265, h: 140 },
 ];
 
 function UpiApps() {
   return (
-    <div className="mt-4">
-      <p className="text-[0.55rem] font-extrabold uppercase tracking-[0.2em] text-ink/40">
-        Works with
-      </p>
-      <ul className="mt-2 flex flex-wrap justify-center gap-1.5">
+    <div className="mt-5">
+      <img
+        src={upiMark}
+        alt="UPI — Unified Payments Interface"
+        width={342}
+        height={140}
+        loading="lazy"
+        decoding="async"
+        className="mx-auto h-7 w-auto"
+      />
+      <ul className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
         {UPI_APPS.map((a) => (
-          <li
-            key={a.name}
-            className="rounded-md px-2.5 py-1 text-[0.62rem] font-bold tracking-[0.01em] text-white"
-            style={{ background: a.bg }}
-          >
-            {a.name}
+          <li key={a.name}>
+            <img
+              src={a.src}
+              alt={a.name}
+              width={a.w}
+              height={a.h}
+              loading="lazy"
+              decoding="async"
+              className="h-5 w-auto"
+            />
           </li>
         ))}
       </ul>
