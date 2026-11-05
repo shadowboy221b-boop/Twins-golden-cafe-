@@ -22,6 +22,12 @@ export type Block =
 export type Post = {
   slug: string;
   title: string;
+  /**
+   * What the tab and the search result say, when the headline above is too
+   * long for them. Google prints about sixty characters and the cafe's name
+   * is added after this, so it is kept short.
+   */
+  seoTitle?: string;
   /** what the search result says, 70–160 characters */
   description: string;
   /** the line under the heading */
@@ -42,6 +48,7 @@ export const posts: Post[] = [
   {
     slug: "what-to-order-first-time",
     title: "What to order at Twin's Golden Cafe the first time",
+    seoTitle: "What to order on a first visit",
     description:
       "A board with 259 dishes is hard to read standing up. Here is what to order on a first visit to Twin's Golden Cafe, Arani, and what it costs.",
     standfirst:
@@ -98,6 +105,7 @@ export const posts: Post[] = [
   {
     slug: "free-delivery-in-arani",
     title: "How food delivery works at Twin's Golden Cafe, Arani",
+    seoTitle: "Food delivery in Arani",
     description:
       "Where Twin's Golden Cafe delivers in and around Arani, when delivery is free, and what the cafe needs from you so the rider finds the door.",
     standfirst:
@@ -177,6 +185,151 @@ export const posts: Post[] = [
       ]),
       p(
         "The same glazes turn up on the loaded fries and in a wrap, if you would rather have them that way.",
+      ),
+    ],
+  },
+  {
+    slug: "order-food-online-in-arani",
+    title: "Ordering food online in Arani, and what reaches the kitchen",
+    seoTitle: "Ordering food online in Arani",
+    description:
+      "How online food ordering works in Arani: ordering direct from Twin's Golden Cafe, what it costs, and what happens to your order once you send it.",
+    standfirst:
+      "An order placed here reaches a phone behind the counter. Nothing stands between the two.",
+    date: "2026-11-06",
+    minutes: 4,
+    body: [
+      p(
+        "Most food ordered online in India goes through an app that sits between the kitchen and the person eating. That works, and there are days it is the only thing open. But it is worth knowing what the other route looks like, because this cafe runs one.",
+      ),
+
+      h2("What happens when you order here"),
+      p(
+        "You pick what you want on the menu page, say whether you are collecting it or want it delivered, and share your location. The order goes to the cafe's own WhatsApp with everything written out: the dishes, the sizes, the total, your number and a map pin. Somebody behind the counter reads it and starts cooking.",
+      ),
+      p(
+        "There is no queue of restaurants, no rider assigned from three streets away, and no app deciding when the kitchen sees it. It is the same phone the cafe answers calls on.",
+      ),
+
+      h2("The prices are the board's prices"),
+      p(
+        "What you see on the menu page is what is written on the board at the Old Bus Stand — the same numbers, kept in one place so they cannot drift apart. A Crispy Drumstick is ₹89 here because it is ₹89 there.",
+      ),
+      p(
+        `Packing is ₹10 a dish and it is shown as its own line rather than folded into anything. Delivery is free inside ${CAFE.freeDeliveryKm} kilometres and free on any order over ₹${CAFE.freeDeliveryOver}; outside that the counter tells you the charge on WhatsApp before anything is cooked.`,
+      ),
+
+      h2("Paying"),
+      p(
+        "UPI or cash. Choosing UPI gives you a QR code and a button that opens Google Pay, PhonePe, Paytm or whatever else you use, with the amount already filled in. Send a screenshot in the chat and the counter checks it against the account before the order is confirmed.",
+      ),
+      p("Cash is simpler: pay when you collect it, or at the door."),
+
+      h2("Swiggy, if you would rather"),
+      p(
+        `The kitchen is on Swiggy too, listed under its older name, ${CAFE.swiggyName} — the same food out of the same fryer. Some evenings that is the easier route and nobody at the counter minds.`,
+      ),
+      quote(
+        "The difference is only this: an order placed on this site arrives as a message somebody reads, and anything you want changed you can simply type.",
+      ),
+
+      h2("Where it reaches"),
+      p(
+        `${CAFE.deliveryTown} town and about ${CAFE.deliveryRadiusKm} kilometres around it — ${CAFE.deliveryPlaces.join(", ")} and the villages along those roads. Open every day, ${CAFE.hoursShort}.`,
+      ),
+    ],
+  },
+
+  {
+    slug: "vegetarian-food-in-arani",
+    title: "Vegetarian food in Arani: 172 dishes at one counter",
+    seoTitle: "Vegetarian food in Arani",
+    description:
+      "Where to eat vegetarian in Arani: 172 of the 259 dishes at Twin's Golden Cafe are veg, from ₹30 juices to ₹380 kunafa. What to order and what it costs.",
+    standfirst:
+      "Two thirds of the board, and not one of it an afterthought bolted on to a chicken menu.",
+    date: "2026-11-06",
+    minutes: 4,
+    body: [
+      p(
+        "A cafe that sells fried chicken usually treats the vegetarian side as a short list near the back. This one does not, and the number says so: 172 of the 259 dishes are vegetarian. On the menu page each carries a green dot, and a switch at the top hides everything else.",
+      ),
+
+      h2("Pizza, 13 of them"),
+      p(
+        "From ₹129, stone-baked to order. Six are vegetarian outright — corn, paneer two ways, mushroom — and extra cheese is ₹20 if you want it heavier.",
+      ),
+
+      h2("Momos, steamed or fried"),
+      p(
+        "Six vegetarian fillings, each available steamed or fried, from ₹89 to ₹129: paneer, paneer tikka, mushroom, corn, corn and cheese, and plain veg. Steamed is the lighter plate; fried is the one that disappears faster.",
+      ),
+
+      h2("Pasta, sandwiches and the fryer"),
+      p(
+        "Red sauce, white sauce, schezwan, corn, paneer and a cheese-loaded pasta. The grill does crispy veg, spicy corn, peri peri paneer, tandoori mushroom and mint veg sandwiches. From the fryer: french fries, peri peri fries, cheesy fries, cheese corn nuggets, veg nuggets and veg rolls.",
+      ),
+
+      h2("The sweet end"),
+      list([
+        "Kunafa — 11 flavours, ₹240 to ₹380, all vegetarian",
+        "Waffles — 19 of them, ₹89 to ₹149",
+        "Falooda — royal, malai, rabdi, dry fruit and more",
+        "Desserts — basundi, rabdi, brownies, bun with palkhova from ₹30",
+      ]),
+
+      h2("And to drink"),
+      p(
+        "Seventeen fresh juices from ₹30, five special blends and four detox juices from ₹80, milkshakes, lassi, mojitos and the kulukki sarbath. Everything pressed when you order it.",
+      ),
+      p(
+        `The cafe is not pure vegetarian and does not pretend to be — the fryer does chicken all evening. What is true is that most of the board does not touch it, and that is unusual for a place in ${CAFE.deliveryTown} that is known for its fried chicken.`,
+      ),
+    ],
+  },
+
+  {
+    slug: "kunafa-in-arani",
+    title: "Kunafa in Arani: eleven ways, pulled fresh at the counter",
+    seoTitle: "Kunafa in Arani",
+    description:
+      "Where to eat kunafa in Arani. Eleven flavours at Twin's Golden Cafe, ₹240 to ₹380, baked crisp with a molten centre and finished to order.",
+    standfirst:
+      "A Middle Eastern pastry that turned up at the Old Bus Stand and stayed. Here is what it is.",
+    date: "2026-11-06",
+    minutes: 3,
+    body: [
+      p(
+        "Kunafa is shredded pastry — fine strands, something like vermicelli — packed over a soft cheese or cream centre, baked until the top is dark and crisp, then soaked in syrup while it is still hot. The contrast is the whole point: a crackling lid over something molten.",
+      ),
+      p(
+        "It is Levantine by origin and has reached most Indian cities in the last few years. It reached Arani by way of this counter.",
+      ),
+
+      h2("The eleven"),
+      p(
+        "The house version is the cream kunafa at ₹240, which is the one to start with if you have not had it before. From there it gets busier.",
+      ),
+      list([
+        "Cream — ₹240, the plain one and the best introduction",
+        "Mozzarella — ₹250, the cheese version, closer to the original",
+        "Chocolate, blueberry, strawberry — ₹280",
+        "Kunafa with ice cream — ₹290, hot pastry and cold scoop",
+        "Kitkat, caramel, Oreo — the loaded end of the counter",
+        "Nutella and Lotus Biscoff — ₹380, the top of the board",
+      ]),
+
+      h2("Why it is made to order"),
+      p(
+        "A kunafa that has been sitting is a kunafa with a soft top, and a soft top is the one thing it cannot survive. It is finished when you order it, which is why the counter asks you to wait a few minutes rather than handing it straight over.",
+      ),
+
+      h2("Eating it"),
+      p(
+        "Hot, with a spoon, and sooner rather than later. If you are taking it home, it travels about fifteen minutes before the top starts to give — inside Arani town that is usually fine, and the cafe packs it so the syrup stays where it should.",
+      ),
+      p(
+        `Every one of them is vegetarian. The counter is open ${CAFE.hoursShort}, every day, at ${CAFE.shortAddress}.`,
       ),
     ],
   },

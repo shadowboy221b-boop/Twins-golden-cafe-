@@ -41,9 +41,7 @@ export const Route = createFileRoute("/blog/$slug")({
       meta: [
         // the cafe's name is in some of the titles already; saying it twice
         // only pushes the end of the line out of the search result
-        {
-          title: post.title.includes(CAFE.name) ? post.title : `${post.title} — ${CAFE.name}`,
-        },
+        { title: `${post.seoTitle ?? post.title} — ${CAFE.name}` },
         { name: "description", content: post.description },
         { property: "og:title", content: post.title },
         { property: "og:description", content: post.description },
