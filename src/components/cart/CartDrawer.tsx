@@ -1099,7 +1099,7 @@ ${mapLink(pin)}`
       {/* In the cart it is a nudge and the order type is not settled yet; once
           somebody has said they are collecting it themselves, a line about
           free delivery is just noise in their way. */}
-      {(step === "cart" || delivery) && <FreeDeliveryStrip subtotal={subtotal} pin={pin} />}
+      {delivery && <FreeDeliveryStrip subtotal={subtotal} pin={pin} />}
       {packing > 0 && (
         <div className="mb-2 space-y-1 text-xs text-ink/60">
           <p className="flex items-baseline justify-between">
@@ -1109,7 +1109,9 @@ ${mapLink(pin)}`
             <span className="tabular-nums">{money(subtotal)}</span>
           </p>
           <p className="flex items-baseline justify-between">
-            <span>Packing</span>
+            <span>
+              Packing · {count} × {money(ORDERING.packing)}
+            </span>
             <span className="tabular-nums">{money(packing)}</span>
           </p>
         </div>
@@ -1255,55 +1257,60 @@ ${mapLink(pin)}`
                 </div>
               ) : (
                 <>
-                  <ul className="flex-1 overflow-y-auto overscroll-contain px-6 py-2">
-                    {lines.map((l) => (
-                      <li
-                        key={l.key}
-                        className="flex items-center gap-4 border-b border-ink/10 py-4"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <p className="flex items-center gap-2 text-[0.95rem] font-semibold leading-snug">
-                            {l.veg && (
-                              <span
-                                title="Vegetarian"
-                                className="inline-flex size-3 shrink-0 items-center justify-center rounded-[2px] border border-leaf"
-                              >
-                                <span className="size-1 rounded-full bg-leaf" />
-                              </span>
-                            )}
-                            <span className="min-w-0">{l.name}</span>
-                          </p>
-                          <p className="mt-0.5 text-xs text-ink/55">
-                            {l.variant ? `${l.variant} · ` : ""}
-                            {money(l.price)} each
-                          </p>
-                        </div>
-                        <AddButton item={l} />
-                        <span className="w-16 shrink-0 text-right font-display text-sm font-black tabular-nums">
-                          {money(l.qty * l.price)}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="flex-1 overflow-y-auto overscroll-contain">
+                    <ul className="px-6 py-2">
+                      {lines.map((l) => (
+                        <li
+                          key={l.key}
+                          className="flex items-center gap-4 border-b border-ink/10 py-4"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="flex items-center gap-2 text-[0.95rem] font-semibold leading-snug">
+                              {l.veg && (
+                                <span
+                                  title="Vegetarian"
+                                  className="inline-flex size-3 shrink-0 items-center justify-center rounded-[2px] border border-leaf"
+                                >
+                                  <span className="size-1 rounded-full bg-leaf" />
+                                </span>
+                              )}
+                              <span className="min-w-0">{l.name}</span>
+                            </p>
+                            <p className="mt-0.5 text-xs text-ink/55">
+                              {l.variant ? `${l.variant} · ` : ""}
+                              {money(l.price)} each
+                            </p>
+                          </div>
+                          <AddButton item={l} />
+                          <span className="w-16 shrink-0 text-right font-display text-sm font-black tabular-nums">
+                            {money(l.qty * l.price)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
 
-                  <div className="space-y-4 border-t border-ink/10 px-6 py-5">
-                    {/* Asked here rather than three screens on: which it is
+                    <div className="space-y-4 border-t border-ink/10 px-6 py-5">
+                      {/* Asked here rather than three screens on: which it is
                         decides whether the delivery is free, and somebody
                         still choosing can do something about that. */}
-                    {ORDERING.delivery && (
-                      <OrderTypeChoice delivery={delivery} onPick={(t) => set("type", t)} />
-                    )}
+                      {ORDERING.delivery && (
+                        <OrderTypeChoice delivery={delivery} onPick={(t) => set("type", t)} />
+                      )}
 
-                    <LocationAsk
-                      pin={pin}
-                      busy={pinBusy}
-                      refused={pinRefused}
-                      delivery={delivery}
-                      onAsk={askForLocation}
-                      {...(errors.pin ? { error: errors.pin } : {})}
-                    />
+                      <LocationAsk
+                        pin={pin}
+                        busy={pinBusy}
+                        refused={pinRefused}
+                        delivery={delivery}
+                        onAsk={askForLocation}
+                        {...(errors.pin ? { error: errors.pin } : {})}
+                      />
 
-                    {totalRow}
+                      {totalRow}
+                    </div>
+                  </div>
+
+                  <div className="border-t border-ink/10 px-6 py-4">
                     {shut ? (
                       <div className="mt-4 rounded-3xl border border-ink/12 bg-paper-warm p-5 text-center">
                         <p className="font-display text-sm font-black uppercase tracking-[0.02em] text-ink">

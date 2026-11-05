@@ -27,7 +27,7 @@ type Cart = {
   count: number;
   /** the food, before anything is added to it */
   subtotal: number;
-  /** boxes, bags and the foil — one charge an order, not one a dish */
+  /** boxes, bags and the foil — one charge for each thing packed */
   packing: number;
   /** what the guest pays */
   total: number;
@@ -132,8 +132,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       count: lines.reduce((n, l) => n + l.qty, 0),
       ...(() => {
         const subtotal = lines.reduce((n, l) => n + l.qty * l.price, 0);
-        // nothing ordered, nothing to pack
-        const packing = lines.length ? ORDERING.packing : 0;
+        // every box costs the same to fill, so it is counted per thing packed
+        const packing = lines.reduce((n, l) => n + l.qty, 0) * ORDERING.packing;
         return { subtotal, packing, total: subtotal + packing };
       })(),
       qtyOf: (key) => lines.find((l) => l.key === key)?.qty ?? 0,

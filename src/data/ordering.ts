@@ -16,9 +16,9 @@ export const ORDERING = {
    * to a personal ID.
    */
   /**
-   * What the boxes, the bags and the foil cost, added once to an order
-   * rather than once to each dish. Set it to 0 and the line disappears from
-   * the cart, the message and the bill on its own.
+   * What a box costs to fill, charged for each thing packed: one dish is
+   * ten rupees, five dishes are fifty. Set it to 0 and the line disappears
+   * from the cart, the message and the bill on its own.
    */
   packing: 10,
   upiId: "paytm.s1r5ob1@pty" as string,
