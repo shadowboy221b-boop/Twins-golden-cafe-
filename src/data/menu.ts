@@ -581,12 +581,20 @@ export const koreanItems: MenuItem[] = [
 /**
  * The little things offered beside the order, the way a counter would ask.
  *
- * Priced from the board the cafe already prints: a dip is ₹25, which is what
- * the combos page charged for an extra one. Add a line here and it appears
- * in the cart on its own — the flavours go in as separate lines once the
- * kitchen says what they are.
+ * Every one is priced off the board the cafe already prints: the dip is the
+ * ₹25 the combos page charged for an extra one, the cheese is the ₹20 the
+ * pizza, burger and wrap counters charge, and the sabja seed is the ₹15 on
+ * the drinks. "Parcel extra" is deliberately not here — the packing charge
+ * on every order already covers it, and nobody should pay for it twice.
+ *
+ * Add a line and it appears in the cart on its own; dip flavours go in the
+ * same way once the kitchen says what they are.
  */
-export const addOns: MenuItem[] = [{ name: "Extra Dip", price: 25 }];
+export const addOns: MenuItem[] = [
+  { name: "Extra Dip", price: 25 },
+  { name: "Extra Cheese", price: 20, veg: true },
+  { name: "Sabja Seed", price: 15, veg: true },
+];
 
 export const categories: MenuCategory[] = [
   {
