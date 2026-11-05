@@ -333,6 +333,143 @@ export const posts: Post[] = [
       ),
     ],
   },
+  {
+    slug: "momos-in-arani",
+    title: "Momos in Arani: twelve fillings, steamed or fried",
+    seoTitle: "Momos in Arani",
+    description:
+      "Where to eat momos in Arani. Twelve fillings at Twin's Golden Cafe, each steamed or fried, from ₹89 — and what the difference actually is.",
+    standfirst: "The same dumpling twice over, and the choice is not a small one.",
+    date: "2026-11-06",
+    minutes: 3,
+    body: [
+      p(
+        "Momos arrived in Tamil Nadu from a long way north and settled in without much ceremony. The counter here does twelve fillings, six vegetarian and six not, and every one of them can be steamed or fried — which is twenty-four plates from one list.",
+      ),
+
+      h2("Steamed or fried"),
+      p(
+        "Steamed is the original and the lighter plate: the wrapper stays soft, the filling tastes of itself, and the chutney does the work. Fried takes the same dumpling into oil afterwards, so the base goes crisp and the wrapper blisters. Neither is the correct answer. Fried costs about ten rupees more.",
+      ),
+
+      h2("The vegetarian six"),
+      list([
+        "Veg Momo — ₹89 steamed, the plain one",
+        "Paneer Momo and Paneer Tikka Momo — ₹99 steamed",
+        "Mushroom Momo — ₹99 steamed",
+        "Corn Momo — ₹99 steamed",
+        "Corn & Cheese Momo — ₹119 steamed, the heaviest of them",
+      ]),
+
+      h2("The chicken six"),
+      p(
+        "Chicken tikka is where most people start, and it runs through peri-peri, cheese, barbecue and schezwan to the chicken pizza momo, which is as odd and as popular as it sounds. The chicken list runs from ₹99 to ₹149.",
+      ),
+
+      h2("A plate, or part of one"),
+      p(
+        "A plate of momos is a reasonable snack on its own and a good third dish for two people who have already ordered something fried. If you are ordering for a table, they travel better steamed than fried — the crisp base is the first thing to go soft on the ride.",
+      ),
+      p(
+        `The counter is at ${CAFE.shortAddress}, open ${CAFE.hoursShort} every day, and delivery across ${CAFE.deliveryTown} is free inside ${CAFE.freeDeliveryKm} kilometres.`,
+      ),
+    ],
+  },
+
+  {
+    slug: "party-food-order-arani",
+    title: "Ordering food for a crowd in Arani",
+    seoTitle: "Party food orders in Arani",
+    description:
+      "Ordering food for a party or an office in Arani: family combos from ₹599, how much to order per head, and how to get it there warm.",
+    standfirst:
+      "Eight people, one order, and the arithmetic nobody wants to do standing at a counter.",
+    date: "2026-11-06",
+    minutes: 4,
+    body: [
+      p(
+        "Ordering for one is easy. Ordering for eight is where people either over-order by half or end up short, and the counter gets asked the same question most weeks: how much is enough?",
+      ),
+
+      h2("Start with the family combos"),
+      p(
+        "They exist for this. Family Combo 1 is ₹599 — six crispy chicken, a large chicken popcorn and three dips. Family Combo 2 is ₹899 — eight crispy chicken, a large popcorn, two burgers and two dips. The second one feeds a table of five or six who are actually hungry; the first suits three or four.",
+      ),
+      p(
+        "For a bigger group, two of the ₹899 is a better order than anything assembled piece by piece, and it is less for the kitchen to get wrong.",
+      ),
+
+      h2("Roughly, per head"),
+      list([
+        "A snack between conversations — one combo between two",
+        "An actual meal — a burger or a wrap each, plus fries to share",
+        "A proper spread — two pieces of chicken a head, one shared popcorn per four",
+        "Always one dip per two people. Nobody shares a dip three ways happily.",
+      ]),
+
+      h2("Feeding people who do not eat chicken"),
+      p(
+        "Most of this board is vegetarian, so it is not a problem: a couple of veg pizzas from ₹129, paneer momos, cheese corn nuggets and a jug's worth of fresh juice will sit beside the chicken without anybody feeling catered-to as an afterthought.",
+      ),
+
+      h2("Getting it there warm"),
+      p(
+        `Everything fried is cooked after you order, so a large order takes longer than a small one — tell the counter the time you want it and they will work back from that rather than start when the message lands. Delivery is free on anything over ₹${CAFE.freeDeliveryOver}, which a party order passes without trying, and free anywhere inside ${CAFE.freeDeliveryKm} kilometres.`,
+      ),
+      quote(
+        "If it is going further than the town, order the momos steamed and the chicken plain. Sauce and crisp both travel badly; everything else is fine.",
+      ),
+      p(
+        `Ordering is the same as any other order — put it in the cart, share the pin, and it reaches the cafe's WhatsApp where somebody can ring you back if the numbers look wrong. Or call ${CAFE.phone}.`,
+      ),
+    ],
+  },
+
+  {
+    slug: "pizza-in-arani",
+    title: "Pizza in Arani: thirteen on the board, six of them veg",
+    seoTitle: "Pizza in Arani",
+    description:
+      "Where to eat pizza in Arani. Thirteen at Twin's Golden Cafe from ₹129 — six vegetarian, seven with chicken, all baked after you order.",
+    standfirst: "Baked when you ask for it, which is the only part that matters.",
+    date: "2026-11-06",
+    minutes: 3,
+    body: [
+      p(
+        "A pizza is dough, a sauce, cheese and heat, and the difference between a good one and a sad one is almost entirely the last of those. The ones here go into the oven after the order rather than before it, which is slower and is the point.",
+      ),
+
+      h2("The vegetarian side"),
+      list([
+        "Delight Veg — ₹129, the plain one",
+        "Hot & Spicy Veg — ₹139",
+        "Golden Corn — ₹139",
+        "Farm Fresh Paneer — ₹149",
+        "Tandoori Paneer — ₹159",
+        "Village Mushroom — ₹169",
+      ]),
+
+      h2("The chicken side"),
+      p(
+        "Chicken tikka at ₹169 is the one most tables order. Cheesy chicken is ₹179, peri peri and makhani ₹189, and the top three — special barbecue, chicken and corn, schezwan chicken — are ₹199 each.",
+      ),
+      p("Extra cheese is ₹20 on any of them."),
+
+      h2("Which to order"),
+      p(
+        "If you have not eaten here before, the tandoori paneer and the chicken tikka are the two that taste most like the kitchen rather than like a pizza chain — the tandoori masala is the same one the grill uses, and it comes through.",
+      ),
+      p(
+        "If you are ordering for people who disagree about food, the corn pizza settles more arguments than anything else on the board.",
+      ),
+
+      h2("Taking it home"),
+      p(
+        `Pizza is one of the better travellers — fifteen or twenty minutes does it no harm. Delivery across ${CAFE.deliveryTown} is free inside ${CAFE.freeDeliveryKm} kilometres or on anything over ₹${CAFE.freeDeliveryOver}, and the box is ₹10.`,
+      ),
+      p(`${CAFE.shortAddress}, open ${CAFE.hoursShort} every day.`),
+    ],
+  },
 ];
 
 /** Newest first, which is the order a reader expects. */
