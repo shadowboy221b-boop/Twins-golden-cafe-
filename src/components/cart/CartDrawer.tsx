@@ -2,8 +2,9 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "rea
 import * as Dialog from "@radix-ui/react-dialog";
 import { AnimatePresence, motion } from "motion/react";
 import { Link } from "@tanstack/react-router";
-import { useCart, type CartLine } from "@/lib/cart";
+import { itemKey, useCart, type CartLine } from "@/lib/cart";
 import { AddButton, BagIcon } from "@/components/cart/AddButton";
+import { addOns } from "@/data/menu";
 import { CAFE } from "@/data/site";
 import { ORDERING, OTP_READY, UPI_READY } from "@/data/ordering";
 import { confirmOtp, isOtpUnavailable, otpErrorMessage, sendOtp } from "@/lib/otp";
@@ -104,6 +105,37 @@ function freeDelivery(subtotal: number, pin: Pin | null) {
   const bySize = subtotal >= CAFE.freeDeliveryOver;
   const byDistance = pin ? kmFromCafe(pin) <= CAFE.freeDeliveryKm : false;
   return { free: bySize || byDistance, bySize, byDistance };
+}
+
+/**
+ * The little things offered beside the order, the way the counter would ask
+ * while it packs: anything already in the basket drops off the row, so it
+ * never suggests what is in the bag.
+ */
+function AddOns({ lines }: { lines: CartLine[] }) {
+  const left = addOns.filter((a) => !lines.some((l) => l.key === itemKey("add-on", a.name)));
+  if (left.length === 0) return null;
+
+  return (
+    <div>
+      <p className="text-[0.6rem] font-extrabold uppercase tracking-[0.2em] text-ink/55">
+        Anything with that?
+      </p>
+      <ul className="mt-2 flex flex-wrap gap-2">
+        {left.map((a) => (
+          <li key={a.name}>
+            <div className="flex items-center gap-2.5 rounded-xl border border-ink/12 bg-paper-warm px-3 py-2">
+              <span className="text-sm font-semibold text-ink">{a.name}</span>
+              <span className="font-display text-sm font-extrabold tabular-nums text-orange-ink">
+                {money(a.price)}
+              </span>
+              <AddButton item={{ key: itemKey("add-on", a.name), name: a.name, price: a.price }} />
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 /**
@@ -1304,6 +1336,8 @@ ${mapLink(pin)}`
                     </ul>
 
                     <div className="space-y-4 border-t border-ink/10 px-6 py-5">
+                      <AddOns lines={lines} />
+
                       {/* Asked here rather than three screens on: which it is
                         decides whether the delivery is free, and somebody
                         still choosing can do something about that. */}

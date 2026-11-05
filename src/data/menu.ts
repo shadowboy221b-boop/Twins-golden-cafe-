@@ -576,6 +576,18 @@ export const koreanItems: MenuItem[] = [
   { name: "Smokey BBQ Chicken", price: 189 },
 ];
 
+/* ----------------------------------------------------------------- add-ons */
+
+/**
+ * The little things offered beside the order, the way a counter would ask.
+ *
+ * Priced from the board the cafe already prints: a dip is ₹25, which is what
+ * the combos page charged for an extra one. Add a line here and it appears
+ * in the cart on its own — the flavours go in as separate lines once the
+ * kitchen says what they are.
+ */
+export const addOns: MenuItem[] = [{ name: "Extra Dip", price: 25 }];
+
 export const categories: MenuCategory[] = [
   {
     id: "pizza",
