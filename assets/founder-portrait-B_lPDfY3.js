@@ -1,0 +1,1 @@
+var e=`/assets/founder-portrait-CyXn6PXc.webp`;export{e as t};
