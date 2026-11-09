@@ -450,10 +450,12 @@ function orderMessage(
   const delivery = d.type === "delivery";
   return [
     ...(test ? ["*TEST ORDER — ₹1 payment check, not a real order. Do not cook this.*", ""] : []),
-    `*New order — ${CAFE.name}*`,
+    `*NEW ORDER — ${CAFE.name}*`,
     `Order no: ${orderNo}`,
     "",
-    "*Items*",
+    "━━━━━━━━━━━━━━",
+    "*1 · WHAT THEY ORDERED*",
+    "━━━━━━━━━━━━━━",
     ...lines.map(
       (l) =>
         `• ${l.qty} × ${l.name}${l.variant ? ` (${l.variant})` : ""} — ${money(l.qty * l.price)}`,
@@ -472,6 +474,9 @@ function orderMessage(
         : "_Delivery charge, if any, to be confirmed_"
       : null,
     "",
+    "━━━━━━━━━━━━━━",
+    "*2 · WHO, WHERE, HOW PAID*",
+    "━━━━━━━━━━━━━━",
     `*Order type:* ${delivery ? "Delivery" : "Pickup at the cafe"}`,
     `*Time:* ${d.when}`,
     `*Name:* ${d.name.trim()}`,
