@@ -470,6 +470,63 @@ export const posts: Post[] = [
       p(`${CAFE.shortAddress}, open ${CAFE.hoursShort} every day.`),
     ],
   },
+  {
+    slug: "veg-hotel-in-arani",
+    title: "Looking for a veg hotel in Arani: the honest answer",
+    seoTitle: "Veg hotel in Arani",
+    description:
+      "Looking for a veg hotel in Arani? Twin's Golden Cafe is not pure veg — but 172 of its 259 dishes are. What that means at the counter, and what to ask.",
+    standfirst:
+      "Around here a hotel is anywhere you sit down and eat. This is what you are walking into.",
+    date: "2026-11-14",
+    minutes: 4,
+    body: [
+      p(
+        "Nobody in Arani searches for a restaurant. They search for a hotel, because that is what the word means here — the place you sit down, the place you send somebody to pick up dinner, the place with a board outside. So: is this one a veg hotel?",
+      ),
+
+      h2("The honest answer is no"),
+      p(
+        "Twin's Golden Cafe is not a pure vegetarian hotel, and saying otherwise to catch a search would be a poor way to start. The fryer runs chicken all evening. That is what the cafe is known for and it is not going to be hidden on its own website.",
+      ),
+      p(
+        "What is true is the number underneath it. Of the 259 dishes on the board, 172 are vegetarian — roughly two in every three. That is not a short list bolted on to the back of a chicken menu, and it is the reason a vegetarian family can eat here without anybody settling for the one thing they are allowed.",
+      ),
+
+      h2("What that means standing at the counter"),
+      p(
+        "Every vegetarian dish carries a green dot on the menu, printed and on the website both. On the website there is a switch at the top of the menu that hides everything else, so the whole board becomes a vegetarian one in a single tap — useful when you are ordering for people who do not want to read past the chicken.",
+      ),
+      p(
+        "If it matters to you how the food is cooked rather than only what is in it, ask at the counter. It is a fair question, it gets a straight answer, and it is better asked before the order than after it.",
+      ),
+
+      h2("Ordering for a vegetarian table"),
+      p(
+        "The pizzas are the easiest place to start — six of the thirteen are vegetarian, from ₹129, and the tandoori paneer tastes of the grill rather than of a pizza chain. Add paneer or corn momos, steamed or fried. Cheese corn nuggets and peri peri fries cover the fryer. Then a kunafa or a waffle, both entirely vegetarian lists, and the seventeen fresh juices from ₹30.",
+      ),
+      p(
+        "That is a full table for five or six people without one chicken dish on it, which is not something every hotel in town can lay out.",
+      ),
+
+      quote(
+        "Two thirds of a board is not a concession. It is most of the menu, and it was built that way rather than left over.",
+      ),
+
+      h2("Sitting down, or not"),
+      p(
+        `The counter is at ${CAFE.shortAddress}, open ${CAFE.hoursShort} every day of the week, including the days when half the town is not eating meat anyway. Nothing is cooked in advance, so a fried order takes the time it takes — which is the point of it.`,
+      ),
+      p(
+        `If you would rather not sit down, the whole vegetarian side delivers across ${CAFE.deliveryTown} and the villages around it — ${CAFE.deliveryPlaces.join(", ")} — free inside ${CAFE.freeDeliveryKm} kilometres or on anything over ₹${CAFE.freeDeliveryOver}. Order from the menu on this site and it reaches the cafe's WhatsApp, or ring ${CAFE.phone} and say it out loud.`,
+      ),
+
+      h2("If you want pure veg and nothing else"),
+      p(
+        "Then this is not the hotel for you on that particular evening, and that is a reasonable thing to want. Arani has places that cook nothing but vegetarian food and they are better suited to it. Come here on the evening you want a paneer pizza, a plate of momos and a kunafa, which is most evenings.",
+      ),
+    ],
+  },
 ];
 
 /** Newest first, which is the order a reader expects. */
