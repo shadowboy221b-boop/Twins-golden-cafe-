@@ -1,0 +1,1 @@
+var e=`/assets/wrap-BPaofZZN.webp`,t=`/assets/fried-chicken-CMP-rOkF.webp`,n=`/assets/loaded-fries-ST3vS2rA.webp`,r=`/assets/burger-splash-B3KCKmaZ.webp`;export{e as i,n,t as r,r as t};

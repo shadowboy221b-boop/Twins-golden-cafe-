@@ -1,0 +1,1 @@
+var e=`/assets/chicken-CBD1OngC.webp`;export{e as t};
