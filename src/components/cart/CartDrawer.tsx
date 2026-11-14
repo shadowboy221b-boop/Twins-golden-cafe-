@@ -6,7 +6,7 @@ import { itemKey, useCart, type CartLine } from "@/lib/cart";
 import { AddButton, BagIcon } from "@/components/cart/AddButton";
 import { addOns } from "@/data/menu";
 import { CAFE } from "@/data/site";
-import { OFFER, giftProgress, offerLive } from "@/data/offer";
+import { OFFER, giftProgress, offerLive, soleGift } from "@/data/offer";
 import { ORDERING, OTP_READY, UPI_READY } from "@/data/ordering";
 import { confirmOtp, isOtpUnavailable, otpErrorMessage, sendOtp } from "@/lib/otp";
 import { useOpenNow } from "@/components/bits";
@@ -415,7 +415,9 @@ function GiftStrip({
             >
               ✓
             </motion.span>
-            <span className="text-offer">Free gift unlocked</span>
+            <span className="text-offer">
+              {soleGift ? `Free ${soleGift.name} added` : "Free gift unlocked"}
+            </span>
           </>
         ) : (
           <span className="text-ink/60">
@@ -435,13 +437,23 @@ function GiftStrip({
             />
           </div>
           <p className="mt-1.5 text-[0.62rem] leading-relaxed text-ink/45">
-            Order over ₹{OFFER.minSpend} and pick {OFFER.gifts.map((g) => g.name).join(" or ")} on
-            the house.
+            Order over ₹{OFFER.minSpend} and {soleGift ? "a" : "pick"}{" "}
+            {OFFER.gifts.map((g) => g.name).join(" or ")}{" "}
+            {soleGift ? "comes with it, on the house" : "is on the house"}.
           </p>
         </>
       )}
 
-      {unlocked && (
+      {unlocked && soleGift && (
+        <p className="mt-1.5 flex items-center gap-2 text-[0.62rem] leading-relaxed text-ink/55">
+          <span aria-hidden className="text-sm">
+            {soleGift.emoji}
+          </span>
+          One {soleGift.name}, worth {money(soleGift.worth)}, goes to the kitchen with your order.
+        </p>
+      )}
+
+      {unlocked && !soleGift && (
         <>
           <p className="mt-1.5 text-[0.62rem] leading-relaxed text-ink/55">
             Pick one — it goes to the kitchen with your order.
@@ -788,7 +800,12 @@ export function CartDrawer() {
   const [gift, setGift] = useState<string | null>(null);
   const giftOffered = offerLive() && giftProgress(subtotal).unlocked;
   useEffect(() => {
-    if (!giftOffered && gift !== null) setGift(null);
+    if (!giftOffered) {
+      if (gift !== null) setGift(null);
+      return;
+    }
+    // with a single gift there is nothing to choose, so it is simply added
+    if (soleGift && gift !== soleGift.name) setGift(soleGift.name);
   }, [giftOffered, gift]);
 
   /**

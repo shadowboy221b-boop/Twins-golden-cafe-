@@ -25,10 +25,7 @@ import { CAFE } from "@/data/site";
  */
 const MIN_SPEND = 299;
 
-const GIFTS = [
-  { name: "Lemon Juice", emoji: "🍋", worth: 30 },
-  { name: "Popcorn", emoji: "🍿", worth: 60 },
-] as const;
+const GIFTS = [{ name: "Lemon Juice", emoji: "🍋", worth: 30 }] as const;
 
 const GIFT_NAMES = GIFTS.map((g) => `${g.name} ${g.emoji}`).join(" or ");
 
@@ -98,6 +95,15 @@ export function offerEndLabel(): string {
   if (Number.isNaN(d.getTime())) return "";
   return d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
 }
+
+/**
+ * The one gift, when there is only one.
+ *
+ * A choice of one is not a choice: it is a tap somebody has to make before the
+ * cafe will give them something it has already decided to give them. With a
+ * single gift the cart stops asking and simply adds it.
+ */
+export const soleGift: Gift | null = OFFER.gifts.length === 1 ? OFFER.gifts[0]! : null;
 
 /** What the guest still has to add before the gift unlocks. */
 export function giftProgress(subtotal: number) {

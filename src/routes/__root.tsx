@@ -24,6 +24,12 @@ const CartDrawer = lazy(() =>
   import("../components/cart/CartDrawer").then((m) => ({ default: m.CartDrawer })),
 );
 
+// The offer card waits a couple of seconds before it appears, so there is no
+// reason for its code to be in the first download either.
+const OfferPopup = lazy(() =>
+  import("../components/OfferPopup").then((m) => ({ default: m.OfferPopup })),
+);
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -182,6 +188,7 @@ function RootComponent() {
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <LazyCart />
+      <LazyOfferPopup />
       <MetaPixel />
     </CartProvider>
   );
@@ -218,6 +225,33 @@ function MetaPixel() {
 }
 
 /** Loads the cart drawer when the browser is idle, or straight away once the cart has something in it. */
+/**
+ * The offer card, fetched once the page has settled.
+ *
+ * It decides for itself whether to open — the offer may have ended, and this
+ * browser may have seen it already today — so all this does is make sure its
+ * code is not in the way of the page drawing first.
+ */
+function LazyOfferPopup() {
+  const [idle, setIdle] = useState(false);
+
+  useEffect(() => {
+    if (typeof window.requestIdleCallback === "function") {
+      const id = window.requestIdleCallback(() => setIdle(true), { timeout: 2500 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const id = window.setTimeout(() => setIdle(true), 1200);
+    return () => window.clearTimeout(id);
+  }, []);
+
+  if (!idle) return null;
+  return (
+    <Suspense fallback={null}>
+      <OfferPopup />
+    </Suspense>
+  );
+}
+
 function LazyCart() {
   const { count } = useCart();
   const [idle, setIdle] = useState(false);
