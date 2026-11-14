@@ -73,7 +73,7 @@ export const posts: Post[] = [
         "The combos are the cheapest way to eat properly. A Snack Combo is ₹169 — a crispy chicken, a small popcorn chicken and a dip. The Wrap Combo and the Burger Combo sit near it. The two family combos are built for a table rather than a person, and the larger one is ₹899.",
       ),
       p(
-        "Ordering for a group is also the point at which delivery becomes free: anything over ₹500 goes out without a delivery charge, and so does anything at all inside three kilometres of the cafe.",
+        `Ordering for a group is also the point at which delivery becomes free, though it does not take much of a group: anything over ₹${CAFE.freeDeliveryOver} goes out without a delivery charge, and so does anything at all inside ${CAFE.freeDeliveryKm} kilometres of the cafe.`,
       ),
 
       h2("If you are vegetarian"),

@@ -1,3 +1,5 @@
+import { CAFE } from "@/data/site";
+
 /**
  * The running offer — the band at the top of every page, and the free gift in
  * the cart.
@@ -10,12 +12,32 @@
  * a cart that never gives one is worse than no band at all, so the same
  * `minSpend` and the same `gifts` drive both.
  */
+
+/**
+ * The spend and the gifts, named once before the settings below use them, so
+ * the band is built from the same numbers the cart enforces and the two can
+ * never drift apart.
+ *
+ * This is the gift only. Free delivery is a separate promise with its own
+ * figure — `CAFE.freeDeliveryOver` — and the two are deliberately different:
+ * one gets the order to the door for nothing, the other puts something extra
+ * in the bag.
+ */
+const MIN_SPEND = 299;
+
+const GIFTS = [
+  { name: "Lemon Juice", emoji: "🍋", worth: 30 },
+  { name: "Popcorn", emoji: "🍿", worth: 60 },
+] as const;
+
+const GIFT_NAMES = GIFTS.map((g) => `${g.name} ${g.emoji}`).join(" or ");
+
 export const OFFER = {
   /** the whole thing, on or off */
   live: true,
 
   /** what the food has to come to, before packing, for the gift to unlock */
-  minSpend: 299,
+  minSpend: MIN_SPEND,
 
   /**
    * The last day the offer runs, as YYYY-MM-DD. The band says so, which is
@@ -33,22 +55,23 @@ export const OFFER = {
    * bill — but it is here so the counter can see at a glance what the offer
    * is giving away.
    */
-  gifts: [
-    { name: "Lemon Juice", emoji: "🍋", worth: 30 },
-    { name: "Popcorn", emoji: "🍿", worth: 60 },
-  ],
+  gifts: GIFTS,
 
   /**
    * The band itself. The first line is the offer; the rest are the reasons
    * somebody who arrived from an ad keeps reading. Five is the ceiling — a
    * longer strip is one nobody finishes.
+   *
+   * The spend, the gifts, the distance and the villages are all read from the
+   * settings rather than typed again, so the band can never promise delivery
+   * to a place the cafe has stopped going to.
    */
   lines: [
-    "🎉 WEBSITE EXCLUSIVE — ₹299+ Order பண்ணா Lemon Juice 🍋 or Popcorn 🍿 FREE!",
-    "🛵 3 km-க்குள்ள FREE Delivery",
-    "📍 Paiyur • Sevur • Kalambur • Kannamangalam — வீட்டுக்கே Delivery",
+    `🎉 WEBSITE EXCLUSIVE — ₹${MIN_SPEND}+ Order பண்ணா ${GIFT_NAMES} FREE!`,
+    `🛵 ₹${CAFE.freeDeliveryOver} மேல order பண்ணா FREE Delivery — ${CAFE.freeDeliveryKm} km-க்குள்ள எப்பவுமே FREE`,
+    `📍 ${CAFE.deliveryPlaces.join(" • ")} — வீட்டுக்கே Delivery`,
     "💳 UPI / Cash on Delivery",
-    "⏰ Open daily 9 AM – 10:30 PM",
+    `⏰ Open daily ${CAFE.hoursShort}`,
   ],
 } as const;
 
@@ -68,7 +91,7 @@ export function offerLive(now: Date = new Date()): boolean {
   return Number.isNaN(end.getTime()) ? true : now <= end;
 }
 
-/** "Nov 30" — how the band says the last day, short enough to scroll past. */
+/** "30 Nov" — how the band says the last day, short enough to scroll past. */
 export function offerEndLabel(): string {
   if (!OFFER.endsOn) return "";
   const d = new Date(`${OFFER.endsOn}T12:00:00`);
