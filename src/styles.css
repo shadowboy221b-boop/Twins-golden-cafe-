@@ -64,6 +64,8 @@
   --color-paper-warm: var(--paper-warm);
   --color-cream: var(--cream);
   --color-leaf: var(--leaf);
+  --color-offer: var(--offer);
+  --color-offer-fg: var(--offer-fg);
   --color-chili: var(--chili);
   --color-espresso: var(--espresso);
   --color-cocoa: var(--cocoa);
@@ -85,6 +87,13 @@
   --paper: oklch(1 0 0);
   --paper-warm: oklch(0.977 0.006 75);
   --leaf: oklch(0.6 0.12 142);
+
+  /* The offer band, and only the offer band. It is deliberately not the site
+     orange: a running promotion should read as something pinned on top of the
+     shop rather than as part of it, and these two are the printed poster's
+     own colours. Gold on this maroon measures 9.6:1. */
+  --offer: oklch(0.255 0.098 17);
+  --offer-fg: oklch(0.835 0.152 85);
 
   /* legacy aliases so every component keeps compiling against one palette */
   --espresso: var(--ink);
@@ -322,6 +331,15 @@
 @utility marquee {
   /* the strip sets its own pace with --marquee-dur; slower reads calmer */
   animation: marquee-x var(--marquee-dur, 26s) linear infinite;
+}
+
+/* The offer band holds still under a finger or a cursor. A line that is still
+   moving is one nobody can finish reading, and this is the one strip on the
+   site whose words have to be read rather than felt. */
+.offer-bar:hover .marquee,
+.offer-bar:focus-visible .marquee,
+.offer-bar:active .marquee {
+  animation-play-state: paused;
 }
 
 @utility scrollbar-none {

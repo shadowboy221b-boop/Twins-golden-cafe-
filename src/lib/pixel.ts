@@ -71,6 +71,20 @@ export function track(event: string, params?: Record<string, unknown>) {
   }
 }
 
+/**
+ * An event of the cafe's own, not one of Meta's standard names. Used for the
+ * things only this site has — tapping the offer band, for one — so an ad can
+ * be judged on them in Events Manager.
+ */
+export function trackCustom(event: string, params?: Record<string, unknown>) {
+  if (!PIXEL_READY || typeof window === "undefined" || !window.fbq) return;
+  try {
+    window.fbq("trackCustom", event, params);
+  } catch {
+    // ignored on purpose: see the note at the top
+  }
+}
+
 /** A page view for a route the visitor moved to without a reload. */
 export function trackPageView() {
   track("PageView");

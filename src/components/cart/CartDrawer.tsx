@@ -6,6 +6,7 @@ import { itemKey, useCart, type CartLine } from "@/lib/cart";
 import { AddButton, BagIcon } from "@/components/cart/AddButton";
 import { addOns } from "@/data/menu";
 import { CAFE } from "@/data/site";
+import { OFFER, giftProgress, offerLive } from "@/data/offer";
 import { ORDERING, OTP_READY, UPI_READY } from "@/data/ordering";
 import { confirmOtp, isOtpUnavailable, otpErrorMessage, sendOtp } from "@/lib/otp";
 import { useOpenNow } from "@/components/bits";
@@ -373,6 +374,113 @@ function FreeDeliveryStrip({ subtotal, pin }: { subtotal: number; pin: Pin | nul
   );
 }
 
+/**
+ * The free gift, and how far away it is.
+ *
+ * The band at the top of the page has already made the promise; this is where
+ * it is kept. Below the spend it is a bar with a number on it, which is the
+ * only form of this that ever makes anybody add another dish. At the spend it
+ * becomes a choice, and the choice has to be made deliberately — a gift picked
+ * for somebody is one they did not want.
+ *
+ * The gift is never a cart line. It costs nothing, so it must not be packed
+ * for, counted, or totalled; it joins the order on its way out instead.
+ */
+function GiftStrip({
+  subtotal,
+  gift,
+  onPick,
+}: {
+  subtotal: number;
+  gift: string | null;
+  onPick: (name: string | null) => void;
+}) {
+  const { unlocked, left, pct } = giftProgress(subtotal);
+
+  return (
+    <div
+      className={`mb-3 overflow-hidden rounded-xl border px-4 py-3 transition-colors duration-500 ${
+        unlocked ? "border-offer/35 bg-offer/[0.06]" : "border-ink/12 bg-ink/[0.03]"
+      }`}
+    >
+      <p className="flex items-center gap-2 text-[0.62rem] font-extrabold uppercase tracking-[0.16em]">
+        {unlocked ? (
+          <>
+            <motion.span
+              aria-hidden
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 500, damping: 18 }}
+              className="grid size-4 place-items-center rounded-full bg-offer text-[0.6rem] text-offer-fg"
+            >
+              ✓
+            </motion.span>
+            <span className="text-offer">Free gift unlocked</span>
+          </>
+        ) : (
+          <span className="text-ink/60">
+            <span className="text-orange-ink">{money(left)}</span> more for a free gift
+          </span>
+        )}
+      </p>
+
+      {!unlocked && (
+        <>
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-ink/10">
+            <motion.div
+              className="h-full rounded-full bg-offer"
+              initial={false}
+              animate={{ width: `${pct}%` }}
+              transition={{ type: "spring", stiffness: 140, damping: 24 }}
+            />
+          </div>
+          <p className="mt-1.5 text-[0.62rem] leading-relaxed text-ink/45">
+            Order over ₹{OFFER.minSpend} and pick {OFFER.gifts.map((g) => g.name).join(" or ")} on
+            the house.
+          </p>
+        </>
+      )}
+
+      {unlocked && (
+        <>
+          <p className="mt-1.5 text-[0.62rem] leading-relaxed text-ink/55">
+            Pick one — it goes to the kitchen with your order.
+          </p>
+          <ul className="mt-2 flex flex-wrap gap-2">
+            {OFFER.gifts.map((g) => {
+              const picked = gift === g.name;
+              return (
+                <li key={g.name}>
+                  <button
+                    type="button"
+                    aria-pressed={picked}
+                    onClick={() => onPick(picked ? null : g.name)}
+                    className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-semibold transition-colors duration-300 ${
+                      picked
+                        ? "border-offer bg-offer text-offer-fg"
+                        : "border-ink/12 bg-paper-warm text-ink hover:border-offer/40"
+                    }`}
+                  >
+                    <span aria-hidden>{g.emoji}</span>
+                    {g.name}
+                    <span
+                      className={`font-display text-xs font-extrabold tabular-nums ${
+                        picked ? "text-offer-fg/70" : "text-ink/35"
+                      }`}
+                    >
+                      <s>{money(g.worth)}</s> FREE
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
+    </div>
+  );
+}
+
 /** 10 digits, with a +91 or leading 0 taken off */
 const phoneDigits = (phone: string) => phone.replace(/\D/g, "").replace(/^(91|0)(?=\d{10}$)/, "");
 
@@ -456,10 +564,11 @@ function orderMessage(
     "━━━━━━━━━━━━━━",
     "*1 · WHAT THEY ORDERED*",
     "━━━━━━━━━━━━━━",
-    ...lines.map(
-      (l) =>
-        `• ${l.qty} × ${l.name}${l.variant ? ` (${l.variant})` : ""} — ${money(l.qty * l.price)}`,
-    ),
+    ...lines.map((l) => {
+      const dish = `${l.qty} × ${l.name}${l.variant ? ` (${l.variant})` : ""}`;
+      // the free gift carries no price, and saying ₹0 reads like a mistake
+      return l.price === 0 ? `• ${dish} 🎁` : `• ${dish} — ${money(l.qty * l.price)}`;
+    }),
     "",
     packing > 0 ? `Items: ${money(subtotal)}` : null,
     packing > 0 ? `Packing: ${money(packing)}` : null,
@@ -672,6 +781,17 @@ export function CartDrawer() {
   const [errors, setErrors] = useState<Errors>({});
 
   /**
+   * Which free gift was chosen, while the order is big enough to have earned
+   * one. Taking a dish back out takes the gift with it, so nothing can be sent
+   * to the kitchen promising something the order no longer qualifies for.
+   */
+  const [gift, setGift] = useState<string | null>(null);
+  const giftOffered = offerLive() && giftProgress(subtotal).unlocked;
+  useEffect(() => {
+    if (!giftOffered && gift !== null) setGift(null);
+  }, [giftOffered, gift]);
+
+  /**
    * The guest's own pin, for delivery. Never remembered between orders: the
    * address somebody typed last week is probably still right, and where they
    * were standing last week probably is not.
@@ -882,8 +1002,16 @@ export function CartDrawer() {
    */
   const sendToWhatsApp = async (no: string, payment: string, paid: boolean, auto = false) => {
     const verified = OTP_READY && verifiedPhone.current === phoneDigits(details.phone);
+    // The gift rides along as a line of its own at no price, so the kitchen
+    // reads it with the rest of the order and the office counts how many went
+    // out. It is added here rather than in the cart because it must never be
+    // packed for, totalled, or left behind if the order shrinks.
+    const sentLines: CartLine[] =
+      giftOffered && gift
+        ? [...lines, { key: itemKey("gift", gift), name: `${gift} — FREE GIFT`, price: 0, qty: 1 }]
+        : lines;
     const text = orderMessage(
-      lines,
+      sentLines,
       subtotal,
       packing,
       total,
@@ -921,7 +1049,7 @@ ${mapLink(pin)}`
         payment,
         paid,
         total,
-        lines,
+        lines: sentLines,
       });
       // An order handed to WhatsApp, not yet confirmed at the counter: the
       // cafe still has to accept it, so treat this number as orders placed
@@ -1164,6 +1292,7 @@ ${mapLink(pin)}`
       {/* In the cart it is a nudge and the order type is not settled yet; once
           somebody has said they are collecting it themselves, a line about
           free delivery is just noise in their way. */}
+      {offerLive() && <GiftStrip subtotal={subtotal} gift={gift} onPick={setGift} />}
       {delivery && <FreeDeliveryStrip subtotal={subtotal} pin={pin} />}
       {packing > 0 && (
         <div className="mb-2 space-y-1 text-xs text-ink/60">

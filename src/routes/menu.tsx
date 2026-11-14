@@ -118,7 +118,12 @@ function MenuPage() {
         <MenuMasthead vegOnly={vegOnly} onVegOnly={setVegOnly} />
 
         {/* ---------- sticky toolbar ---------- */}
-        <div className="sticky top-[5.1rem] z-30 border-b border-ink/10 bg-paper/95">
+        {/* the header is taller while the offer band is up, so the toolbar
+            parks below whatever the header currently is */}
+        <div
+          className="sticky z-30 border-b border-ink/10 bg-paper/95"
+          style={{ top: "calc(5.1rem + var(--offer-h, 0px))" }}
+        >
           {/* on phones the field takes its own row; from sm up it shares one */}
           <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-3 px-5 py-3.5 md:px-12">
             <div className="relative w-full min-w-0 sm:w-auto sm:flex-1">
