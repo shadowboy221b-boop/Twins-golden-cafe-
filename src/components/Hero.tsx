@@ -9,7 +9,11 @@ import pizza from "@/assets/pizza.webp";
 import pizzaSm from "@/assets/pizza-600.webp";
 import momoPlate from "@/assets/momo-plate.webp";
 import chocoShake from "@/assets/choco-shake.webp";
-import pizzaSlice from "@/assets/pizza-slice.webp";
+import burgerXs from "@/assets/burger-hero-320.webp";
+import pizzaXs from "@/assets/pizza-320.webp";
+import momoPlateSm from "@/assets/momo-plate-sm.webp";
+import chocoShakeSm from "@/assets/choco-shake-sm.webp";
+import pizzaSlice from "@/assets/pizza-slice-sm.webp";
 import chicken from "@/assets/chicken.webp";
 import chickenSm from "@/assets/chicken-sm.webp";
 import drumstick from "@/assets/drumstick.webp";
@@ -36,9 +40,10 @@ import mojitoSm from "@/assets/mojito-sm.webp";
  *  The small file beside each one is the phone's copy — at 78vw a phone needs
  *  about 320px, not 900. */
 const HERO_DISHES = [
-  { src: burger, sm: burgerSm, smW: 600, alt: "Twin's Golden Cafe signature burger" },
+  { src: burger, xs: burgerXs, sm: burgerSm, smW: 600, alt: "Twin's Golden Cafe signature burger" },
   {
     src: pizza,
+    xs: pizzaXs,
     sm: pizzaSm,
     smW: 600,
     alt: "A stone-baked pizza, loaded with toppings, at Twin's Golden Cafe, Arani",
@@ -53,8 +58,16 @@ const HERO_DISHES = [
     sm: koreanPotSm,
     alt: "Korean glazed drumsticks in a pan, sesame and spring onion over the top",
   },
-  { src: momoPlate, alt: "A plate of steamed momos with red chutney at Twin's Golden Cafe, Arani" },
-  { src: chocoShake, alt: "A chocolate milkshake topped with cream at Twin's Golden Cafe, Arani" },
+  {
+    src: momoPlate,
+    sm: momoPlateSm,
+    alt: "A plate of steamed momos with red chutney at Twin's Golden Cafe, Arani",
+  },
+  {
+    src: chocoShake,
+    sm: chocoShakeSm,
+    alt: "A chocolate milkshake topped with cream at Twin's Golden Cafe, Arani",
+  },
   {
     src: drumstick,
     sm: drumstickSm,
@@ -101,7 +114,20 @@ export function Hero() {
   // once would cost more than the rest of the page put together, so each one
   // is added a turn before it is needed — by the time it shows, it is decoded,
   // and a reader who scrolls straight past never pays for the last ten.
-  const [loaded, setLoaded] = useState(2);
+  const [loaded, setLoaded] = useState(1);
+  // The second plate joins once the page has finished loading. Having it in
+  // the markup from the start cost 77KB against the one shot that is actually
+  // on screen, and the turntable does not turn for 2.2 seconds — long after
+  // the load event on any connection that was going to render this page at all.
+  useEffect(() => {
+    const add = () => setLoaded((n) => Math.max(n, 2));
+    if (document.readyState === "complete") {
+      add();
+      return;
+    }
+    window.addEventListener("load", add, { once: true });
+    return () => window.removeEventListener("load", add);
+  }, []);
   useEffect(() => {
     if (!spin) return; // reduce-motion: hold the first plate
     const id = window.setInterval(() => {
@@ -258,8 +284,8 @@ export function Hero() {
             alt=""
             aria-hidden
             loading="lazy"
-            width={1280}
-            height={1024}
+            width={320}
+            height={256}
             style={{ y: sliceY }}
             className="floaty pointer-events-none absolute -right-[8%] top-[-4%] -z-10 w-36 opacity-40 md:w-56"
           />
@@ -291,7 +317,15 @@ export function Hero() {
                   <img
                     key={d.src}
                     src={d.src}
-                    srcSet={d.sm ? `${d.sm} ${d.smW ?? 320}w, ${d.src} 900w` : undefined}
+                    srcSet={
+                      [
+                        d.xs ? `${d.xs} 320w` : null,
+                        d.sm ? `${d.sm} ${d.smW ?? 320}w` : null,
+                        `${d.src} 900w`,
+                      ]
+                        .filter(Boolean)
+                        .join(", ") || undefined
+                    }
                     sizes="(min-width: 1024px) 45vw, 78vw"
                     alt={i === shown ? d.alt : ""}
                     aria-hidden={i === shown ? undefined : true}

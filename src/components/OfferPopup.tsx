@@ -143,7 +143,10 @@ export function OfferPopup() {
                   <Dialog.Close asChild>
                     <button
                       type="button"
-                      className="mt-3 w-full py-1 text-[0.6rem] font-extrabold uppercase tracking-[0.22em] text-offer-fg/55 transition-colors hover:text-offer-fg"
+                      // 55% gold on this maroon measured 3.7:1 — under the 4.5
+                      // a label this small has to clear. 75% reads as quiet and
+                      // measures 5.9.
+                      className="mt-3 w-full py-1 text-[0.6rem] font-extrabold uppercase tracking-[0.22em] text-offer-fg/75 transition-colors hover:text-offer-fg"
                     >
                       Venam
                     </button>
