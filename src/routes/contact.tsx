@@ -12,7 +12,7 @@ import { breadcrumbSchema, faqSchema, ld, restaurantSchema, pageSchema } from "@
 import heroPhoto from "@/assets/shop-front.webp";
 import heroPhotoSm from "@/assets/shop-front-600.webp";
 
-const title = "Contact & Location — Twin's Golden Cafe, Arani";
+const title = "Contact, Location & Hours — Twin's Golden Cafe, Arani";
 const description =
   "Call or WhatsApp Twin's Golden Cafe, Old Bus Stand, Arani. Open 9 AM to 10:30 PM daily, with directions on the map, social links and an enquiry form.";
 

@@ -18,7 +18,7 @@ import { AddButton } from "@/components/cart/AddButton";
 import { itemKey } from "@/lib/cart";
 import { breadcrumbSchema, ld, menuSchema, restaurantSchema, pageSchema } from "@/data/seo";
 
-const title = "Menu & Prices — Twin's Golden Cafe, Arani";
+const title = "Menu & Prices — 259 Dishes at Twin's Golden Cafe, Arani";
 const description =
   "Every dish and price at Twin's Golden Cafe, Arani: pizza, fried chicken, burgers, wraps, momos, pasta, kunafa, falooda, shakes and fresh juices.";
 

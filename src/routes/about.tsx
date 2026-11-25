@@ -14,7 +14,7 @@ import chicken from "@/assets/chicken.webp";
 import founderPortrait from "@/assets/founder-portrait.webp";
 import founderCafe from "@/assets/founder-cafe.webp";
 
-const title = "About Us — Twin's Golden Cafe, Arani";
+const title = "About Twin's Golden Cafe — Our Story, Old Bus Stand Arani";
 const description =
   "The story behind Twin's Golden Cafe in Arani: founder Yuvaraj Venkatesan, the food philosophy, and the plan to help other food entrepreneurs build.";
 

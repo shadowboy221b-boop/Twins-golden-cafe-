@@ -19,7 +19,7 @@ import { ld, restaurantSchema, pageSchema } from "@/data/seo";
 
 // the words somebody in Arani actually types come first; the name still
 // closes the line, and it is the name they see in the tab
-const title = "Cafe & Restaurant in Arani — Twin's Golden Cafe";
+const title = "Cafe & Restaurant in Arani, Tamil Nadu — Twin's Golden Cafe";
 const description =
   "Korean fried chicken, pizza, burgers, momos, kunafa, shakes and juices, cooked to order at Twin's Golden Cafe, Old Bus Stand, Arani. Open 9 AM–10:30 PM.";
 

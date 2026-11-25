@@ -6,7 +6,7 @@ import { PageHero, RevealCard, Section } from "@/components/page";
 import { postsByDate } from "@/data/blog";
 import { breadcrumbSchema, ld, pageSchema, SITE_URL } from "@/data/seo";
 
-const title = "From the Kitchen — Twin's Golden Cafe, Arani";
+const title = "From the Kitchen — Food Writing from Twin's Golden Cafe";
 const description =
   "What to order, how delivery works in Arani, and how the kitchen cooks what it cooks — written at the counter of Twin's Golden Cafe.";
 

@@ -105,7 +105,7 @@ export const posts: Post[] = [
   {
     slug: "free-delivery-in-arani",
     title: "How food delivery works at Twin's Golden Cafe, Arani",
-    seoTitle: "Food delivery in Arani",
+    seoTitle: "Food delivery in Arani, free in 3 km",
     description:
       "Where Twin's Golden Cafe delivers in and around Arani, when delivery is free, and what the cafe needs from you so the rider finds the door.",
     standfirst:
@@ -243,7 +243,7 @@ export const posts: Post[] = [
   {
     slug: "vegetarian-food-in-arani",
     title: "Vegetarian food in Arani: 172 dishes at one counter",
-    seoTitle: "Vegetarian food in Arani",
+    seoTitle: "Vegetarian food in Arani, 172 dishes",
     description:
       "Where to eat vegetarian in Arani: 172 of the 259 dishes at Twin's Golden Cafe are veg, from ₹30 juices to ₹380 kunafa. What to order and what it costs.",
     standfirst:
@@ -291,7 +291,7 @@ export const posts: Post[] = [
   {
     slug: "kunafa-in-arani",
     title: "Kunafa in Arani: eleven ways, pulled fresh at the counter",
-    seoTitle: "Kunafa in Arani",
+    seoTitle: "Kunafa in Arani, 11 flavours to try",
     description:
       "Where to eat kunafa in Arani. Eleven flavours at Twin's Golden Cafe, ₹240 to ₹380, baked crisp with a molten centre and finished to order.",
     standfirst:
@@ -336,7 +336,7 @@ export const posts: Post[] = [
   {
     slug: "momos-in-arani",
     title: "Momos in Arani: twelve fillings, steamed or fried",
-    seoTitle: "Momos in Arani",
+    seoTitle: "Momos in Arani, steamed or fried",
     description:
       "Where to eat momos in Arani. Twelve fillings at Twin's Golden Cafe, each steamed or fried, from ₹89 — and what the difference actually is.",
     standfirst: "The same dumpling twice over, and the choice is not a small one.",
@@ -379,7 +379,7 @@ export const posts: Post[] = [
   {
     slug: "party-food-order-arani",
     title: "Ordering food for a crowd in Arani",
-    seoTitle: "Party food orders in Arani",
+    seoTitle: "Party and group food orders in Arani",
     description:
       "Ordering food for a party or an office in Arani: family combos from ₹599, how much to order per head, and how to get it there warm.",
     standfirst:
@@ -428,7 +428,7 @@ export const posts: Post[] = [
   {
     slug: "pizza-in-arani",
     title: "Pizza in Arani: thirteen on the board, six of them veg",
-    seoTitle: "Pizza in Arani",
+    seoTitle: "Pizza in Arani, 13 baked to order",
     description:
       "Where to eat pizza in Arani. Thirteen at Twin's Golden Cafe from ₹129 — six vegetarian, seven with chicken, all baked after you order.",
     standfirst: "Baked when you ask for it, which is the only part that matters.",
@@ -473,7 +473,7 @@ export const posts: Post[] = [
   {
     slug: "veg-hotel-in-arani",
     title: "Looking for a veg hotel in Arani: the honest answer",
-    seoTitle: "Veg hotel in Arani",
+    seoTitle: "Veg hotel in Arani, the honest answer",
     description:
       "Looking for a veg hotel in Arani? Twin's Golden Cafe is not pure veg — but 172 of its 259 dishes are. What that means at the counter, and what to ask.",
     standfirst:
