@@ -108,4 +108,22 @@
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
+  <url>
+    <loc>https://twinsgoldencafe.com/blog/famous-food-in-arani</loc>
+    <lastmod>2026-11-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://twinsgoldencafe.com/blog/non-veg-hotel-in-arani</loc>
+    <lastmod>2026-11-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://twinsgoldencafe.com/blog/places-to-eat-near-old-bus-stand-arani</loc>
+    <lastmod>2026-11-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
 </urlset>

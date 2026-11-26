@@ -527,6 +527,160 @@ export const posts: Post[] = [
       ),
     ],
   },
+  {
+    slug: "famous-food-in-arani",
+    title: "What Arani is known for, and where to eat it",
+    seoTitle: "Famous food in Arani, a short guide",
+    description:
+      "A short guide to famous food in Arani: what the town is actually known for, what is worth crossing it for, and where the newer counters fit in.",
+    standfirst: "A town of sixty thousand people with more places to eat than it has any right to.",
+    date: "2026-11-26",
+    minutes: 5,
+    body: [
+      p(
+        `Arani is not a place people drive to for the food, which is exactly why the food is good. Nobody here is cooking for visitors. The biryani shops, the mess kitchens and the sweet counters along Market Road and the Old Bus Stand have their regulars, and a kitchen that has to face the same hundred people every week does not get away with much.`,
+      ),
+
+      h2("What the town is genuinely known for"),
+      p(
+        "Arani silk comes first, and it has nothing to do with eating — but it is the reason the town has the traffic it has, and traffic is what builds a food street. The eating grew around the weaving.",
+      ),
+      p(
+        "After that it is biryani. Several of the oldest and busiest counters in town sell almost nothing else, and on a Sunday the queues outside them are the clearest thing in Arani about what people actually want to eat.",
+      ),
+
+      h2("The mess kitchens"),
+      p(
+        "A mess is not a restaurant. It opens for a few hours, cooks one set of things, and shuts when they are gone. The food is cheap, it is fast, and it is the same every day on purpose. If somebody tells you they are going for lunch in Arani, this is usually what they mean.",
+      ),
+
+      h2("The sweet and snack counters"),
+      p(
+        "Every reasonably sized street has one, and they are busiest between four and seven in the evening — the hours between work finishing and dinner starting, which in this town is a meal of its own.",
+      ),
+
+      h2("And then the newer end"),
+      p(
+        `What Arani did not have until fairly recently was the other kind of eating — the kind people do sitting down with friends, ordering things to share, staying longer than it takes to finish a plate. Burgers, pizza, momos, Korean fried chicken, kunafa, waffles, cold coffee. A town this size has one or two places doing it; ten years ago it had none.`,
+      ),
+      p(
+        `${CAFE.name} is at that end of it, at ${CAFE.shortAddress}, with 34 counters and 259 dishes, 172 of them vegetarian. It is not competing with the biryani shops and would lose if it tried. It is for the evening when nobody wants rice.`,
+      ),
+
+      quote(
+        "The honest shape of eating out in Arani: mess kitchens for lunch, biryani for Sunday, the snack counters at six, and somewhere with chairs for the evening.",
+      ),
+
+      h2("If you have one evening in Arani"),
+      list([
+        "Lunch at a mess — whatever the board says, it will be the right thing",
+        "A sweet or a snack around six, standing up, from a counter on Market Road",
+        "Dinner wherever has seats and a menu longer than you need",
+        "Something cold afterwards — this is a hot town for nine months of the year",
+      ]),
+
+      p(
+        `Our own corner of that is the Old Bus Stand, open ${CAFE.hoursShort} every day, with delivery across ${CAFE.deliveryTown} — free inside ${CAFE.freeDeliveryKm} kilometres or on any order over ₹${CAFE.freeDeliveryOver}.`,
+      ),
+    ],
+  },
+
+  {
+    slug: "non-veg-hotel-in-arani",
+    title: "Looking for a non-veg hotel in Arani: what is actually on the board",
+    seoTitle: "Non-veg hotel in Arani, what is on",
+    description:
+      "Looking for a non-veg hotel in Arani? Eighty-seven chicken dishes at Twin's Golden Cafe — fried, Korean, momos, burgers, pizza — and what each costs.",
+    standfirst:
+      "Not a biryani shop, and not pretending to be one. This is the other kind of chicken.",
+    date: "2026-11-26",
+    minutes: 4,
+    body: [
+      p(
+        "Ask for a non-veg hotel in Arani and most people will point you at biryani, which is the right answer most of the time. This is about the evening it is not — when what you want is chicken fried to order, sauced by hand, eaten with your fingers off a tray.",
+      ),
+
+      h2("The fried chicken counter"),
+      p(
+        "A Crispy Drumstick is ₹89 for one piece and ₹159 for two. Four pieces is ₹309, six is ₹489, eight is ₹619. Every piece goes into the oil after you order rather than sitting under a lamp, which is the whole reason it is worth the fifteen minutes.",
+      ),
+
+      h2("The Korean counter"),
+      p(
+        "The same chicken, fried twice and tossed in a glaze by hand. Original gochujang is ₹159, the hotter Dragon ₹169, teriyaki ₹179, and malai or smoked barbecue ₹189. The second fry is what keeps it crisp under the sauce — it is not a shortcut anybody takes by accident.",
+      ),
+
+      h2("Momos, burgers, pizza"),
+      list([
+        "Six chicken momo fillings, steamed or fried — tikka, peri peri, cheese, barbecue, schezwan and the chicken pizza momo",
+        "Chicken burgers from the grill, plain through to cheesy and peri peri",
+        "Seven of the thirteen pizzas carry chicken, from tikka at ₹169 to schezwan at ₹199",
+        "Chicken wraps, popcorn chicken, wings",
+      ]),
+
+      h2("Feeding more than yourself"),
+      p(
+        "Family Combo 1 is ₹599 — six crispy chicken, a large popcorn and three dips. Family Combo 2 is ₹899, which adds two burgers and more chicken. Either one is a better order than the same food assembled piece by piece, and there is less for the kitchen to get wrong.",
+      ),
+
+      h2("Being straight about it"),
+      p(
+        `This is not a biryani shop, and on the evening you want biryani, Arani has better answers than this one. What it has instead is 87 chicken dishes cooked to order, a counter that stays open until ${CAFE.closesLabel}, and somewhere to sit while it is made.`,
+      ),
+      p(
+        `${CAFE.shortAddress}. Order from the menu on this site and it reaches the kitchen on WhatsApp, or ring ${CAFE.phone}. Delivery across ${CAFE.deliveryTown} is free inside ${CAFE.freeDeliveryKm} kilometres or over ₹${CAFE.freeDeliveryOver}.`,
+      ),
+    ],
+  },
+
+  {
+    slug: "places-to-eat-near-old-bus-stand-arani",
+    title: "Eating near the Old Bus Stand in Arani",
+    seoTitle: "Places to eat near Arani Old Bus Stand",
+    description:
+      "Places to eat near the Old Bus Stand in Arani — what is open when, what a quick stop costs, and where to sit down if you have longer than ten minutes.",
+    standfirst:
+      "The busiest few hundred metres in town, and the easiest place to eat badly if you are in a hurry.",
+    date: "2026-11-26",
+    minutes: 4,
+    body: [
+      p(
+        "The Old Bus Stand is where most people in Arani pass through rather than stop, which is why the eating around it splits so cleanly into two kinds: things you can hold in one hand, and places with chairs.",
+      ),
+
+      h2("If you have ten minutes"),
+      p(
+        "Market Road has the snack counters, and between four and seven in the evening they are the busiest thing in the area. Standing up, paid in cash, finished before the bus. Nothing on this list needs recommending — whichever has the queue is the one.",
+      ),
+
+      h2("If you have half an hour"),
+      p(
+        `There are places to sit, and this is one of them — ${CAFE.name}, at ${CAFE.shortAddress}, a minute from the stand itself. Fried chicken, burgers, pizza, momos, waffles, juices: 259 dishes across 34 counters, 172 of them vegetarian, from ₹30 to ₹899.`,
+      ),
+      p(
+        `Everything fried is cooked after the order rather than kept warm, so a plate takes the time it takes. If you are catching something, say so at the counter and they will tell you honestly whether it fits.`,
+      ),
+
+      h2("What a stop actually costs"),
+      list([
+        "A juice or a lemon soda — ₹30 to ₹50",
+        "A waffle or a bun with palkhova — ₹30 to ₹149",
+        "A plate of momos — ₹89 to ₹149",
+        "A pizza — from ₹129",
+        "Fried chicken for one — ₹89 to ₹159",
+      ]),
+
+      h2("Later in the evening"),
+      p(
+        `Much of the area quietens down after nine. We stay open until ${CAFE.closesLabel}, every day, which on a weeknight makes it one of the few places near the stand still cooking.`,
+      ),
+
+      h2("Not going there at all"),
+      p(
+        `Delivery covers ${CAFE.deliveryTown} and the villages around it — ${CAFE.deliveryPlaces.join(", ")} — free inside ${CAFE.freeDeliveryKm} kilometres or on anything over ₹${CAFE.freeDeliveryOver}. Order from the menu on this site and it reaches the cafe's WhatsApp, or ring ${CAFE.phone}.`,
+      ),
+    ],
+  },
 ];
 
 /** Newest first, which is the order a reader expects. */
