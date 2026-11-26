@@ -681,6 +681,135 @@ export const posts: Post[] = [
       ),
     ],
   },
+  {
+    slug: "bread-omelette-in-arani",
+    title: "Bread omelette in Arani: four of them, from ₹79",
+    seoTitle: "Bread omelette in Arani, from ₹79",
+    description:
+      "Looking for a bread omelette near you in Arani? Four at Twin's Golden Cafe — butter ₹79, cheese ₹89, paneer ₹99, chicken ₹129. Open 9 AM to 10:30 PM.",
+    standfirst: "The cheapest hot thing worth eating, and the one most places get lazy about.",
+    date: "2026-11-27",
+    minutes: 3,
+    body: [
+      p(
+        "Bread omelette is the dish nobody plans. You want something hot, you want it now, and you want it to cost less than a hundred rupees. It is also the dish most easily ruined — rubbery egg, cold bread, no seasoning — because nobody is watching.",
+      ),
+
+      h2("The four on the board"),
+      list([
+        "Butter Bread Omelette — ₹79",
+        "Cheese Bread Omelette — ₹89",
+        "Paneer Bread Omelette — ₹99",
+        "Chicken Bread Omelette — ₹129",
+      ]),
+      p(
+        "Each one is made when you order it. The egg goes on the tawa, the bread goes on after, and it leaves the counter hot — which is the entire difference between a good bread omelette and the one you regret.",
+      ),
+
+      h2("Which to order"),
+      p(
+        "Butter is the original and still the one to judge a kitchen by: nothing to hide behind. Cheese is the one most people come back for. Paneer makes it a meal rather than a snack, and the chicken one at ₹129 is genuinely a small dinner.",
+      ),
+
+      h2("When"),
+      p(
+        `Open ${CAFE.hoursShort}, every day. It is as good at ten in the morning as at ten at night, and it is one of the few things on a 259-dish board that takes under ten minutes.`,
+      ),
+
+      h2("Eating it somewhere else"),
+      p(
+        `A bread omelette travels about as well as anything fried does, which is to say: order it when you are close. Delivery across ${CAFE.deliveryTown} is free inside ${CAFE.freeDeliveryKm} kilometres or on anything over ₹${CAFE.freeDeliveryOver} — but at ₹79 you are better off walking to ${CAFE.shortAddress} and eating it standing up.`,
+      ),
+      p(`Or ring ${CAFE.phone} and it will be ready when you get there.`),
+    ],
+  },
+
+  {
+    slug: "burgers-in-arani",
+    title: "Burgers in Arani: seventeen of them, eight without chicken",
+    seoTitle: "Burgers in Arani, 17 from ₹89",
+    description:
+      "Where to eat a burger in Arani. Seventeen at Twin's Golden Cafe from ₹89 — eight vegetarian, nine with chicken, mutton or fish. Grilled to order.",
+    standfirst: "Built when you ask for it, which is most of the argument.",
+    date: "2026-11-27",
+    minutes: 3,
+    body: [
+      p(
+        "A burger is bread, a patty and whatever holds them together, and the thing that separates a good one from a sad one is whether it was assembled before or after you asked. These go together after.",
+      ),
+
+      h2("The vegetarian eight"),
+      list([
+        "Veg Bliss — ₹89, the plain one",
+        "Double Cheese — ₹99",
+        "Tandoori Paneer — ₹99",
+        "Pinko Veg — ₹109",
+        "Double Tower and Minto Veg — ₹119",
+        "Pizza Blast — ₹129",
+        "Cheese Shot — ₹149",
+      ]),
+
+      h2("The rest"),
+      p(
+        "Classic chicken mayo is ₹119 and is where most tables start. Sweeto chicken and the mutton burger are ₹129, mint chicken ₹139, tandoori and the hot-spicy chicken ₹149. The fish burger and the pizza burger are ₹179, and the double mix at ₹199 is the one nobody finishes alone.",
+      ),
+
+      h2("Which to order first"),
+      p(
+        "The tandoori paneer and the chicken tandoori are the two that taste of this kitchen rather than of a burger chain — the same masala the grill uses, and it comes through. If you want the heavy one, Cheese Shot.",
+      ),
+
+      h2("With it"),
+      p(
+        `French fries, peri peri fries or cheesy fries, and something cold. Seventeen fresh juices start at ₹30. If the order comes to ₹${CAFE.freeDeliveryOver} the delivery is free, and anything inside ${CAFE.freeDeliveryKm} kilometres is free whatever it costs.`,
+      ),
+      p(`${CAFE.shortAddress}, open ${CAFE.hoursShort} every day.`),
+    ],
+  },
+
+  {
+    slug: "fresh-juice-in-arani",
+    title: "Fresh juice in Arani: seventeen fruits, pressed when you order",
+    seoTitle: "Fresh juice in Arani, from ₹30",
+    description:
+      "Fresh juice in Arani — seventeen fruits at Twin's Golden Cafe from ₹30, pressed when you order, nothing from a bottle. Open 9 AM to 10:30 PM daily.",
+    standfirst:
+      "Nine months of heat a year, and most places still hand you something from a bottle.",
+    date: "2026-11-27",
+    minutes: 3,
+    body: [
+      p(
+        "There is a difference between juice and fresh juice, and in a town this hot it is worth knowing which one you are being handed. Everything on this counter is pressed after you order it.",
+      ),
+
+      h2("From ₹30"),
+      list([
+        "Lemon ₹30 · Lemon soda ₹40 · Masala lemon soda ₹50",
+        "Sweet lime, papaya, watermelon — ₹60",
+        "Pineapple, orange, apple, grape, mango — ₹70",
+        "Pomegranate, muskmelon, kiwi, fig — ₹80",
+        "Dragon fruit ₹90 · Avocado ₹100",
+      ]),
+
+      h2("What to order when"),
+      p(
+        "Lemon in the afternoon, because nothing else works at two o'clock. Watermelon if you have been walking. Pomegranate if you are being good about it. Avocado is the one people order once out of curiosity and then keep ordering.",
+      ),
+      p(
+        "There are five special blends and four detox juices from ₹80 as well, and the kulukki sarbath at ₹40, which is not a juice and is not trying to be.",
+      ),
+
+      h2("All of it vegetarian, all of it cold"),
+      p(
+        `Every juice on the board is vegetarian, which on a 259-dish menu where 172 dishes are, is not surprising — but it is worth saying for anybody deciding where a mixed group can stop.`,
+      ),
+
+      h2("Where"),
+      p(
+        `${CAFE.shortAddress}, open ${CAFE.hoursShort} every day. Juice is the one thing better had standing at the counter than delivered, but if you are ordering food anyway, add one — delivery is free inside ${CAFE.freeDeliveryKm} kilometres or over ₹${CAFE.freeDeliveryOver}.`,
+      ),
+    ],
+  },
 ];
 
 /** Newest first, which is the order a reader expects. */
