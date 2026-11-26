@@ -10,6 +10,8 @@ import {
 import { Suspense, lazy, useEffect, useRef, useState, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import manropeLatin from "@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url";
+import montserratLatin from "@fontsource-variable/montserrat/files/montserrat-latin-wght-normal.woff2?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { CartProvider, useCart } from "../lib/cart";
 import { CAFE } from "@/data/site";
@@ -138,6 +140,18 @@ export const Route = createRootRoute({
         rel: "stylesheet",
         href: appCss,
       },
+      // The two faces every page is actually set in. Without these the browser
+      // cannot even learn they exist until it has downloaded and parsed the
+      // stylesheet, so the first words on the page wait on a file that was
+      // never going to be anything else. The latin-ext cuts are left to be
+      // found the slow way: they carry the rupee sign and little else.
+      ...[manropeLatin, montserratLatin].map((href) => ({
+        rel: "preload",
+        as: "font",
+        type: "font/woff2",
+        href,
+        crossOrigin: "anonymous" as const,
+      })),
       // the spoon-and-fork disc from the logo: SVG where supported, ICO as the
       // fallback, and a PNG for phones saving the site to their home screen
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },

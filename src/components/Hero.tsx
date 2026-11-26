@@ -275,7 +275,13 @@ export function Hero() {
           </div>
         </motion.div>
 
-        <div className="pop-in relative z-10" style={{ animationDelay: "0.25s" }}>
+        {/* No entrance animation on this one. The dish is the largest thing
+            the page paints, and `pop-in` holds its element at opacity 0 for the
+            delay and then fades it — so the browser could not record the hero
+            as painted until an animation that cannot start until the main
+            thread is free. It measured as nine tenths of the largest paint.
+            The dish is simply there now; the drift and the spin still run. */}
+        <div className="relative z-10">
           {/* The slice sits behind the burger and drifts on its own clock —
               depth, not clutter. Rendered first and pushed back so the burger
               always reads in front of it. */}
